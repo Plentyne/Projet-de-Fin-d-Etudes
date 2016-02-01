@@ -2,7 +2,7 @@
 
 int Node::globalId = 0;
 
-Node::Node(int x, int y) : x(x), y(y)
+Node::Node(double x, double y) : x(x), y(y)
 {
     this->id = Node::globalId++;
 }

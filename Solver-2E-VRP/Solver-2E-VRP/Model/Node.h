@@ -5,21 +5,27 @@
 class Node
 {
     public:
-        Node(int x, int y);
+        /* Constructeurs */
+		Node(double x, double y);
+
+		/* Destructeurs */
         virtual ~Node();
-        int getId() { return id; }
-        int getX() { return x; }
-        void setX(int val) { x = val; }
-        int getY() { return y; }
-        void setY(int val) { y = val; }
-
-
+		
+		/* Getter & Setters */
+        double getId() const { return id; }
+        double getX() const { return x; }
+        void setX(double val) { x = val; }
+        double getY() const { return y; }
+        void setY(double val) { y = val; }
+		
+		/* Class methods */
+		
 
     private:
         static int globalId;
         int id;
-        int x;
-        int y;
+        double x;
+        double y;
 };
 
 #endif // NODE_H

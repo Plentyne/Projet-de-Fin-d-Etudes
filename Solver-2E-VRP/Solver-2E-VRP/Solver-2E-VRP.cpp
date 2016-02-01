@@ -12,8 +12,8 @@ using namespace std;
 
 int main()
 {
-	Node n{ 1,1 };
-	cout << n.Getid() << endl;
+	Node n{ 1. ,1. };
+	cout << n.getId() << endl;
     return 0;
 }
 
