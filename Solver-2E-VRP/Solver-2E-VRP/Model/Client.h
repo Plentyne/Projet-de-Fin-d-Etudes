@@ -1,7 +1,11 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+// Librairies standards
 #include <cmath>
+
+// Fichiers perso
+#include "Node.h"
 
 class Client {
 	unsigned int id; // archive original client id
