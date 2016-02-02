@@ -2,9 +2,6 @@
 #define SATELLITE_H
 
 // Standard Libraries
-#include <cmath>
-#include <ddeml.h>
-#include <winddi.h>
 
 // Fichiers Perso
 #include "Node.h"

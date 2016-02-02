@@ -35,6 +35,7 @@ public:
 inline Client & Client::operator=(const Client & c) {
     if (&c!=this) {
         this->nodeId = c.nodeId;
+        this->clientId = c.clientId;
         this->x = c.x;
         this->y = c.y;
         this->demand = c.demand;
