@@ -5,11 +5,11 @@ int Node::globalNodeId = 0;
 
 // Constructors
 Node::Node() : x(0), y(0) {
-    this->nodeId = Node::globalNodeId++;
+    //this->nodeId = globalNodeId++;
 }
 
 Node::Node(double x, double y) : x(x), y(y) {
-    this->nodeId = Node::globalNodeId++;
+    this->nodeId = globalNodeId++;
 }
 
 // Destructors

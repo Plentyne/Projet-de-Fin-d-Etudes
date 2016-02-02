@@ -1,79 +1,13 @@
-#include "Problem.h"
+// Standard libraries
 #include <cassert>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 
-/*
-void Problem::readFile(const string & fn) {
-
-	cout << fn ;
-	ifstream fh;
-	string line, value, valuex, valuey, valuep;
-	unsigned int i, n, m, p;
-	double x, y, tmax;
-
-	this->clear();
-
-	try {
-		fh.open(fn.c_str(), ifstream::in);
-
-
-		cout << endl ;
-		if (!fh.good()) throw (string)"can not open file";
-
-		if (getline(fh, line) && Config::getKeyValue(line, (string)"n", value)) {
-			stringstream(value)>>n;
-		} else throw (string)"file format error";
-
-		if (getline(fh, line) && Config::getKeyValue(line, (string)"m", value)) {
-			stringstream(value)>>m;
-		} else throw (string)"file format error";
-
-		if (getline(fh, line) && Config::getKeyValue(line, (string)"tmax", value)) {
-			stringstream(value)>>tmax;
-			cout << ";"<< tmax<< endl;
-		} else throw (string)"file format error";
-
-		this->_number_vehicle = m;
-		for (i=0; i<n; i++) {
-			if (getline(fh, line)) {
-				if (   Config::getFieldValue(line, 0, valuex)
-					&& Config::getFieldValue(line, 1, valuey)
-					&& Config::getFieldValue(line, 2, valuep)) {
-					stringstream(valuex)>>x;
-					stringstream(valuey)>>y;
-					stringstream(valuep)>>p;
-					if (p==0) {
-						if (this->_depot.size()==0) {
-							this->_depot.push_back(Depot(x, y));
-						} else {
-							this->_depot.push_back(Depot(x, y));
-						}
-					} else {
-						this->_clients.push_back(Client(this->_clients.size(), x, y, p));
-					}
-				} else throw (string)"unknown data type";
-			} else throw (string)"file format error";
-		}
-
-		if (this->_depot.size()==2) this->_vehicle = Vehicle(&this->_depot[0], &this->_depot[1], tmax);
-		else throw (string)"incorrect TOP instance";
-
-		fh.close();
-
-	} catch (const string & emsg) {
-		if (fh.is_open()) fh.close();
-		exitOnError("Problem::readTOPFile()", emsg);
-	}
-
-	this->buildDistance();
-}
-
-
-void Problem::buildDistance() {
-
-
-}
-
-*/
+// Header Files
+#include "Problem.h"
+#include "../Config.h"
 
 // CONSTRUCTORS
 Problem::Problem() : e1Capacity(0), e2Capacity(0), k1(0), k2(0), maxCf(0), depot{}, satellites{}, clients{} {
@@ -82,7 +16,40 @@ Problem::Problem() : e1Capacity(0), e2Capacity(0), k1(0), k2(0), maxCf(0), depot
 
 // PRIVATE METHODS
 void Problem::buildDistanceMatrix() {
-    // TODO implémenter la construction de la matrice des distances
+    // TODO Review
+    // initialisation de la matrice des distances à +infini
+    this->distances.resize(this->getDimension(), vector<double>(this->getDimension(), Config::DOUBLE_INFINITY));
+
+    // Calcul des distances Client<->Client et Client<->Satellite
+    for (int i = 0; i < this->clients.size(); i++) {
+        // Distances Client<->Client
+        for (int j = i + 1; j < this->clients.size(); ++j) {
+            this->distances[this->clients[i].getNodeId()][this->clients[j].getNodeId()]
+                    = this->distances[this->clients[j].getNodeId()][this->clients[i].getNodeId()]
+                    = this->clients[i].distanceTo(this->clients[j]);
+        }
+        // Distance Client<->Satellite
+        for (int j = 0; j < this->satellites.size(); ++j) {
+            this->distances[this->clients[i].getNodeId()][this->satellites[j].getNodeId()]
+                    = this->distances[this->satellites[j].getNodeId()][this->clients[i].getNodeId()]
+                    = this->clients[i].distanceTo(this->satellites[j]);
+        }
+    }
+
+    // Calcul des distance Satellite<->Satellite et Satellite<->Depot
+    for (int i = 0; i < this->satellites.size(); i++) {
+        // Distances Satellite<->Satellite
+        for (int j = i + 1; j < this->satellites.size(); ++j) {
+            this->distances[this->satellites[i].getNodeId()][this->satellites[j].getNodeId()]
+                    = this->distances[this->satellites[j].getNodeId()][this->satellites[i].getNodeId()]
+                    = this->satellites[i].distanceTo(this->satellites[j]);
+        }
+        // Distance Satellite<->Depot
+        this->distances[this->satellites[i].getNodeId()][this->depot.getNodeId()]
+                = this->distances[this->depot.getNodeId()][this->satellites[i].getNodeId()]
+                = this->satellites[i].distanceTo(this->depot);
+    }
+
 }
 
 // PUBLIC METHODS
@@ -148,6 +115,10 @@ const Depot Problem::getDepot() const {
 }
 
 // Problem Data
+int Problem::getDimension() {
+    return this->clients.size() + this->satellites.size() + 1;
+}
+
 void Problem::setK1(const int &value) {
     this->k1 = value;
 }
@@ -197,6 +168,98 @@ double Problem::getDistance(const Node &i, const Node &j) {
 }
 
 // Problem loading
-void Problem::readFile(const string &fn) {
-    // TODO implémenter la lecture depuis un fichier
+void Problem::readBreunigFile(const string &fn) {
+    // TODO Review
+    // TODO Vérifier le formattage du fichier, la méthode telle qu'elle est suppose qu'il est correcte
+    cout << fn << endl;
+    ifstream fh;
+    string line, token, value;
+    stringstream sstream, ss;
+    double x, y, demand;
+
+    try {
+        // Opening File
+        fh.open(fn.c_str(), ifstream::in);
+        if (!fh.good()) throw (string) "can not open file";
+
+        // Reading 1st echelon vehicle data
+        while (getline(fh, line) && line.at(0) == '!');
+        sstream.clear();
+        sstream.str(line);
+        getline(sstream, token, ',');
+        stringstream(token) >> this->k1;
+        getline(sstream, token, ',');
+        stringstream(token) >> this->e1Capacity;
+
+        // Reading 2nd echelon vehicle data
+        while (getline(fh, line) && line.at(0) == '!');
+        sstream.clear();
+        sstream.str(line);
+        getline(sstream, token, ',');
+        stringstream(token) >> this->maxCf;
+        getline(sstream, token, ',');
+        stringstream(token) >> this->k2;
+        getline(sstream, token, ',');
+        stringstream(token) >> this->e2Capacity;
+
+        // Reading depot information
+        while (getline(fh, line) && line.at(0) == '!');
+        sstream.clear();
+        sstream.str(line);
+        sstream >> token;
+        ss.clear();
+        ss.str(token);
+        getline(ss, value, ',');
+        stringstream(value) >> x;
+        getline(ss, value, ',');
+        stringstream(value) >> y;
+        this->depot = Depot(x, y);
+
+        // Reading satellite information
+        while (sstream >> token) {
+            stringstream ss(token);
+            getline(ss, value, ',');
+            stringstream(value) >> x;
+            getline(ss, value, ',');
+            stringstream(value) >> y;
+            this->satellites.push_back(Satellite(x, y));
+        }
+
+        // Reading client information
+        while (getline(fh, line) && line.at(0) == '!');
+        sstream.clear();
+        sstream.str(line);
+        sstream >> token;
+        while (sstream >> token) {
+            stringstream ss(token);
+            getline(ss, value, ',');
+            stringstream(value) >> x;
+            getline(ss, value, ',');
+            stringstream(value) >> y;
+            getline(ss, value, ',');
+            stringstream(value) >> demand;
+            this->clients.push_back(Client(x, y, demand));
+        }
+
+        fh.close();
+
+    } catch (const string &emsg) {
+        if (fh.is_open()) fh.close();
+        cout << emsg << endl;
+        exit(1);
+    }
+    // Construction de la matrice des distances
+    this->buildDistanceMatrix();
+
 }
+
+bool Problem::verifySolution(const Solution &s) {
+    // TODO implement VerifySolution
+    return false;
+}
+
+void Problem::saveSolution(const Solution &s, const string &fn, const string &header) {
+    // TODO implement saveSolution
+}
+
+

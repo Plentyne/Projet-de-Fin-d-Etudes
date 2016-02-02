@@ -17,6 +17,6 @@ set(SOURCE_FILES
     Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp
     Solver-2E-VRP/Solver-2E-VRP/stdafx.cpp
     Solver-2E-VRP/Solver-2E-VRP/stdafx.h
-    Solver-2E-VRP/Solver-2E-VRP/targetver.h)
+        Solver-2E-VRP/Solver-2E-VRP/targetver.h Solver-2E-VRP/Solver-2E-VRP/Model/Solution.cpp Solver-2E-VRP/Solver-2E-VRP/Model/Solution.h Solver-2E-VRP/Solver-2E-VRP/Config.cpp Solver-2E-VRP/Solver-2E-VRP/Config.h Solver-2E-VRP/Solver-2E-VRP/Config.cpp Solver-2E-VRP/Solver-2E-VRP/Config.h)
 
 add_executable(Projet_de_Fin_d_Etudes ${SOURCE_FILES})

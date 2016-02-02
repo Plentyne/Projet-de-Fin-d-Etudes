@@ -3,20 +3,23 @@
 
 // Librairies standard
 #include<iostream>
-
+#include <fstream>
+#include <string>
+#include <sstream>
 // Fichiers perso
-#include"./Model/Node.h"
-#include "./Model/Client.h"
+#include "./Model/Problem.h"
 
 
 using namespace std;
 
 int main()
 {
-	Node n{ 1. ,1. }, m{2.,2.};
-    Client c {1. , 1., 2};
-	cout << Node::distance(m,n) << endl;
-    cout << (n==c) << endl;
+    Problem p;
+    p.readBreunigFile("../Input/Data/Set4a_Instance50-37.dat");
+    cout << "Dimension : " << p.getDimension() << endl;
+    cout << "Distance : " << p.getDistance(p.getSatellite(0), p.getDepot()) << endl;
+    cout << "Distance : " << p.getDistance(p.getClient(0), p.getSatellite(0)) << endl;
+
     return 0;
 }
 
