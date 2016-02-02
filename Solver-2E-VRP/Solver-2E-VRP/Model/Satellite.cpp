@@ -5,12 +5,12 @@
 int Satellite::satelliteGlobalId = 0;
 
 // Constructors
-inline Satellite::Satellite() : Node(), maxCf(0)
+inline Satellite::Satellite() : Node()
 {
     this->satelliteId = satelliteGlobalId++;
 }
 
-inline Satellite::Satellite(const double &x, const double &y, const int &maxCf)
-        : Node(x,y) , maxCf(maxCf) {
+inline Satellite::Satellite(const double &x, const double &y)
+        : Node(x, y) {
     this->satelliteId = satelliteGlobalId++;
 }

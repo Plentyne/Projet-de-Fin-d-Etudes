@@ -13,18 +13,16 @@ class Satellite : public Node{
 private:
 	static int satelliteGlobalId;
 	int satelliteId;
-	int maxCf;
 
 
 public:
 	// initialization
 	/** default constructor */ Satellite();
-	/** constructor */ Satellite(const double &x, const double &y, const int &maxCf);
+
+    /** constructor */ Satellite(const double &x, const double &y);
 
 	// access
 	/** get satellite id */ int getSatelliteId() const { return this->satelliteId; };
-	/** set X coordination value */ void setMaxCf(const int & value) { this->maxCf = value; };
-	/** get X coordination value */ int getMaxCf() const { return this->maxCf; };
 
 	// method
 
@@ -37,8 +35,7 @@ public:
 
 // Operators
 inline bool operator==(const Satellite &s1, const Satellite &s2) {
-	return (   (static_cast<Node>(s1) == static_cast<Node>(s2))
-			   && (s1.maxCf == s2.maxCf));
+    return (static_cast<Node>(s1) == static_cast<Node>(s2));
 }
 
 inline bool operator!=(const Satellite &s1, const Satellite &s2) {
