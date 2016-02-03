@@ -15,7 +15,9 @@ using namespace std;
 #include "Client.h"
 #include "Satellite.h"
 #include "Depot.h"
-#include "Solution.h"
+
+
+class Solution;
 
 // Class Declaration
 class Problem {

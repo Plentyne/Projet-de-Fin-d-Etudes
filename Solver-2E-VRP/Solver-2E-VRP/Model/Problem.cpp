@@ -229,7 +229,6 @@ void Problem::readBreunigFile(const string &fn) {
         while (getline(fh, line) && line.at(0) == '!');
         sstream.clear();
         sstream.str(line);
-        sstream >> token;
         while (sstream >> token) {
             stringstream ss(token);
             getline(ss, value, ',');
