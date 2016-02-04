@@ -7,7 +7,9 @@
 
 // Header Files
 #include "Problem.h"
+#include "Solution.h"
 #include "../Config.h"
+#include "../Utility.h"
 
 // CONSTRUCTORS
 Problem::Problem() : e1Capacity(0), e2Capacity(0), k1(0), k2(0), maxCf(0), depot{}, satellites{}, clients{} {
@@ -169,21 +171,23 @@ double Problem::getDistance(const Node &i, const Node &j) {
 
 // Problem loading
 void Problem::readBreunigFile(const string &fn) {
-    // TODO Review
-    // TODO Vérifier le formattage du fichier, la méthode telle qu'elle est suppose qu'il est correcte
-    cout << fn << endl;
+    // TODO Lecture du fichier même si les clients sont répartis sur plusieurs lignes
+    cout << "Loading file : " << fn << endl;
     ifstream fh;
-    string line, token, value;
+    string line("!"), token, value;
     stringstream sstream, ss;
     double x, y, demand;
 
     try {
         // Opening File
         fh.open(fn.c_str(), ifstream::in);
-        if (!fh.good()) throw (string) "can not open file";
+        if (!fh.good()) throw (string) "Can not open file !!";
+        fh.clear();
+        fh.seekg(0, fh.beg);
 
         // Reading 1st echelon vehicle data
-        while (getline(fh, line) && line.at(0) == '!');
+        while (getline(fh, line) && (line.size() == 0 || line.at(0) == '!'));
+        if (!regex_match(line, regex(Utility::TRUCK_DATA_RX))) throw (string) " Wrong truck data format !!";
         sstream.clear();
         sstream.str(line);
         getline(sstream, token, ',');
@@ -192,7 +196,9 @@ void Problem::readBreunigFile(const string &fn) {
         stringstream(token) >> this->e1Capacity;
 
         // Reading 2nd echelon vehicle data
-        while (getline(fh, line) && line.at(0) == '!');
+        while (getline(fh, line) && (line.size() == 0 || line.at(0) == '!'));
+        if (!regex_match(line, regex(Utility::CITY_FREIGHTER_DATA_RX)))
+            throw (string) " Wrong city freighters data format !!";
         sstream.clear();
         sstream.str(line);
         getline(sstream, token, ',');
@@ -203,10 +209,11 @@ void Problem::readBreunigFile(const string &fn) {
         stringstream(token) >> this->e2Capacity;
 
         // Reading depot information
-        while (getline(fh, line) && line.at(0) == '!');
+        while (getline(fh, line) && (line.size() == 0 || line.at(0) == '!'));
         sstream.clear();
         sstream.str(line);
         sstream >> token;
+        if (!regex_match(token, regex(Utility::STORES_DATA_RX))) throw (string) " Wrong depot data format !!";
         ss.clear();
         ss.str(token);
         getline(ss, value, ',');
@@ -217,6 +224,7 @@ void Problem::readBreunigFile(const string &fn) {
 
         // Reading satellite information
         while (sstream >> token) {
+            if (!regex_match(token, regex(Utility::STORES_DATA_RX))) throw (string) " Wrong satellite data format !!";
             stringstream ss(token);
             getline(ss, value, ',');
             stringstream(value) >> x;
@@ -226,39 +234,82 @@ void Problem::readBreunigFile(const string &fn) {
         }
 
         // Reading client information
-        while (getline(fh, line) && line.at(0) == '!');
-        sstream.clear();
-        sstream.str(line);
-        while (sstream >> token) {
-            stringstream ss(token);
-            getline(ss, value, ',');
-            stringstream(value) >> x;
-            getline(ss, value, ',');
-            stringstream(value) >> y;
-            getline(ss, value, ',');
-            stringstream(value) >> demand;
-            this->clients.push_back(Client(x, y, demand));
-        }
+        do {
+            while (getline(fh, line) && (line.size() == 0 || line.at(0) == '!'));
+            sstream.clear();
+            sstream.str(line);
+            while (sstream >> token) {
+                if (!regex_match(token, regex(Utility::CLIENTS_DATA_RX)))
+                    throw (string) " Wrong customer data format !!";
+                stringstream ss(token);
+                getline(ss, value, ',');
+                stringstream(value) >> x;
+                getline(ss, value, ',');
+                stringstream(value) >> y;
+                getline(ss, value, ',');
+                stringstream(value) >> demand;
+                this->clients.push_back(Client(x, y, demand));
+            }
+        } while (!fh.eof());
+
 
         fh.close();
 
     } catch (const string &emsg) {
         if (fh.is_open()) fh.close();
-        cout << emsg << endl;
+        cout << "Error : " << emsg << endl;
         exit(1);
     }
     // Construction de la matrice des distances
     this->buildDistanceMatrix();
-
-}
-
-bool Problem::verifySolution(const Solution &s) {
-    // TODO implement VerifySolution
-    return false;
 }
 
 void Problem::saveSolution(const Solution &s, const string &fn, const string &header) {
     // TODO implement saveSolution
 }
 
+// TODO Make Slution parametre const
+// Todo implement == operator for problem comparison
+bool Problem::isValidSolution(Solution &s) {
+    // If the solution was calculated for another problem
+    //if (s.getProblem() != this) return false;
 
+    // ValidSolution
+    // Check if all customers are correctly served
+    if (s.getE2Routes().size() > this->k2) {
+        cout << "Too many 2nd lvl routes" << endl;
+        return false;
+    }
+    vector<int> routedCustomers(this->clients.size());
+    vector<int> routesPerSatellite(this->satellites.size());
+    for (E2Route r : s.getE2Routes()) {
+        if (r.load > this->e2Capacity) {
+            cout << "Charge plus grande que la capacité du véhicule" << endl;
+            return false;
+        } // Charge plus grande que la capacité du véhicule
+        if (++routesPerSatellite[r.departure.getSatelliteId()] > this->maxCf) {
+            cout << "Plus de tournées que maxCF" << endl;
+            return false;
+        } // nombre de véhicules par satellite > maxCF/s
+        for (int i = 0; i < r.sequence.size(); i++)
+            ++routedCustomers[r.sequence[i].getClientId()];
+    }
+    for (int i = 0; i < this->clients.size(); i++)
+        if (routedCustomers[i] != 1) {
+            cout << "Client " << i << " visite : " << routedCustomers[i] << endl;
+            return false;
+        } // Si un client est n'est pas visité ou est visité plusieures fois
+
+    // Check if all satellites are correctly served
+    if (s.getE1Routes().size() > this->k1) {
+        cout << "too many 1st lvl vehicles" << endl;
+        return false;
+    }
+    for (int i = 0; i < this->satellites.size(); i++)
+        if (s.getSatelliteDemands()[i] - s.getDeliveredQ()[i] != 0) {
+            cout << "Erreur dans le service des satellites " << endl;
+            return false;
+        }
+
+    return true;
+}

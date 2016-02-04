@@ -14,59 +14,71 @@ using namespace std;
 class Problem;
 
 struct E1Route {
-    Depot *departure;
-    vector<Satellite *> sequence;
+    Depot departure;
+    vector<Satellite> sequence;
     int load;
     double cost;
 };
 
 struct E2Route {
-    Satellite *departure;
-    vector<Client *> sequence;
+    Satellite departure;
+    vector<Client> sequence;
     int load;
     double cost;
 };
 class Solution {
     // TODO Implémenter la classe Solution
 private:
-    Problem problem;
+    // Problem to which the object is a solution
+    const Problem *problem;
+
+    // Solution routes
     vector<E1Route> e1Routes; // 1st Echelon Routes
     vector<E2Route> e2Routes; // 2nd Echelon Routes
+
+    // Data for solution validity and other utilities
     vector<int> satelliteDemands; // Satellite Demands (calculated after the 2nd Echelon routes are built)
     vector<int> deliveredQ; // Quantity Delivered to Each satellite
+    vector<short> routedCustomers;
 
-    int totalCost;
+    double totalCost;
 
 public:
     // Constructor
-    Solution(const Problem &problem) : problem(problem), e1Routes{}, e2Routes{},
-                                       satelliteDemands{problem.getSatellites().size()},
-                                       deliveredQ{problem.getSatellites().size()} { }
+    Solution(const Problem *problem) : problem(problem), e1Routes{}, e2Routes{},
+                                       satelliteDemands{problem->getSatellites().size()},
+                                       deliveredQ{problem->getSatellites().size()},
+                                       routedCustomers{problem->getClients().size()} { }
 
     // Data Access Methods
-    const Problem &getProblem() const {
+    const Problem *getProblem() const {
         return problem;
     }
 
-    const vector<E1Route> &getE1Routes() const {
+    vector<E1Route> &getE1Routes() {
         return e1Routes;
     }
 
-    const vector<E2Route> &getE2Routes() const {
+    vector<E2Route> &getE2Routes() {
         return e2Routes;
     }
 
-    const vector<int> &getSatelliteDemands() const {
+    vector<int> &getSatelliteDemands() {
         return satelliteDemands;
     }
 
-    const vector<int> &getDeliveredQ() const {
+    vector<int> &getDeliveredQ() {
         return deliveredQ;
     }
 
-    int getTotalCost() const {
+    double getTotalCost() const {
         return totalCost;
     }
+
+    void setTotalCost(double totalCost) {
+        Solution::totalCost = totalCost;
+    }
+
 
     // Methods
     void print();

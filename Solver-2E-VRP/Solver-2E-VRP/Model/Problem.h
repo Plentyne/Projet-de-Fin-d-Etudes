@@ -79,7 +79,8 @@ public:
     /** get the distance between node i and node j*/ double getDistance(const Node &i, const Node &j);
 
     // Solution Methods
-    /** verify if a solution matches the problem constraints */ bool verifySolution(const Solution &s);
+    /** Check if a solution matches the problem constraints */ bool isValidSolution(
+            Solution &s); // Todo Make solution parametre const
 
     // I/O Methods
     /** load problem data from file using Breunig Unified Format */ void readBreunigFile(const string &fn);
