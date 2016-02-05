@@ -264,15 +264,11 @@ void Problem::readBreunigFile(const string &fn) {
     this->buildDistanceMatrix();
 }
 
-void Problem::saveSolution(const Solution &s, const string &fn, const string &header) {
-    // TODO implement saveSolution
-}
-
-// TODO Make Slution parametre const
+// TODO Make Solution parametre const
 // Todo implement == operator for problem comparison
-bool Problem::isValidSolution(Solution &s) {
+bool Problem::isValidSolution(const Solution &s) {
     // If the solution was calculated for another problem
-    //if (s.getProblem() != this) return false;
+    if (s.getProblem() != this) return false;
 
     // ValidSolution
     // Check if all customers are correctly served

@@ -59,7 +59,15 @@ public:
         return e1Routes;
     }
 
+    const vector<E1Route> &getE1Routes() const {
+        return e1Routes;
+    }
+
     vector<E2Route> &getE2Routes() {
+        return e2Routes;
+    }
+
+    const vector<E2Route> &getE2Routes() const {
         return e2Routes;
     }
 
@@ -67,7 +75,15 @@ public:
         return satelliteDemands;
     }
 
+    const vector<int> &getSatelliteDemands() const {
+        return satelliteDemands;
+    }
+
     vector<int> &getDeliveredQ() {
+        return deliveredQ;
+    }
+
+    const vector<int> &getDeliveredQ() const {
         return deliveredQ;
     }
 
@@ -81,7 +97,10 @@ public:
 
 
     // Methods
-    void print();
+    /** print solution to the console */ void print();
+
+    /** save the solution to file */ void saveHumanReadable(const string &fn, const string &header = "",
+                                                            const bool clrFile = true);
 };
 
 

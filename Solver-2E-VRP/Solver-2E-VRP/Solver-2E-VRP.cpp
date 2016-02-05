@@ -23,6 +23,7 @@ int main()
     p.readBreunigFile("../Input/Data/Test2.dat");
     Solution s(&p);
     buildTestSolution(s, &p);
+    s.saveHumanReadable("Test.sol", "Solution Test2.dat", false);
     cout << p.isValidSolution(s) << endl;
 
     return 0;
