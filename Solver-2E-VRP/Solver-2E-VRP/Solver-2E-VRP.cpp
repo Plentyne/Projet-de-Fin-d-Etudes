@@ -10,6 +10,7 @@
 // Fichiers perso
 #include "./Model/Problem.h"
 #include "./Model/Solution.h"
+#include "./Solver/Heuristic.h"
 #include "Utility.h"
 
 using namespace std;
@@ -22,9 +23,11 @@ int main()
     Problem p;
     p.readBreunigFile("../Input/Data/Test2.dat");
     Solution s(&p);
-    buildTestSolution(s, &p);
-    s.saveHumanReadable("Test.sol", "Solution Test2.dat", false);
-    cout << p.isValidSolution(s) << endl;
+    //buildTestSolution(s, &p);
+    //s.saveHumanReadable("Test.sol", "Solution Test2.dat", false);
+    Heuristic::simpleHeuristic(p, s);
+
+    cout << "Validity : " << p.isValidSolution(s) << endl;
 
     return 0;
 }

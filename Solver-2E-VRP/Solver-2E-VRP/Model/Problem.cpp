@@ -153,6 +153,14 @@ int Problem::getE2Capacity() {
     return this->e2Capacity;
 }
 
+const int Problem::getE1Capacity() const {
+    return this->e1Capacity;
+}
+
+const int Problem::getE2Capacity() const {
+    return this->e2Capacity;
+}
+
 int Problem::getMaxCf() {
     return this->maxCf;
 }
@@ -163,6 +171,13 @@ void Problem::setMaxCf(const int &value) {
 
 // Distance matrix
 double Problem::getDistance(const Node &i, const Node &j) {
+    assert(i.getNodeId() < this->distances.size());
+    assert(j.getNodeId() < this->distances[i.getNodeId()].size());
+
+    return this->distances[i.getNodeId()][j.getNodeId()];
+}
+
+const double Problem::getDistance(const Node &i, const Node &j) const {
     assert(i.getNodeId() < this->distances.size());
     assert(j.getNodeId() < this->distances[i.getNodeId()].size());
 
@@ -268,7 +283,7 @@ void Problem::readBreunigFile(const string &fn) {
 // Todo implement == operator for problem comparison
 bool Problem::isValidSolution(const Solution &s) {
     // If the solution was calculated for another problem
-    if (s.getProblem() != this) return false;
+    //if (s.getProblem() != this) return false;
 
     // ValidSolution
     // Check if all customers are correctly served
@@ -303,7 +318,8 @@ bool Problem::isValidSolution(const Solution &s) {
     }
     for (int i = 0; i < this->satellites.size(); i++)
         if (s.getSatelliteDemands()[i] - s.getDeliveredQ()[i] != 0) {
-            cout << "Erreur dans le service des satellites " << endl;
+            cout << "Erreur dans le service des satellites : satellite " << i + 1 << " " <<
+            s.getSatelliteDemands()[i] - s.getDeliveredQ()[i] << endl;
             return false;
         }
 

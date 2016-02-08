@@ -16,6 +16,7 @@ class Problem;
 struct E1Route {
     Depot departure;
     vector<Satellite> sequence;
+    vector<int> satelliteGoods;
     int load;
     double cost;
 };
@@ -46,9 +47,9 @@ private:
 public:
     // Constructor
     Solution(const Problem *problem) : problem(problem), e1Routes{}, e2Routes{},
-                                       satelliteDemands{problem->getSatellites().size()},
-                                       deliveredQ{problem->getSatellites().size()},
-                                       routedCustomers{problem->getClients().size()} { }
+                                       satelliteDemands{static_cast<int>(problem->getSatellites().size()), 0},
+                                       deliveredQ{static_cast<int>(problem->getSatellites().size()), 0},
+                                       routedCustomers{static_cast<int>(problem->getClients().size()), 0} { }
 
     // Data Access Methods
     const Problem *getProblem() const {
