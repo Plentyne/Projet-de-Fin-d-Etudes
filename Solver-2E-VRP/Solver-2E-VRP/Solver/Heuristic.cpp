@@ -8,8 +8,8 @@
 #include "../Config.h"
 
 /* TODO Review simpleHeuristic
- *      - Le résultat change d'une exécution à une autre
- *      - Peut causer la fin anormale du programme
+ *      - Il arrive que le résultat de l'heuristique change
+ *      - Peut causer la fin anormale du programme : certainement en relation avcv les warnings pour l'instanciation des tableaux
  *      - Revoir l'accès aux vecteurs de E1Route et de Solution et l'unifier
  *      - Mettre à jour les valeurs du Tableau Goods de E1Route pour garder trace de ui transporte quoi
 */
@@ -21,13 +21,13 @@ int getClosestClient(E2Route e2Route, const Problem &p, vector<int> &clientAffec
         if (e2Route.departure.getSatelliteId() != clientAffectation[i]) continue;
 
         if (e2Route.sequence.size() > 0) {
-            if (p.getDistance(e2Route.sequence.back(), p.getClient(i)) < distance) {
-                distance = p.getDistance(e2Route.sequence.back(), p.getClient(i));
+            if (p.getDistance( e2Route.sequence.back(), p.getClient(i)) < distance) {
+                distance = p.getDistance( e2Route.sequence.back(), p.getClient(i));
                 closestClient = i;
             }
         } else {
-            if (p.getDistance(e2Route.departure, p.getClient(i)) < distance) {
-                distance = p.getDistance(e2Route.departure, p.getClient(i));
+            if (p.getDistance( e2Route.departure, p.getClient(i)) < distance) {
+                distance = p.getDistance( e2Route.departure, p.getClient(i));
                 closestClient = i;
             }
         }
@@ -43,7 +43,7 @@ int getClosestSatellite(Client c, const Problem &p) {
     for (int i = 0; i < p.getSatellites().size(); i++) {
         if (p.getDistance(c, p.getClient(i)) < distance) {
             distance = p.getDistance(c, p.getClient(i));
-            closestSatellite = p.getSatellite(i).getSatelliteId();
+            closestSatellite = i;
         }
     }
 
@@ -58,13 +58,13 @@ int getClosestSatellite(E1Route e1Route, const Solution &s) {
         if (s.getSatelliteDemands()[i] - s.getDeliveredQ()[i] <= 0) continue;
 
         if (e1Route.sequence.size() > 0) {
-            if (s.getProblem()->getDistance(e1Route.sequence.back(), s.getProblem()->getSatellite(i)) < distance) {
-                distance = s.getProblem()->getDistance(e1Route.sequence.back(), s.getProblem()->getSatellite(i));
+            if (s.getProblem()->getDistance( e1Route.sequence.back(), s.getProblem()->getSatellite(i)) < distance) {
+                distance = s.getProblem()->getDistance( e1Route.sequence.back(), s.getProblem()->getSatellite(i));
                 closestSatellite = i;
             }
         } else {
-            if (s.getProblem()->getDistance(e1Route.departure, s.getProblem()->getSatellite(i)) < distance) {
-                distance = s.getProblem()->getDistance(e1Route.departure, s.getProblem()->getSatellite(i));
+            if (s.getProblem()->getDistance( e1Route.departure, s.getProblem()->getSatellite(i)) < distance) {
+                distance = s.getProblem()->getDistance( e1Route.departure, s.getProblem()->getSatellite(i));
                 closestSatellite = i;
             }
         }
@@ -89,12 +89,12 @@ void Heuristic::simpleHeuristic(const Problem p, Solution &solution) {
     e2Route.sequence.clear();
     e2Route.load = 0;
     e2Route.cost = 0;
-    for (Satellite satellite :  p.getSatellites()) {
+    for(Satellite satellite : p.getSatellites()) {
         e2Route.departure = satellite;
         solution.getSatelliteDemands()[e2Route.departure.getSatelliteId()] = 0;
         while ((closestClient = getClosestClient(e2Route, p, clientsAffectation)) >= 0) {
             if ((e2Route.load + p.getClient(closestClient).getDemand()) > p.getE2Capacity()) {
-                e2Route.cost += p.getDistance(e2Route.departure, e2Route.sequence.back());
+                e2Route.cost += p.getDistance( e2Route.departure, e2Route.sequence.back());
 
                 solution.getE2Routes().push_back(e2Route);
                 solution.getSatelliteDemands()[e2Route.departure.getSatelliteId()] += e2Route.load;
@@ -107,17 +107,17 @@ void Heuristic::simpleHeuristic(const Problem p, Solution &solution) {
             }
 
             if (e2Route.sequence.size() > 0) {
-                e2Route.cost += p.getDistance(e2Route.sequence.back(), p.getClient(closestClient));
+                e2Route.cost += p.getDistance( e2Route.sequence.back(), p.getClient(closestClient));
             } else {
-                e2Route.cost += p.getDistance(e2Route.departure, p.getClient(closestClient));
+                e2Route.cost += p.getDistance( e2Route.departure, p.getClient(closestClient));
             }
-            e2Route.sequence.push_back(p.getClient(closestClient));
+            e2Route.sequence.push_back( p.getClient(closestClient));
             e2Route.load += p.getClient(closestClient).getDemand();
 
         }
 
         if (e2Route.sequence.size() > 0) {
-            e2Route.cost += p.getDistance(e2Route.departure, e2Route.sequence.back());
+            e2Route.cost += p.getDistance( e2Route.departure, e2Route.sequence.back());
 
             solution.getE2Routes().push_back(e2Route);
             solution.getSatelliteDemands()[e2Route.departure.getSatelliteId()] += e2Route.load;
@@ -150,16 +150,16 @@ void Heuristic::simpleHeuristic(const Problem p, Solution &solution) {
                 p.getE1Capacity()) {
                 solution.getDeliveredQ()[closestSatellite] += (p.getE1Capacity() - e1Route.load);
                 if (e1Route.sequence.size() > 0) {
-                    e1Route.cost += p.getDistance(e1Route.sequence.back(), p.getSatellite(closestSatellite));
+                    e1Route.cost += p.getDistance( e1Route.sequence.back(), p.getSatellite(closestSatellite));
                 } else {
-                    e1Route.cost += p.getDistance(e1Route.departure, p.getSatellite(closestSatellite));
+                    e1Route.cost += p.getDistance( e1Route.departure, p.getSatellite(closestSatellite));
                 }
-                e1Route.sequence.push_back(p.getSatellite(closestSatellite));
+                e1Route.sequence.push_back( p.getSatellite(closestSatellite));
                 e1Route.load = p.getE1Capacity();
             }
             // Sinon
 
-            e1Route.cost += p.getDistance(e1Route.departure, e1Route.sequence.back());
+            e1Route.cost += p.getDistance( e1Route.departure,  e1Route.sequence.back());
 
             solution.getE1Routes().push_back(e1Route);
             solution.setTotalCost(solution.getTotalCost() + e1Route.cost);
@@ -170,11 +170,11 @@ void Heuristic::simpleHeuristic(const Problem p, Solution &solution) {
         }
         // Ajout du satellite dans la tournée actuelle
         if (e1Route.sequence.size() > 0) {
-            e1Route.cost += p.getDistance(e1Route.sequence.back(), p.getSatellite(closestSatellite));
+            e1Route.cost += p.getDistance( e1Route.sequence.back(), p.getSatellite(closestSatellite));
         } else {
-            e1Route.cost += p.getDistance(e1Route.departure, p.getSatellite(closestSatellite));
+            e1Route.cost += p.getDistance( e1Route.departure, p.getSatellite(closestSatellite));
         }
-        e1Route.sequence.push_back(p.getSatellite(closestSatellite));
+        e1Route.sequence.push_back( p.getSatellite(closestSatellite));
         e1Route.load +=
                 solution.getSatelliteDemands()[closestSatellite] - solution.getDeliveredQ()[closestSatellite];
         solution.getDeliveredQ()[e1Route.sequence.back().getSatelliteId()] = solution.getSatelliteDemands()[closestSatellite];
@@ -186,7 +186,5 @@ void Heuristic::simpleHeuristic(const Problem p, Solution &solution) {
     solution.getE1Routes().push_back(e1Route);
     solution.setTotalCost(solution.getTotalCost() + e1Route.cost);
 
-
-    solution.print();
     cout << "End Heuristic" << endl;
 }

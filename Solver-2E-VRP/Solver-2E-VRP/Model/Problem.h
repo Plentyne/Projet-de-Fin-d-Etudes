@@ -62,6 +62,7 @@ public:
     /** set depot node */ void setDepot(const Depot &d);
     /** get depot node */ const Depot getDepot() const;
 
+
     // Problem Data
     /** get problem dimension */ int getDimension();
     /** set number of vehicles of 1st Echelon*/ void setK1(const int &value);

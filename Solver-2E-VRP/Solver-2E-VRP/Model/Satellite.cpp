@@ -7,7 +7,7 @@ int Satellite::satelliteGlobalId = 0;
 // Constructors
 Satellite::Satellite() : Node()
 {
-    this->satelliteId = satelliteGlobalId++;
+    //this->satelliteId = satelliteGlobalId++;
 }
 
 Satellite::Satellite(const double &x, const double &y)

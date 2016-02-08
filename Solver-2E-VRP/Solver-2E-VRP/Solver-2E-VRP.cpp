@@ -21,11 +21,13 @@ void buildTestSolution(Solution &s, Problem *p);
 int main()
 {
     Problem p;
-    p.readBreunigFile("../Input/Data/Test2.dat");
+    p.readBreunigFile("../Input/Data/Set2b_E-n51-k5-s32-37.dat");
     Solution s(&p);
     //buildTestSolution(s, &p);
     //s.saveHumanReadable("Test.sol", "Solution Test2.dat", false);
     Heuristic::simpleHeuristic(p, s);
+
+    s.print();
 
     cout << "Validity : " << p.isValidSolution(s) << endl;
 
