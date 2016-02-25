@@ -86,11 +86,21 @@ public:
 
 
     // Solution Methods
-    /** Check if a solution matches the problem constraints */ bool isValidSolution(const Solution &s);
+    /** Check if a solution matches the problem constraints */ short isValidSolution(const Solution &s) const;
     // Todo Make solution parametre const
 
     // I/O Methods
     /** load problem data from file using Breunig Unified Format */ void readBreunigFile(const string &fn);
+
+    // Constants
+    static const short K1_VIOLATION;
+    static const short K2_VIOLATION;
+    static const short E1CAP_VIOLATION;
+    static const short E2CAP_VIOLATION;
+    static const short MAXCF_VIOLATION;
+    static const short UNSERVED_CLIENT_VIOLATION;
+    static const short UNSERVED_SATELLITE_VIOLATION;
+    static const short VALID_SOLUTION;
 
 };
 

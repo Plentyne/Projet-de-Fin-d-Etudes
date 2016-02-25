@@ -14,16 +14,15 @@ using namespace std;
 class Problem;
 
 struct E1Route {
-    Depot departure;
-    vector<Satellite> sequence;
+    vector<int> tour;
     vector<int> satelliteGoods;
     int load;
     double cost;
 };
 
 struct E2Route {
-    Satellite departure;
-    vector<Client> sequence;
+    int departureSatellite;
+    vector<int> tour;
     int load;
     double cost;
 };
@@ -46,6 +45,8 @@ private:
 
 public:
     // Constructor
+    Solution() : problem(nullptr), e1Routes(), e2Routes(), satelliteDemands(), deliveredQ(), routedCustomers() { }
+
     Solution(const Problem *problem) : problem(problem), e1Routes{}, e2Routes{},
                                        satelliteDemands{static_cast<int>(problem->getSatellites().size()), 0},
                                        deliveredQ{static_cast<int>(problem->getSatellites().size()), 0},

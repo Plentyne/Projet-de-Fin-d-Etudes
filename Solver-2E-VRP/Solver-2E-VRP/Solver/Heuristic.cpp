@@ -1,6 +1,7 @@
 //
 // Created by Youcef on 05/02/2016.
 //
+#include <algorithm>
 
 #include "Heuristic.h"
 #include "../Model/Problem.h"
@@ -18,16 +19,16 @@ int getClosestClient(E2Route e2Route, const Problem &p, vector<int> &clientAffec
     int closestClient = -1;
 
     for (int i = 0; i < p.getClients().size(); i++) {
-        if (e2Route.departure.getSatelliteId() != clientAffectation[i]) continue;
+        if (e2Route.departureSatellite != clientAffectation[i]) continue;
 
-        if (e2Route.sequence.size() > 0) {
-            if (p.getDistance( e2Route.sequence.back(), p.getClient(i)) < distance) {
-                distance = p.getDistance( e2Route.sequence.back(), p.getClient(i));
+        if (e2Route.tour.size() > 0) {
+            if (p.getDistance(p.getClient(e2Route.tour.back()), p.getClient(i)) < distance) {
+                distance = p.getDistance(p.getClient(e2Route.tour.back()), p.getClient(i));
                 closestClient = i;
             }
         } else {
-            if (p.getDistance( e2Route.departure, p.getClient(i)) < distance) {
-                distance = p.getDistance( e2Route.departure, p.getClient(i));
+            if (p.getDistance(p.getSatellite(e2Route.departureSatellite), p.getClient(i)) < distance) {
+                distance = p.getDistance(p.getSatellite(e2Route.departureSatellite), p.getClient(i));
                 closestClient = i;
             }
         }
@@ -57,14 +58,16 @@ int getClosestSatellite(E1Route e1Route, const Solution &s) {
     for (int i = 0; i < s.getProblem()->getSatellites().size(); i++) {
         if (s.getSatelliteDemands()[i] - s.getDeliveredQ()[i] <= 0) continue;
 
-        if (e1Route.sequence.size() > 0) {
-            if (s.getProblem()->getDistance( e1Route.sequence.back(), s.getProblem()->getSatellite(i)) < distance) {
-                distance = s.getProblem()->getDistance( e1Route.sequence.back(), s.getProblem()->getSatellite(i));
+        if (e1Route.tour.size() > 0) {
+            if (s.getProblem()->getDistance(s.getProblem()->getClient(e1Route.tour.back()),
+                                            s.getProblem()->getSatellite(i)) < distance) {
+                distance = s.getProblem()->getDistance(s.getProblem()->getClient(e1Route.tour.back()),
+                                                       s.getProblem()->getSatellite(i));
                 closestSatellite = i;
             }
         } else {
-            if (s.getProblem()->getDistance( e1Route.departure, s.getProblem()->getSatellite(i)) < distance) {
-                distance = s.getProblem()->getDistance( e1Route.departure, s.getProblem()->getSatellite(i));
+            if (s.getProblem()->getDistance(s.getProblem()->getDepot(), s.getProblem()->getSatellite(i)) < distance) {
+                distance = s.getProblem()->getDistance(s.getProblem()->getDepot(), s.getProblem()->getSatellite(i));
                 closestSatellite = i;
             }
         }
@@ -73,7 +76,6 @@ int getClosestSatellite(E1Route e1Route, const Solution &s) {
 }
 
 void Heuristic::simpleHeuristic(const Problem p, Solution &solution) {
-    cout << "Start Heuristic" << endl;
     // Instanciation de la solution
     solution = Solution(&p);
     // Construction des tournées du 1er échelon
@@ -86,53 +88,52 @@ void Heuristic::simpleHeuristic(const Problem p, Solution &solution) {
     // Calcul des tournées
     int closestClient;
     E2Route e2Route;
-    e2Route.sequence.clear();
+    e2Route.tour.clear();
     e2Route.load = 0;
     e2Route.cost = 0;
     for(Satellite satellite : p.getSatellites()) {
-        e2Route.departure = satellite;
-        solution.getSatelliteDemands()[e2Route.departure.getSatelliteId()] = 0;
+        e2Route.departureSatellite = satellite.getSatelliteId();
+        solution.getSatelliteDemands()[e2Route.departureSatellite] = 0;
         while ((closestClient = getClosestClient(e2Route, p, clientsAffectation)) >= 0) {
             if ((e2Route.load + p.getClient(closestClient).getDemand()) > p.getE2Capacity()) {
-                e2Route.cost += p.getDistance( e2Route.departure, e2Route.sequence.back());
+                e2Route.cost += p.getDistance(satellite, p.getClient(e2Route.tour.back()));
 
                 solution.getE2Routes().push_back(e2Route);
-                solution.getSatelliteDemands()[e2Route.departure.getSatelliteId()] += e2Route.load;
+                solution.getSatelliteDemands()[e2Route.departureSatellite] += e2Route.load;
                 solution.setTotalCost(solution.getTotalCost() + e2Route.cost);
 
-                e2Route.sequence.clear();
+                e2Route.tour.clear();
                 e2Route.load = 0;
-                e2Route.departure = satellite;
+                e2Route.departureSatellite = satellite.getSatelliteId();
                 e2Route.cost = 0;
             }
 
-            if (e2Route.sequence.size() > 0) {
-                e2Route.cost += p.getDistance( e2Route.sequence.back(), p.getClient(closestClient));
+            if (e2Route.tour.size() > 0) {
+                e2Route.cost += p.getDistance(p.getClient(e2Route.tour.back()), p.getClient(closestClient));
             } else {
-                e2Route.cost += p.getDistance( e2Route.departure, p.getClient(closestClient));
+                e2Route.cost += p.getDistance(satellite, p.getClient(closestClient));
             }
-            e2Route.sequence.push_back( p.getClient(closestClient));
+            e2Route.tour.push_back(p.getClient(closestClient).getClientId());
             e2Route.load += p.getClient(closestClient).getDemand();
 
         }
 
-        if (e2Route.sequence.size() > 0) {
-            e2Route.cost += p.getDistance( e2Route.departure, e2Route.sequence.back());
+        if (e2Route.tour.size() > 0) {
+            e2Route.cost += p.getDistance(p.getSatellite(e2Route.departureSatellite), p.getClient(e2Route.tour.back()));
 
             solution.getE2Routes().push_back(e2Route);
-            solution.getSatelliteDemands()[e2Route.departure.getSatelliteId()] += e2Route.load;
+            solution.getSatelliteDemands()[e2Route.departureSatellite] += e2Route.load;
             solution.setTotalCost(solution.getTotalCost() + e2Route.cost);
 
         }
-        e2Route.sequence.clear();
+        e2Route.tour.clear();
         e2Route.load = 0;
-        e2Route.departure = satellite;
+        e2Route.departureSatellite = satellite.getSatelliteId();
         e2Route.cost = 0;
     }
     // Construction des tournées du 1er échelon
     E1Route e1Route;
-    e1Route.departure = p.getDepot();
-    e1Route.sequence.clear();
+    e1Route.tour.clear();
     e1Route.cost = 0;
     e1Route.load = 0;
 
@@ -149,42 +150,65 @@ void Heuristic::simpleHeuristic(const Problem p, Solution &solution) {
             if (solution.getSatelliteDemands()[closestSatellite] - solution.getDeliveredQ()[closestSatellite] >
                 p.getE1Capacity()) {
                 solution.getDeliveredQ()[closestSatellite] += (p.getE1Capacity() - e1Route.load);
-                if (e1Route.sequence.size() > 0) {
-                    e1Route.cost += p.getDistance( e1Route.sequence.back(), p.getSatellite(closestSatellite));
+                if (e1Route.tour.size() > 0) {
+                    e1Route.cost += p.getDistance(p.getSatellite(e1Route.tour.back()),
+                                                  p.getSatellite(closestSatellite));
                 } else {
-                    e1Route.cost += p.getDistance( e1Route.departure, p.getSatellite(closestSatellite));
+                    e1Route.cost += p.getDistance(p.getDepot(), p.getSatellite(closestSatellite));
                 }
-                e1Route.sequence.push_back( p.getSatellite(closestSatellite));
+                e1Route.tour.push_back(p.getSatellite(closestSatellite).getSatelliteId());
                 e1Route.load = p.getE1Capacity();
             }
             // Sinon
 
-            e1Route.cost += p.getDistance( e1Route.departure,  e1Route.sequence.back());
+            e1Route.cost += p.getDistance(p.getDepot(), p.getSatellite(e1Route.tour.back()));
 
             solution.getE1Routes().push_back(e1Route);
             solution.setTotalCost(solution.getTotalCost() + e1Route.cost);
 
-            e1Route.sequence.clear();
+            e1Route.tour.clear();
             e1Route.load = 0;
             e1Route.cost = 0;
         }
         // Ajout du satellite dans la tournée actuelle
-        if (e1Route.sequence.size() > 0) {
-            e1Route.cost += p.getDistance( e1Route.sequence.back(), p.getSatellite(closestSatellite));
+        if (e1Route.tour.size() > 0) {
+            e1Route.cost += p.getDistance(p.getSatellite(e1Route.tour.back()), p.getSatellite(closestSatellite));
         } else {
-            e1Route.cost += p.getDistance( e1Route.departure, p.getSatellite(closestSatellite));
+            e1Route.cost += p.getDistance(p.getDepot(), p.getSatellite(closestSatellite));
         }
-        e1Route.sequence.push_back( p.getSatellite(closestSatellite));
+        e1Route.tour.push_back(p.getSatellite(closestSatellite).getSatelliteId());
         e1Route.load +=
                 solution.getSatelliteDemands()[closestSatellite] - solution.getDeliveredQ()[closestSatellite];
-        solution.getDeliveredQ()[e1Route.sequence.back().getSatelliteId()] = solution.getSatelliteDemands()[closestSatellite];
+        solution.getDeliveredQ()[e1Route.tour.back()] = solution.getSatelliteDemands()[closestSatellite];
 
     }
     // Ajout de la dernière route construite
-    e1Route.cost += p.getDistance(e1Route.departure, e1Route.sequence.back());
+    e1Route.cost += p.getDistance(p.getDepot(), p.getSatellite(e1Route.tour.back()));
 
     solution.getE1Routes().push_back(e1Route);
     solution.setTotalCost(solution.getTotalCost() + e1Route.cost);
-
-    cout << "End Heuristic" << endl;
 }
+
+// TODO rendre la méthode plus générale
+bool demandComparison(Client &c1, Client &c2) { return c1.getDemand() < c2.getDemand(); }
+/*
+void moveClients(Solution &solution){
+    vector<Client> clients(solution.getProblem()->getClients());
+    std::sort(clients.begin(),clients.end(),demandComparison);
+}*/
+/*
+void Heuristic::feasabilitySearch(Solution &solution){
+    short error;
+    while ( (error = solution.getProblem()->isValidSolution(solution)) != Problem::VALID_SOLUTION){
+        switch (error) {
+            case Problem::K1_VIOLATION :
+                break;
+            case Problem::K2_VIOLATION :
+                break;
+            default:
+                cout << "Erreur non encore traite" << endl;
+                break;
+            }
+    }
+
+}*/

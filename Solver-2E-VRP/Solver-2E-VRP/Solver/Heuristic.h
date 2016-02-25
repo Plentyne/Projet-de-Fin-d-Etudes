@@ -10,6 +10,8 @@
 class Heuristic {
 public:
     static void simpleHeuristic(const Problem p, Solution &solution);
+
+    static void feasabilitySearch(Solution &solution);
 };
 
 

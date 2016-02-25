@@ -14,8 +14,8 @@ void Solution::print() {
     // 1st Level Routes
     for (int i = 0; i < this->e1Routes.size(); ++i) {
         cout << "    Route " << i << " : 0";
-        for (Satellite s : this->e1Routes[i].sequence) {
-            cout << " S" << s.getSatelliteId() + 1;
+        for (int satellite : this->e1Routes[i].tour) {
+            cout << " S" << satellite + 1;
         }
         cout << " 0" << endl;
         cout << "        Cost : " << this->e1Routes[i].cost << endl;
@@ -25,11 +25,11 @@ void Solution::print() {
     cout << endl;
     cout << "Second level routes" << endl;
     for (int i = 0; i < this->e2Routes.size(); ++i) {
-        cout << "    Route " << i << " : S" << this->e2Routes[i].departure.getSatelliteId() + 1;
-        for (Client s : this->e2Routes[i].sequence) {
-            cout << " " << s.getClientId() + 1;
+        cout << "    Route " << i << " : S" << this->e2Routes[i].departureSatellite + 1;
+        for (int client : this->e2Routes[i].tour) {
+            cout << " " << client + 1;
         }
-        cout << " S" << this->e2Routes[i].departure.getSatelliteId() + 1 << endl;
+        cout << " S" << this->e2Routes[i].departureSatellite + 1 << endl;
         cout << "        Cost : " << this->e2Routes[i].cost << endl;
         cout << "        Load : " << this->e2Routes[i].load << endl;
     }
@@ -52,8 +52,8 @@ void Solution::saveHumanReadable(const string &fn, const string &header, const b
     // 1st Level Routes
     for (int i = 0; i < this->e1Routes.size(); ++i) {
         fh << "    Route " << i << " : 0";
-        for (Satellite s : this->e1Routes[i].sequence) {
-            fh << " S" << s.getSatelliteId() + 1;
+        for (int satellite : this->e1Routes[i].tour) {
+            fh << " S" << satellite + 1;
         }
         fh << " 0" << endl;
         fh << "        Cost : " << this->e1Routes[i].cost << endl;
@@ -63,11 +63,11 @@ void Solution::saveHumanReadable(const string &fn, const string &header, const b
     fh << endl;
     fh << "Second level routes" << endl;
     for (int i = 0; i < this->e2Routes.size(); ++i) {
-        fh << "    Route " << i << " : S" << this->e2Routes[i].departure.getSatelliteId() + 1;
-        for (Client s : this->e2Routes[i].sequence) {
-            fh << " " << s.getClientId() + 1;
+        fh << "    Route " << i << " : S" << this->e2Routes[i].departureSatellite + 1;
+        for (int client : this->e2Routes[i].tour) {
+            fh << " " << client + 1;
         }
-        fh << " S" << this->e2Routes[i].departure.getSatelliteId() + 1 << endl;
+        fh << " S" << this->e2Routes[i].departureSatellite + 1 << endl;
         fh << "        Cost : " << this->e2Routes[i].cost << endl;
         fh << "        Load : " << this->e2Routes[i].load << endl;
     }

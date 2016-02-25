@@ -11,6 +11,15 @@
 #include "../Config.h"
 #include "../Utility.h"
 
+const short Problem::K1_VIOLATION = 0;
+const short Problem::K2_VIOLATION = -1;
+const short Problem::E1CAP_VIOLATION = -2;
+const short Problem::E2CAP_VIOLATION = -3;
+const short Problem::MAXCF_VIOLATION = -4;
+const short Problem::UNSERVED_CLIENT_VIOLATION = -5;
+const short Problem::UNSERVED_SATELLITE_VIOLATION = -6;
+const short Problem::VALID_SOLUTION = 1;
+
 // CONSTRUCTORS
 Problem::Problem() : e1Capacity(0), e2Capacity(0), k1(0), k2(0), maxCf(0), depot{}, satellites{}, clients{} {
 
@@ -281,7 +290,7 @@ void Problem::readBreunigFile(const string &fn) {
 
 // TODO Make Solution parametre const
 // Todo implement == operator for problem comparison
-bool Problem::isValidSolution(const Solution &s) {
+short Problem::isValidSolution(const Solution &s) const {
     // If the solution was calculated for another problem
     //if (s.getProblem() != this) return false;
 
@@ -289,39 +298,45 @@ bool Problem::isValidSolution(const Solution &s) {
     // Check if all customers are correctly served
     if (s.getE2Routes().size() > this->k2) {
         cout << "Too many 2nd lvl routes" << endl;
-        return false;
+        return K2_VIOLATION;
     }
     vector<int> routedCustomers(this->clients.size());
     vector<int> routesPerSatellite(this->satellites.size());
     for (E2Route r : s.getE2Routes()) {
         if (r.load > this->e2Capacity) {
             cout << "Charge plus grande que la capacité du véhicule" << endl;
-            return false;
+            return E2CAP_VIOLATION;
         } // Charge plus grande que la capacité du véhicule
-        if (++routesPerSatellite[r.departure.getSatelliteId()] > this->maxCf) {
+        if (++routesPerSatellite[r.departureSatellite] > this->maxCf) {
             cout << "Plus de tournées que maxCF" << endl;
-            return false;
+            return MAXCF_VIOLATION;
         } // nombre de véhicules par satellite > maxCF/s
-        for (int i = 0; i < r.sequence.size(); i++)
-            ++routedCustomers[r.sequence[i].getClientId()];
+        for (int i = 0; i < r.tour.size(); i++)
+            ++routedCustomers[r.tour[i]];
     }
     for (int i = 0; i < this->clients.size(); i++)
         if (routedCustomers[i] != 1) {
             cout << "Client " << i << " visite : " << routedCustomers[i] << endl;
-            return false;
-        } // Si un client est n'est pas visité ou est visité plusieures fois
+            return UNSERVED_CLIENT_VIOLATION;
+        } // Si un client n'est pas visité ou est visité plusieures fois
 
     // Check if all satellites are correctly served
     if (s.getE1Routes().size() > this->k1) {
         cout << "too many 1st lvl vehicles" << endl;
-        return false;
+        return K1_VIOLATION;
     }
     for (int i = 0; i < this->satellites.size(); i++)
         if (s.getSatelliteDemands()[i] - s.getDeliveredQ()[i] != 0) {
             cout << "Erreur dans le service des satellites : satellite " << i + 1 << " " <<
             s.getSatelliteDemands()[i] - s.getDeliveredQ()[i] << endl;
-            return false;
+            return UNSERVED_SATELLITE_VIOLATION;
         }
+    for (E1Route r : s.getE1Routes()) {
+        if (r.load > this->e1Capacity) {
+            cout << "Charge plus grande que la capacité du véhicule" << endl;
+            return E1CAP_VIOLATION;
+        } // Charge plus grande que la capacité du véhicule
+    }
 
-    return true;
+    return VALID_SOLUTION;
 }

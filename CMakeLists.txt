@@ -27,6 +27,6 @@ set(SOURCE_FILES
         Solver-2E-VRP/Solver-2E-VRP/Utility.cpp
         Solver-2E-VRP/Solver-2E-VRP/Utility.h
         Solver-2E-VRP/Solver-2E-VRP/Solver/Heuristic.cpp
-        Solver-2E-VRP/Solver-2E-VRP/Solver/Heuristic.h)
+        Solver-2E-VRP/Solver-2E-VRP/Solver/Heuristic.h Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.cpp Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.h)
 
 add_executable(Projet_de_Fin_d_Etudes ${SOURCE_FILES})
