@@ -47,11 +47,11 @@ public:
     // Constructor
     Solution() : problem(nullptr), e1Routes(), e2Routes(), satelliteDemands(), deliveredQ(), routedCustomers() { }
 
-    Solution(const Problem *problem) : problem(problem), e1Routes{}, e2Routes{},
-                                       satelliteDemands{static_cast<int>(problem->getSatellites().size()), 0},
-                                       deliveredQ{static_cast<int>(problem->getSatellites().size()), 0},
-                                       routedCustomers{static_cast<int>(problem->getClients().size()), 0} { }
-
+    Solution(const Problem *problem) : totalCost(0), problem(problem), e1Routes{}, e2Routes{} {
+        this->satelliteDemands = vector<int>(static_cast<int>(problem->getSatellites().size()), 0);
+        this->deliveredQ = vector<int>(static_cast<int>(problem->getSatellites().size()), 0);
+        this->routedCustomers = vector<short>(static_cast<int>(problem->getClients().size()), 0);
+    }
     // Data Access Methods
     const Problem *getProblem() const {
         return problem;

@@ -12,6 +12,8 @@ Node::Node(double x, double y) : x(x), y(y) {
     this->nodeId = globalNodeId++;
 }
 
+Node::Node(const Node &n) : nodeId(n.nodeId), x(n.x), y(n.y) { };
+
 // Destructors
 Node::~Node() {
     //dtor

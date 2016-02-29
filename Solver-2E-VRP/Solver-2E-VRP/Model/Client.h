@@ -43,6 +43,7 @@ inline Client & Client::operator=(const Client & c) {
 
     return *this;
 }
+
 inline bool operator==(const Client & c1, const Client & c2) {
     return ( (static_cast<Node>(c1) == static_cast<Node>(c2))
               && (c1.demand == c2.demand)  );

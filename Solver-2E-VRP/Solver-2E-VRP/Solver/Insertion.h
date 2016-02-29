@@ -9,7 +9,9 @@
 
 class Insertion {
 public:
-    void insertionHeuristic(Solution &solution, Problem *problem);
+    static void GreedyInsertionHeuristic(Solution &solution, const Problem *problem);
+
+    static int getClosestSatellite(E1Route e1Route, const Solution &s);
 };
 
 

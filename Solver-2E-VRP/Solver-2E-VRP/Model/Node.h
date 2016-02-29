@@ -19,6 +19,9 @@ public:
     Node();
     Node(double x, double y);
 
+    Node(const Node &n);
+
+
     // Destructeurs
     virtual ~Node();
 

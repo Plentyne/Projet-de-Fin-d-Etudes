@@ -325,6 +325,12 @@ short Problem::isValidSolution(const Solution &s) const {
         cout << "too many 1st lvl vehicles" << endl;
         return K1_VIOLATION;
     }
+
+    if (s.getE1Routes().size() == 0) {
+        cout << "Satellites non servis" << endl;
+        return K1_VIOLATION;
+    }
+
     for (int i = 0; i < this->satellites.size(); i++)
         if (s.getSatelliteDemands()[i] - s.getDeliveredQ()[i] != 0) {
             cout << "Erreur dans le service des satellites : satellite " << i + 1 << " " <<
