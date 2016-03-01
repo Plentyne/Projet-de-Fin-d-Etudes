@@ -472,6 +472,7 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution, const Problem *prob
 
     // Construire les tournées du premier échelon
     // Construction des tournées du 1er échelon
+    // Todo changer par l'heuristiques pour le sdvrp
     E1Route e1Route;
     e1Route.tour.clear();
     e1Route.cost = 0;
@@ -505,18 +506,19 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution, const Problem *prob
             e1Route.tour.clear();
             e1Route.load = 0;
             e1Route.cost = 0;
-        }
-        // Ajout du satellite dans la tournée actuelle
-        if (e1Route.tour.size() > 0) {
-            e1Route.cost += problem->getDistance(problem->getSatellite(e1Route.tour.back()),
-                                                 problem->getSatellite(closestSatellite));
         } else {
-            e1Route.cost += problem->getDistance(problem->getDepot(), problem->getSatellite(closestSatellite));
+            // Ajout du satellite dans la tournée actuelle
+            if (e1Route.tour.size() > 0) {
+                e1Route.cost += problem->getDistance(problem->getSatellite(e1Route.tour.back()),
+                                                     problem->getSatellite(closestSatellite));
+            } else {
+                e1Route.cost += problem->getDistance(problem->getDepot(), problem->getSatellite(closestSatellite));
+            }
+            e1Route.tour.push_back(problem->getSatellite(closestSatellite).getSatelliteId());
+            e1Route.load +=
+                    solution.getSatelliteDemands()[closestSatellite] - solution.getDeliveredQ()[closestSatellite];
+            solution.getDeliveredQ()[e1Route.tour.back()] = solution.getSatelliteDemands()[closestSatellite];
         }
-        e1Route.tour.push_back(problem->getSatellite(closestSatellite).getSatelliteId());
-        e1Route.load +=
-                solution.getSatelliteDemands()[closestSatellite] - solution.getDeliveredQ()[closestSatellite];
-        solution.getDeliveredQ()[e1Route.tour.back()] = solution.getSatelliteDemands()[closestSatellite];
 
     }
     // Ajout de la dernière route construite
