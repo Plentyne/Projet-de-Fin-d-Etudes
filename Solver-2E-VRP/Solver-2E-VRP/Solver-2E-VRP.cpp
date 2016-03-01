@@ -12,6 +12,7 @@
 #include "./Model/Solution.h"
 #include "./Solver/Heuristic.h"
 #include "./Solver/Insertion.h"
+#include "./Solver/MoleJamesonHeuristic.h"
 #include "Utility.h"
 
 using namespace std;
@@ -23,14 +24,16 @@ int main()
 {
     Problem p;
     //p.readBreunigFile("../Input/Data/Set2b_E-n51-k5-s32-37.dat");
-    //p.readBreunigFile("../Input/Data/Test2.dat");
-    p.readBreunigFile("../Input/Data/Set5_100-5-1.dat");
+    p.readBreunigFile("../Input/Data/Test2.dat");
+    //p.readBreunigFile("../Input/Data/Set5_100-5-1.dat");
     Solution s(&p);
     cout << "s = " << s.getProblem()->getClients().size() << endl;
     //buildTestSolution(s, &p);
     //s.saveHumanReadable("Test.sol", "Solution Test2.dat", false);
     //Heuristic::simpleHeuristic(p, s);
-    Insertion::GreedyInsertionHeuristic(s, &p);
+    //Insertion::GreedyInsertionHeuristic(s, &p);
+    MoleJamesonHeuristic solver(&p, 0, 1);
+    solver.solve(s);
     s.print();
     //char x ;
     //cin >> x;

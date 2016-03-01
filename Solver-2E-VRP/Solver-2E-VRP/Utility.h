@@ -18,6 +18,8 @@ public:
     static const string CITY_FREIGHTER_DATA_RX;
     static const string STORES_DATA_RX;
     static const string CLIENTS_DATA_RX;
+
+    static int randomInt(int min, int max);
 };
 
 

@@ -7,6 +7,8 @@
 #include "Insertion.h"
 #include "../Config.h"
 
+// TODO remplacer la construction des tournées du premire échelon par l'heuristique pour le split
+
 int Insertion::getClosestSatellite(E1Route e1Route, const Solution &s) {
     double distance = Config::DOUBLE_INFINITY;
     int closestSatellite = -1;
