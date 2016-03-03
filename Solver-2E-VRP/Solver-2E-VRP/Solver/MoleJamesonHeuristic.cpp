@@ -132,7 +132,43 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
         // Si aucune insertion faisable alors
         if (nodeToInsert == -1) {
             // changer le satellite de la tournée actuelle par un meilleur
-            // Todo
+            double minCost = Config::DOUBLE_INFINITY;
+            double tmpCost;
+            int position = -1;
+            int satellite = -1;
+            for (int i = 0; i < this->problem->getSatellites().size(); ++i) {
+
+                for (int j = 0; j < e2route.tour.size(); ++j) {
+                    if (j == 0)
+                        tmpCost = this->problem->getDistance(problem->getSatellite(i),
+                                                             problem->getClient(e2route.tour[0]))
+                                  + this->problem->getDistance(problem->getSatellite(i),
+                                                               problem->getClient(e2route.tour[e2route.tour.size()]))
+                                  - this->problem->getDistance(problem->getSatellite(e2route.departureSatellite),
+                                                               problem->getClient(e2route.tour[0]))
+                                  - this->problem->getDistance(problem->getSatellite(e2route.departureSatellite),
+                                                               problem->getClient(e2route.tour[e2route.tour.size()]));
+
+                    else
+                        tmpCost = this->problem->getDistance(problem->getSatellite(i),
+                                                             problem->getClient(e2route.tour[j - 1]))
+                                  + this->problem->getDistance(problem->getSatellite(i),
+                                                               problem->getClient(e2route.tour[j]))
+                                  - this->problem->getDistance(problem->getSatellite(e2route.departureSatellite),
+                                                               problem->getClient(e2route.tour[j - 1]))
+                                  - this->problem->getDistance(problem->getSatellite(e2route.departureSatellite),
+                                                               problem->getClient(e2route.tour[j]));
+
+                    if (tmpCost < minCost) {
+                        minCost = tmpCost;
+                        position = j;
+                        satellite = i;
+                    }
+                }
+            }
+            e2route.cost += minCost;
+            e2route.departureSatellite = satellite;
+            std::rotate(e2route.tour.begin(), e2route.tour.begin() + position, e2route.tour.end());
             // Insérer la tournée actuelle dans la solution
             solution.getE2Routes().push_back(e2route);
             solution.getSatelliteDemands()[e2route.departureSatellite] += e2route.load;
@@ -202,12 +238,6 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
         else {
             for (int c = 0; c < unroutedClients.size(); ++c) {
                 int k = unroutedClients[c];
-
-                int lllll = this->problem->getClient(k).getDemand();
-                int ggggg = this->problem->getE2Capacity() - e2route.load;
-
-                bool test = lllll > ggggg;
-                bool test2 = (this->problem->getClient(k).getDemand() > this->problem->getE2Capacity() - e2route.load);
 
                 if (this->problem->getClient(k).getDemand() > this->problem->getE2Capacity() - e2route.load) continue;
                 // On pose : L le dernier noeud inséré entre iL et jL
