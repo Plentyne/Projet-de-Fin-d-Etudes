@@ -35,8 +35,13 @@ int main()
     MoleJamesonHeuristic solver(&p, 2, 1);
     solver.solve(s);
     s.print();
+    //s.saveHumanReadable("Test.sol","Solution Set5_100-5_1 avec 2opt",false);
     //char x ;
     //cin >> x;
+    //vector<int> v{1,2,3,4,5,6};
+    //std::reverse(v.begin()+1,v.begin()+6);
+    //for(int i = 0; i< v.size() ; i++) cout << v[i] << " ";
+    //cout << endl;
     cout << "Validity : " << p.isValidSolution(s) << endl;
 
     return 0;

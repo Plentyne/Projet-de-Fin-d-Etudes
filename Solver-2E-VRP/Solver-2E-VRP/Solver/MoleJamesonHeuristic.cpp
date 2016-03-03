@@ -6,6 +6,7 @@
 #include "MoleJamesonHeuristic.h"
 #include "../Config.h"
 #include "../Utility.h"
+#include "LSSolver.h"
 
 
 // TODO Clean le code
@@ -33,6 +34,12 @@ int MoleJamesonHeuristic::getClosestSatellite(E1Route e1Route, const Solution &s
     return closestSatellite;
 }
 
+/* Todo Rajouter une recherche locale pour améliorer la solution obtenue
+ * Décider de l'endroit où placer la recherche locale :
+ *      - Avant l'insertion d'une tournée
+ *      - Après la construction de toutes les tournées
+ */
+
 /* Adaptation de l'heuristic de Mole and Jameson
  * Noms des fonctions repris de toth et vigo : alpha pour déterminer la meilleure position pour l'insertion et beta pour qui insérer
  *  Proposée par C.Prins
@@ -49,8 +56,10 @@ struct alphaEnt {
 };
 
 double MoleJamesonHeuristic::alpha(Node i, Node k, Node j) {
-    return (this->problem->getDistance(i, k) + this->problem->getDistance(k, j) -
-            lambda * this->problem->getDistance(i, j));
+    double ik = this->problem->getDistance(i, k);
+    double kj = this->problem->getDistance(k, j);
+    double ij = this->problem->getDistance(i, j);
+    return (ik + kj - (lambda * ij));
 }
 
 double MoleJamesonHeuristic::beta(E2Route route, Node i, Node k, Node j) {
@@ -63,8 +72,7 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
         solution = Solution(this->problem);
     }
 
-    this->problem = solution.getProblem();
-
+    bool improve = true;
     // Initialiser la liste des clients non routés Todo améliorer cette partie
     deque<int> unroutedClients{};
     vector<int> tmpClients(this->problem->getClients().size(), 0);
@@ -95,7 +103,6 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
 
     for (int c = 0; c < unroutedClients.size(); ++c) {
         int k = unroutedClients[c];
-        Client tttt = this->problem->getClient(k);
         alphas[k].alpha = Config::DOUBLE_INFINITY;
         alphas[k].i = -1;
         alphas[k].j = -1;
@@ -111,7 +118,7 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
             if (u == e2route.tour.size()) jk = this->problem->getSatellite(e2route.departureSatellite);
             else jk = this->problem->getClient(e2route.tour[u]);
 
-            if (alpha(ik, tttt, jk) < alphas[k].alpha) {
+            if (alpha(ik, this->problem->getClient(k), jk) < alphas[k].alpha) {
                 alphas[k].alpha = alpha(ik, this->problem->getClient(k), jk);
                 alphas[k].i = ik.getNodeId();
                 alphas[k].j = jk.getNodeId();
@@ -131,6 +138,7 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
         lastInserted = -1;
         // Si aucune insertion faisable alors
         if (nodeToInsert == -1) {
+
             // changer le satellite de la tournée actuelle par un meilleur
             double minCost = Config::DOUBLE_INFINITY;
             double tmpCost;
@@ -143,11 +151,11 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
                         tmpCost = this->problem->getDistance(problem->getSatellite(i),
                                                              problem->getClient(e2route.tour[0]))
                                   + this->problem->getDistance(problem->getSatellite(i),
-                                                               problem->getClient(e2route.tour[e2route.tour.size()]))
+                                                               problem->getClient(e2route.tour.back()))
                                   - this->problem->getDistance(problem->getSatellite(e2route.departureSatellite),
                                                                problem->getClient(e2route.tour[0]))
                                   - this->problem->getDistance(problem->getSatellite(e2route.departureSatellite),
-                                                               problem->getClient(e2route.tour[e2route.tour.size()]));
+                                                               problem->getClient(e2route.tour.back()));
 
                     else
                         tmpCost = this->problem->getDistance(problem->getSatellite(i),
@@ -170,6 +178,16 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
             e2route.departureSatellite = satellite;
             std::rotate(e2route.tour.begin(), e2route.tour.begin() + position, e2route.tour.end());
             // Insérer la tournée actuelle dans la solution
+            // Calculer le nouveau côut de la route
+            e2route.cost = this->problem->getDistance(this->problem->getSatellite(e2route.departureSatellite),
+                                                      this->problem->getClient(e2route.tour[0]))
+                           + this->problem->getDistance(this->problem->getSatellite(e2route.departureSatellite),
+                                                        this->problem->getClient(
+                                                                e2route.tour[e2route.tour.size() - 1]));;
+            for (int k = 0; k < e2route.tour.size() - 1; ++k) {
+                e2route.cost += this->problem->getDistance(this->problem->getClient(e2route.tour[k]),
+                                                           this->problem->getClient(e2route.tour[k + 1]));
+            }
             solution.getE2Routes().push_back(e2route);
             solution.getSatelliteDemands()[e2route.departureSatellite] += e2route.load;
             solution.setTotalCost(solution.getTotalCost() + e2route.cost);
@@ -188,14 +206,13 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
         else { // Sinon
             // insérer dans la tournée le client k* tq beta(ik*,k*, jk*) = max { beta(ik,k,jk) }
             lastInserted = unroutedClients[nodeToInsert];
-            e2route.cost += alphas[lastInserted].alpha;
+            //e2route.cost += alphas[lastInserted].alpha;
             e2route.load += this->problem->getClient(lastInserted).getDemand();
             if (alphas[lastInserted].position == e2route.tour.size()) e2route.tour.push_back(lastInserted);
             else e2route.tour.insert(e2route.tour.begin() + alphas[lastInserted].position, lastInserted);
             // Enlever le client de la liste des clients non routés
             unroutedClients.erase(unroutedClients.begin() + nodeToInsert);
-            // Optimiser la tournée actuelle avec 3-opt
-            // Todo optimisation de la tournée en cours de construction
+
         }
         // FSI
         // Maj les valeurs alpha*(ik, k, jk) = min{ alpha(q,k,p)} pour chaque client k non encore routé et pouvant être inséré dans la tournée actuelle
@@ -317,13 +334,14 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
     }
     // Ftq
     //
-    // Insérer la dernière tournée construi dans la solution
+    // Insérer la dernière tournée construite dans la solution
     solution.getE2Routes().push_back(e2route);
     solution.getSatelliteDemands()[e2route.departureSatellite] += e2route.load;
     solution.setTotalCost(solution.getTotalCost() + e2route.cost);
+
     // Réparer si le nombre de tournées du 2nd echelon est trop grand
     // TODO Feasability Search
-    // Construire les tournées du premier échelon
+
     // Construire les tournées du premier échelon
     // Todo changer par l'heuristiques pour le sdvrp
     E1Route e1Route;
@@ -376,7 +394,6 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
     }
     // Ajout de la dernière route construite
     e1Route.cost += problem->getDistance(problem->getDepot(), problem->getSatellite(e1Route.tour.back()));
-
     solution.getE1Routes().push_back(e1Route);
     solution.setTotalCost(solution.getTotalCost() + e1Route.cost);
 

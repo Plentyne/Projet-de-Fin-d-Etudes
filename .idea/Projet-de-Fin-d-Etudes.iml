@@ -5,8 +5,8 @@
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/stdafx.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Config.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/targetver.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Utility.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Node.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Client.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Depot.cpp" isTestSource="false" />
@@ -19,14 +19,16 @@
       <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Solution.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Satellite.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Client.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/targetver.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Utility.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/MoleJamesonHeuristic.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/MoleJamesonHeuristic.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Heuristic.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Heuristic.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Heuristic.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Utility.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/MoleJamesonHeuristic.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/stdafx.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver-2E-VRP/Solver-2E-VRP/Config.cpp" isTestSource="false" />
     </content>
