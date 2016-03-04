@@ -188,6 +188,11 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
                 e2route.cost += this->problem->getDistance(this->problem->getClient(e2route.tour[k]),
                                                            this->problem->getClient(e2route.tour[k + 1]));
             }
+            // Amélioration de la tournée Todo Enlever après
+            // LSSolver ls(this->problem);
+            // ls.applyOrOpt(e2route,2);
+            //--------------------------------------------
+
             solution.getE2Routes().push_back(e2route);
             solution.getSatelliteDemands()[e2route.departureSatellite] += e2route.load;
             solution.setTotalCost(solution.getTotalCost() + e2route.cost);

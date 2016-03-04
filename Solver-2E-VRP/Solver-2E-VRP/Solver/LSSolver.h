@@ -15,7 +15,20 @@ private:
 public:
     LSSolver(const Problem *problem) : problem(problem) { };
 
-    double apply2OptOnTour(E2Route &e2Route);
+    // Mouvements intra-route
+    /* Applique 2-opt sur la tournée jusqu'à atteindre un optimum local (Strategie : Best Improvement)*/
+    bool apply2OptOnTour(E2Route &e2Route);
+
+    /* Applique Or-opt à la tournée*/
+    bool applyOrOpt(E2Route &e2Route, int seqLength);
+    /* 3-opt */
+    /* GENI Insertion */
+
+    // Mouvements Inter-routes
+    /* Shift (parfois appelé Relocate)*/
+    /* Swap  (parfois appelé Exchange)*/
+    /* 2-opt* */
+    /* Cyclic transfer operator*/
 };
 
 
