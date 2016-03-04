@@ -125,6 +125,8 @@ bool LSSolver::applyOrOpt(E2Route &e2Route, int seqLength) {
 
             // For Each position k in tmpTour
             for (int w = 0; w <= tmpTour.size(); ++w) {
+
+                if (w == u) continue;
                 // Compute the cost of inserting i->..->j at position k : dInsertion
                 // Removed arc is (k-1,k). New arcs are (k-1,i) and (j,k)
                 // dInsertion = c(k-1,i)+c(j,k)-c(k-1,k)
@@ -133,12 +135,12 @@ bool LSSolver::applyOrOpt(E2Route &e2Route, int seqLength) {
                     k = this->problem->getClient(tmpTour[w]);
                 }
                 else if (w == tmpTour.size()) {
-                    k_1 = this->problem->getClient(tmpTour[w]);
+                    k_1 = this->problem->getClient(tmpTour[w - 1]);
                     k = this->problem->getSatellite(e2Route.departureSatellite);
                 }
                 else {
                     k_1 = this->problem->getClient(tmpTour[w - 1]);
-                    k = this->problem->getSatellite(e2Route.departureSatellite);
+                    k = this->problem->getClient(tmpTour[w]);
                 }
 
                 dInsertion = this->problem->getDistance(k_1, i) + this->problem->getDistance(j, k) -
@@ -146,7 +148,6 @@ bool LSSolver::applyOrOpt(E2Route &e2Route, int seqLength) {
 
                 // The overall change is defined as : delta = dRemoval + dInsertion
                 delta = dRemoval + dInsertion;
-
                 // If ( delta < 0 ) there is improvement
                 if (delta < bestDelta) {
                     // Save the insert position and the change in cost
@@ -165,8 +166,8 @@ bool LSSolver::applyOrOpt(E2Route &e2Route, int seqLength) {
             e2Route.tour.insert(e2Route.tour.begin() + position, sequence.begin(), sequence.end());
             e2Route.cost += bestDelta;
         }
-    } while (delta < 0); // While there is improvement
 
+    } while (delta < 0); // While there is improvement
 
     return (e2Route.cost < oldCost);
 }

@@ -189,8 +189,8 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
                                                            this->problem->getClient(e2route.tour[k + 1]));
             }
             // Amélioration de la tournée Todo Enlever après
-            // LSSolver ls(this->problem);
-            // ls.applyOrOpt(e2route,2);
+            LSSolver ls(this->problem);
+            ls.applyOrOpt(e2route, 2);
             //--------------------------------------------
 
             solution.getE2Routes().push_back(e2route);
