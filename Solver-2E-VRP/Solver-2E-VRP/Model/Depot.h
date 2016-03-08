@@ -10,9 +10,13 @@ public:
 
     /** constructor */ Depot(const double &x, const double &y);
 
+
+
 	//access methods
 
-	// operators
+	virtual ~Depot() { }
+
+// operators
 	Depot & operator=(const Depot & d);
 
 	// friends

@@ -19,7 +19,9 @@ public:
     /** constructor */ Satellite(const double &x, const double &y);
 
 	// access
-	/** get satellite id */ int getSatelliteId() const { return this->satelliteId; };
+	virtual ~Satellite() { }
+
+/** get satellite id */ int getSatelliteId() const { return this->satelliteId; };
 
 	// method
 

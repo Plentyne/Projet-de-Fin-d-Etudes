@@ -19,8 +19,11 @@ public:
     /** constructor */ Client(const double &x, const double &y, const int & demand);
     /** copying constructor */ Client(const Client & c);
 
+
     // access
-    /** get client id*/ int getClientId() const { return clientId; };
+    virtual ~Client() { }
+
+/** get client id*/ int getClientId() const { return clientId; };
     /** set demand value */ void setDemand(const int & value) { this->demand = value; };
     /** get demand value */ int getDemand()  const { return this->demand; };
 
@@ -33,7 +36,7 @@ public:
 };
 
 inline Client & Client::operator=(const Client & c) {
-    if (&c!=this) {
+    if (c != *this) {
         this->nodeId = c.nodeId;
         this->clientId = c.clientId;
         this->x = c.x;

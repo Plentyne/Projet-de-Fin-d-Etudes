@@ -39,12 +39,21 @@ public:
     static double distance(Node a, Node b);
 
     // Operators
+    Node &operator=(const Node &n);
     friend bool operator== (const Node & a, const Node & b);
     friend bool operator!=(const Node & a, const Node & b);
 
 };
 
 // Operators implementation
+inline Node &Node::operator=(const Node &n) {
+    if (*this != n) {
+        this->nodeId = n.nodeId;
+        this->x = n.x;
+        this->y = n.y;
+    }
+}
+
 inline bool operator==(const Node & a, const Node & b) {
     if (typeid(a) != typeid(b)) return false;
     return (a.x == b.x) && (a.y == b.y);

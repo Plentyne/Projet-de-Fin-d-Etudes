@@ -136,6 +136,7 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
     // Tant qu'il y a des clients non servis faire
     while (unroutedClients.size() > 0) {
         lastInserted = -1;
+
         // Si aucune insertion faisable alors
         if (nodeToInsert == -1) {
 
@@ -189,8 +190,10 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
                                                            this->problem->getClient(e2route.tour[k + 1]));
             }
             // Amélioration de la tournée Todo Enlever après
-            LSSolver ls(this->problem);
-            ls.applyOrOpt(e2route, 2);
+            //LSSolver ls(this->problem);
+            //ls.apply2OptOnTour(e2route);
+            //ls.applyOrOpt(e2route,2);
+            //ls.applyOrOpt(e2route,3);
             //--------------------------------------------
 
             solution.getE2Routes().push_back(e2route);
@@ -261,6 +264,7 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
             for (int c = 0; c < unroutedClients.size(); ++c) {
                 int k = unroutedClients[c];
 
+
                 if (this->problem->getClient(k).getDemand() > this->problem->getE2Capacity() - e2route.load) continue;
                 // On pose : L le dernier noeud inséré entre iL et jL
 
@@ -275,7 +279,7 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
 
                     if (alphas[lastInserted].position == e2route.tour.size())
                         jk = this->problem->getSatellite(e2route.departureSatellite);
-                    else jk = this->problem->getClient(e2route.tour[alphas[lastInserted].position + 1]);
+                    else jk = this->problem->getClient(e2route.tour[alphas[lastInserted].position]);
                     // Tester la valeur alpha(iL,k,L)
                     if (alpha(ik, this->problem->getClient(k), this->problem->getClient(lastInserted)) <
                         alphas[k].alpha) {
@@ -340,12 +344,51 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
     // Ftq
     //
     // Insérer la dernière tournée construite dans la solution
+    e2route.cost = this->problem->getDistance(this->problem->getSatellite(e2route.departureSatellite),
+                                              this->problem->getClient(e2route.tour[0]))
+                   + this->problem->getDistance(this->problem->getSatellite(e2route.departureSatellite),
+                                                this->problem->getClient(
+                                                        e2route.tour[e2route.tour.size() - 1]));;
+    for (int k = 0; k < e2route.tour.size() - 1; ++k) {
+        e2route.cost += this->problem->getDistance(this->problem->getClient(e2route.tour[k]),
+                                                   this->problem->getClient(e2route.tour[k + 1]));
+    }
     solution.getE2Routes().push_back(e2route);
     solution.getSatelliteDemands()[e2route.departureSatellite] += e2route.load;
     solution.setTotalCost(solution.getTotalCost() + e2route.cost);
 
     // Réparer si le nombre de tournées du 2nd echelon est trop grand
     // TODO Feasability Search
+
+    // Amélioration de la tournée Todo Enlever après
+    LSSolver ls(this->problem);
+    //ls.applySwap(solution);
+    int llllll;
+    //ls.applyRelocate(solution);
+    //ls.applySwap(solution);
+    //ls.applyRelocate(solution);
+    int imp;
+    do {
+        imp = solution.getTotalCost();
+
+        ls.applySwap(solution);
+        ls.applyRelocate(solution);
+        for (E2Route &e2route : solution.getE2Routes()) {
+            solution.setTotalCost(solution.getTotalCost() - e2route.cost);
+
+            ls.applyOrOpt(e2route, 1);
+            ls.applyOrOpt(e2route, 2);
+            ls.applyOrOpt(e2route, 3);
+            ls.apply2OptOnTour(e2route);
+            solution.setTotalCost(solution.getTotalCost() + e2route.cost);
+        }
+        //ls.apply2OptOnTour(e2route);
+        //ls.applyOrOpt(e2route,2);
+        //ls.applyOrOpt(e2route,3);
+        imp = solution.getTotalCost() - imp;
+    } while (imp < -0.0001);
+
+    //--------------------------------------------
 
     // Construire les tournées du premier échelon
     // Todo changer par l'heuristiques pour le sdvrp
