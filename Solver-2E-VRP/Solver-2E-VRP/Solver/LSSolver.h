@@ -13,6 +13,7 @@ private:
     // static int calls;
 
 public:
+    LSSolver() : problem(nullptr) { };
     LSSolver(const Problem *problem) : problem(problem) { };
 
     // Mouvements intra-route

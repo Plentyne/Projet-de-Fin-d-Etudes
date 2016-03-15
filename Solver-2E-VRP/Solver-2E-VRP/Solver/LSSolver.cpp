@@ -73,6 +73,7 @@ bool LSSolver::apply2OptOnTour(E2Route &e2Route) {
 bool LSSolver::applyOrOpt(E2Route &e2Route, int seqLength) {
 
     if (seqLength < 1) return false;
+    if (e2Route.tour.size() <= 2) return false;
     if (e2Route.tour.size() <= seqLength) return false;
 
     vector<int> tmpTour;

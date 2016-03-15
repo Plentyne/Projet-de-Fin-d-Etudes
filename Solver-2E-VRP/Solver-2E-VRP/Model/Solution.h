@@ -52,6 +52,8 @@ public:
         this->deliveredQ = vector<int>(static_cast<int>(problem->getSatellites().size()), 0);
         this->routedCustomers = vector<short>(static_cast<int>(problem->getClients().size()), 0);
     }
+
+    Solution(const Solution &solution);
     // Data Access Methods
     const Problem *getProblem() const {
         return problem;
