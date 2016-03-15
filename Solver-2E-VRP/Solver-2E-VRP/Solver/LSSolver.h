@@ -30,6 +30,7 @@ public:
     /* Swap  (parfois appelé Exchange)*/
     bool applySwap(Solution &solution);
     /* 2-opt* */
+    bool apply2optStar(Solution &solution);
     /* Cyclic transfer operator*/
 };
 

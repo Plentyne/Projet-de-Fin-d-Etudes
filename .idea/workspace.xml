@@ -11,24 +11,13 @@
     </ADDITIONAL_GENERATION_ENVIRONMENT>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d085a341-2604-45ce-8f6d-ee808bc6c283" name="Default" comment="Implémentation de Relocate et de Swap">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Input/Data/Set5_200-10-1.dat" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/IDCH.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/IDCH.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/SDVRPSolver.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/SDVRPSolver.h" />
+    <list default="true" id="d085a341-2604-45ce-8f6d-ee808bc6c283" name="Default" comment="1ere correction de la fonction insertion">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Debug/Projet_de_Fin_d_Etudes.exe" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Debug/Projet_de_Fin_d_Etudes.exe" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/Projet-de-Fin-d-Etudes.iml" afterPath="$PROJECT_DIR$/.idea/Projet-de-Fin-d-Etudes.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CMakeLists.txt" afterPath="$PROJECT_DIR$/CMakeLists.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Solution.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Solution.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Solution.h" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Solution.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.h" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.h" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/MoleJamesonHeuristic.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/MoleJamesonHeuristic.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Utility.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Utility.cpp" />
     </list>
     <ignored path="Projet-de-Fin-d-Etudes.iws" />
@@ -57,7 +46,7 @@
         <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="25" column="52" selection-start-line="25" selection-start-column="52" selection-end-line="25" selection-end-column="52" />
+              <caret line="28" column="4" selection-start-line="28" selection-start-column="4" selection-end-line="28" selection-end-column="4" />
               <folding>
                 <element signature="e#214#242#0" expanded="true" />
               </folding>
@@ -65,55 +54,15 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SDVRPSolver.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/SDVRPSolver.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="294" column="26" selection-start-line="294" selection-start-column="26" selection-end-line="294" selection-end-column="26" />
-              <folding>
-                <element signature="e#43#67#0" expanded="true" />
-                <element signature="e#131#216#0" expanded="false" />
-                <element signature="e#218#261#1" expanded="false" />
-                <element signature="e#264#334#0" expanded="false" />
-                <element signature="e#336#5313#0" expanded="false" />
-                <element signature="e#5315#7949#0" expanded="false" />
-                <element signature="e#7951#12063#0" expanded="false" />
-                <element signature="e#18048#23773#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MoleJamesonHeuristic.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/MoleJamesonHeuristic.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="16" />
-              <folding>
-                <element signature="e#43#59#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SDVRPSolver.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/SDVRPSolver.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="12" column="44" selection-start-line="12" selection-start-column="44" selection-end-line="12" selection-end-column="44" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="Insertion.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-2.5">
-              <caret line="5" column="22" selection-start-line="5" selection-start-column="22" selection-end-line="5" selection-end-column="22" />
+            <state vertical-scroll-proportion="0.82733816">
+              <caret line="308" column="28" selection-start-line="308" selection-start-column="28" selection-end-line="308" selection-end-column="28" />
               <folding>
-                <element signature="e#303#1139#0" expanded="false" />
-                <element signature="e#2936#4737#0" expanded="false" />
+                <element signature="e#42#59#0" expanded="true" />
+                <element signature="e#303#1152#0" expanded="false" />
+                <element signature="e#2966#4768#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -135,11 +84,13 @@
         <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.cpp">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="110" column="44" selection-start-line="110" selection-start-column="44" selection-end-line="110" selection-end-column="44" />
+              <caret line="448" column="41" selection-start-line="448" selection-start-column="41" selection-end-line="448" selection-end-column="41" />
               <folding>
-                <element signature="e#115#2912#0" expanded="false" />
-                <element signature="e#6797#12414#0" expanded="false" />
-                <element signature="e#12416#19446#0" expanded="false" />
+                <element signature="e#43#64#0" expanded="true" />
+                <element signature="e#111#2939#0" expanded="false" />
+                <element signature="e#2941#6853#0" expanded="false" />
+                <element signature="e#6854#12502#0" expanded="false" />
+                <element signature="e#12535#19565#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -149,7 +100,7 @@
         <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.h">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="15" column="37" selection-start-line="15" selection-start-column="37" selection-end-line="15" selection-end-column="37" />
+              <caret line="32" column="43" selection-start-line="32" selection-start-column="43" selection-end-line="32" selection-end-column="43" />
               <folding />
             </state>
           </provider>
@@ -170,6 +121,16 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
               <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Utility.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Utility.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="22" column="80" selection-start-line="22" selection-start-column="80" selection-end-line="22" selection-end-column="80" />
               <folding />
             </state>
           </provider>
@@ -208,17 +169,17 @@
         <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Client.h" />
         <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Depot.h" />
         <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Satellite.h" />
-        <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.cpp" />
         <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Solution.h" />
         <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Solution.cpp" />
         <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/SDVRPSolver.cpp" />
-        <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Utility.cpp" />
-        <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp" />
         <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/MoleJamesonHeuristic.cpp" />
         <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/SDVRPSolver.h" />
-        <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.h" />
-        <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.cpp" />
         <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.h" />
+        <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.h" />
+        <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Utility.cpp" />
+        <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp" />
+        <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.cpp" />
+        <option value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.cpp" />
       </list>
     </option>
   </component>
@@ -325,28 +286,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="Solver-2E-VRP" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Projet-de-Fin-d-Etudes" />
-              <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Projet-de-Fin-d-Etudes" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Solver-2E-VRP" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Solver-2E-VRP" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Solver" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -532,7 +471,13 @@
       <option name="project" value="LOCAL" />
       <updated>1457437504633</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="1ere correction de la fonction insertion">
+      <created>1458033687127</created>
+      <option name="number" value="00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1458033687127</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TodoView">
@@ -554,11 +499,11 @@
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289689" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23240589" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28641573" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.27168575" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21567164" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289689" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20130932" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.5695581" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -618,7 +563,8 @@
     <MESSAGE value="Implémentation OR-opt sur une tournée" />
     <MESSAGE value="Correction OR-opt sur une tournée" />
     <MESSAGE value="Implémentation de Relocate et de Swap" />
-    <option name="LAST_COMMIT_MESSAGE" value="Implémentation de Relocate et de Swap" />
+    <MESSAGE value="1ere correction de la fonction insertion" />
+    <option name="LAST_COMMIT_MESSAGE" value="1ere correction de la fonction insertion" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -627,9 +573,18 @@
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="188" />
+      <option name="time" value="223" />
     </breakpoint-manager>
-    <watches-manager />
+    <watches-manager>
+      <configuration name="CMakeRunConfiguration">
+        <watch expression="lllll" />
+        <watch expression="u" />
+        <watch expression="v" />
+        <watch expression="i" />
+        <watch expression="j" />
+        <watch expression="costChange" />
+      </configuration>
+    </watches-manager>
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Heuristic.h">
@@ -810,6 +765,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="1014" column="0" selection-start-line="1014" selection-start-column="0" selection-end-line="1014" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -897,6 +853,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.41744548">
           <caret line="21" column="14" selection-start-line="21" selection-start-column="14" selection-end-line="21" selection-end-column="14" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -923,7 +880,7 @@
           <folding>
             <element signature="e#701#1972#0" expanded="false" />
             <element signature="e#1974#3624#0" expanded="false" />
-            <marker date="1457970573230" expanded="true" signature="130:699" placeholder="{...}" />
+            <marker date="1458033616537" expanded="true" signature="130:704" placeholder="{...}" />
           </folding>
         </state>
       </provider>
@@ -936,21 +893,62 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Utility.cpp">
+    <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/MoleJamesonHeuristic.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="25" column="32" selection-start-line="25" selection-start-column="32" selection-end-line="25" selection-end-column="32" />
+          <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="16" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp">
+    <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/SDVRPSolver.h">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="25" column="52" selection-start-line="25" selection-start-column="52" selection-end-line="25" selection-end-column="52" />
+          <caret line="12" column="46" selection-start-line="12" selection-start-column="46" selection-end-line="12" selection-end-column="46" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="32" column="43" selection-start-line="32" selection-start-column="43" selection-end-line="32" selection-end-column="43" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="23" column="21" selection-start-line="23" selection-start-column="21" selection-end-line="23" selection-end-column="21" />
           <folding>
-            <element signature="e#214#242#0" expanded="true" />
+            <element signature="e#130#160#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/SDVRPSolver.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="298" column="26" selection-start-line="298" selection-start-column="26" selection-end-line="298" selection-end-column="26" />
+          <folding>
+            <element signature="e#43#67#0" expanded="true" />
+            <element signature="e#131#217#0" expanded="false" />
+            <element signature="e#219#263#1" expanded="false" />
+            <element signature="e#266#337#0" expanded="false" />
+            <element signature="e#339#5442#0" expanded="false" />
+            <element signature="e#5444#8078#0" expanded="false" />
+            <element signature="e#8080#12261#0" expanded="false" />
+            <element signature="e#18250#24145#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Utility.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="22" column="80" selection-start-line="22" selection-start-column="80" selection-end-line="22" selection-end-column="80" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -970,29 +968,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/SDVRPSolver.cpp">
+    <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="294" column="26" selection-start-line="294" selection-start-column="26" selection-end-line="294" selection-end-column="26" />
+          <caret line="28" column="4" selection-start-line="28" selection-start-column="4" selection-end-line="28" selection-end-column="4" />
           <folding>
-            <element signature="e#43#67#0" expanded="true" />
-            <element signature="e#131#216#0" expanded="false" />
-            <element signature="e#218#261#1" expanded="false" />
-            <element signature="e#264#334#0" expanded="false" />
-            <element signature="e#336#5313#0" expanded="false" />
-            <element signature="e#5315#7949#0" expanded="false" />
-            <element signature="e#7951#12063#0" expanded="false" />
-            <element signature="e#18048#23773#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/MoleJamesonHeuristic.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="16" />
-          <folding>
-            <element signature="e#43#59#0" expanded="true" />
+            <element signature="e#214#242#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1000,48 +981,25 @@
     <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="110" column="44" selection-start-line="110" selection-start-column="44" selection-end-line="110" selection-end-column="44" />
+          <caret line="448" column="41" selection-start-line="448" selection-start-column="41" selection-end-line="448" selection-end-column="41" />
           <folding>
-            <element signature="e#115#2912#0" expanded="false" />
-            <element signature="e#6797#12414#0" expanded="false" />
-            <element signature="e#12416#19446#0" expanded="false" />
+            <element signature="e#43#64#0" expanded="true" />
+            <element signature="e#111#2939#0" expanded="false" />
+            <element signature="e#2941#6853#0" expanded="false" />
+            <element signature="e#6854#12502#0" expanded="false" />
+            <element signature="e#12535#19565#0" expanded="false" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="15" column="37" selection-start-line="15" selection-start-column="37" selection-end-line="15" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="23" column="21" selection-start-line="23" selection-start-column="21" selection-end-line="23" selection-end-column="21" />
-          <folding>
-            <element signature="e#130#160#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/SDVRPSolver.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="12" column="44" selection-start-line="12" selection-start-column="44" selection-end-line="12" selection-end-column="44" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.5">
-          <caret line="5" column="22" selection-start-line="5" selection-start-column="22" selection-end-line="5" selection-end-column="22" />
+        <state vertical-scroll-proportion="0.82733816">
+          <caret line="308" column="28" selection-start-line="308" selection-start-column="28" selection-end-line="308" selection-end-column="28" />
           <folding>
-            <element signature="e#303#1139#0" expanded="false" />
-            <element signature="e#2936#4737#0" expanded="false" />
+            <element signature="e#42#59#0" expanded="true" />
+            <element signature="e#303#1152#0" expanded="false" />
+            <element signature="e#2966#4768#0" expanded="false" />
           </folding>
         </state>
       </provider>

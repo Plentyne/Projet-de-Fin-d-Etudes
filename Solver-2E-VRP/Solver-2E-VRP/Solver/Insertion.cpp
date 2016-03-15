@@ -220,15 +220,11 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
     double imp;
     do {
         imp = solution.getTotalCost();
-
+        lsSolver.apply2optStar(solution);
         lsSolver.applySwap(solution);
         lsSolver.applyRelocate(solution);
         for (E2Route &e2route : solution.getE2Routes()) {
             solution.setTotalCost(solution.getTotalCost() - e2route.cost);
-
-            lsSolver.applyOrOpt(e2route, 1);
-            lsSolver.applyOrOpt(e2route, 2);
-            lsSolver.applyOrOpt(e2route, 3);
             lsSolver.apply2OptOnTour(e2route);
             solution.setTotalCost(solution.getTotalCost() + e2route.cost);
         }
@@ -298,15 +294,14 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
 
     do {
         imp = solution.getTotalCost();
-
-        lsSolver.applySwap(solution);
+        lsSolver.apply2optStar(solution);
         lsSolver.applyRelocate(solution);
+        lsSolver.applySwap(solution);
         for (E2Route &e2route : solution.getE2Routes()) {
             solution.setTotalCost(solution.getTotalCost() - e2route.cost);
-
-            lsSolver.applyOrOpt(e2route, 1);
-            lsSolver.applyOrOpt(e2route, 2);
-            lsSolver.applyOrOpt(e2route, 3);
+            //lsSolver.applyOrOpt(e2route, 1);
+            //lsSolver.applyOrOpt(e2route, 2);
+            //lsSolver.applyOrOpt(e2route, 3);
             lsSolver.apply2OptOnTour(e2route);
             solution.setTotalCost(solution.getTotalCost() + e2route.cost);
         }
