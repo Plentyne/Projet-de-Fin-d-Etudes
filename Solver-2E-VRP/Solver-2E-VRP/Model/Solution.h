@@ -58,6 +58,9 @@ public:
         }
     }
 
+    // Operators
+    Solution &operator=(const Solution &solution);
+
     Solution(const Solution &solution);
     // Data Access Methods
     const Problem *getProblem() const {

@@ -303,6 +303,12 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
     //--------------------------------------------
     // Construction des tournées du 1er échelon
     solution.getE1Routes().clear();
+    /*for (int k = 0; k < solution.getSatelliteDemands().size(); ++k) {
+        solution.getSatelliteDemands()[k] =0;
+    }
+    for (E2Route &route : solution.getE2Routes()) {
+        solution.getSatelliteDemands()[route.departureSatellite] += route.load;
+    }*/
     e1Solver.constructiveHeuristic(solution);
 
 }

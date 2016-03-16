@@ -13,6 +13,7 @@
 #include "./Solver/Heuristic.h"
 #include "./Solver/Insertion.h"
 #include "./Solver/MoleJamesonHeuristic.h"
+#include "./Solver/IDCH.h"
 #include "Utility.h"
 
 using namespace std;
@@ -24,18 +25,20 @@ int main()
 {
     Problem p;
     //p.readBreunigFile("../Input/Data/Set2b_E-n51-k5-s32-37.dat");
-    //p.readBreunigFile("../Input/Data/Test2.dat");
+    p.readBreunigFile("../Input/Data/Test2.dat");
     //p.readBreunigFile("../Input/Data/Set5_100-5-1.dat");
-    p.readBreunigFile("../Input/Data/Set5_200-10-1.dat");
+    //p.readBreunigFile("../Input/Data/Set5_200-10-1.dat");
     Solution s(&p);
     cout << "s = " << s.getProblem()->getClients().size() << endl;
     //buildTestSolution(s, &p);
     //s.saveHumanReadable("Test.sol", "Solution Test2.dat", false);
     //Heuristic::simpleHeuristic(p, s);
-    Insertion insert(&p);
-    insert.GreedyInsertionHeuristic(s);
+    //Insertion insert(&p);
+    //insert.GreedyInsertionHeuristic(s);
     //MoleJamesonHeuristic solver(&p, 1, 1);
     //solver.solve(s);
+    IDCH idchSolver(&p);
+    idchSolver.heuristicFastIDCH(s);
     s.print();
     cout << "Validity : " << p.isValidSolution(s) << endl;
     //s.saveHumanReadable("Test.sol","Solution Set5_100-5_1 avec 2opt",false);

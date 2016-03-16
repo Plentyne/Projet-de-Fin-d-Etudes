@@ -24,9 +24,9 @@ bool sortingCriterion(L_Entry i, L_Entry j) {
 void SDVRPSolver::constructiveHeuristic(Solution &solution) {
     // List containig the clients
     vector<L_Entry> L; //= vector<L_Entry>(solution.getProblem()->getSatellites().size());
-    // List containing the demands of the clients
+    // List containing the demands of the customers
     const vector<int> Q = solution.getSatelliteDemands();
-    // List containing the unserved demand of each client
+    // List containing the unserved demand of each customer
     vector<int> U = solution.getSatelliteDemands();
     // List containing customer angles (used for The Route Angle Mechanism)
     vector<double> angles = vector<double>(solution.getProblem()->getSatellites().size());
@@ -124,7 +124,7 @@ void SDVRPSolver::constructiveHeuristic(Solution &solution) {
 
     // Update satellite demands
     for (int m = 0; m < solution.getSatelliteDemands().size(); ++m) {
-        solution.getSatelliteDemands()[m] = U[m];
+        solution.getDeliveredQ()[m] = Q[m] - U[m];
     }
 
 }
