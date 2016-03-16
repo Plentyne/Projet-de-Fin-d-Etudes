@@ -6,6 +6,8 @@
 #define PROJET_DE_FIN_D_ETUDES_SOLUTION_H
 
 #include <vector>
+#include <deque>
+#include <bits/stl_deque.h>
 
 #include "Problem.h"
 
@@ -39,18 +41,21 @@ private:
     // Data for solution validity and other utilities
     vector<int> satelliteDemands; // Satellite Demands (calculated after the 2nd Echelon routes are built)
     vector<int> deliveredQ; // Quantity Delivered to Each satellite
-    vector<short> routedCustomers;
 
     double totalCost;
 
 public:
+
+    deque<int> unroutedCustomers;
     // Constructor
-    Solution() : problem(nullptr), e1Routes(), e2Routes(), satelliteDemands(), deliveredQ(), routedCustomers() { }
+    Solution() : problem(nullptr), e1Routes(), e2Routes() { }
 
     Solution(const Problem *problem) : totalCost(0), problem(problem), e1Routes{}, e2Routes{} {
         this->satelliteDemands = vector<int>(static_cast<int>(problem->getSatellites().size()), 0);
         this->deliveredQ = vector<int>(static_cast<int>(problem->getSatellites().size()), 0);
-        this->routedCustomers = vector<short>(static_cast<int>(problem->getClients().size()), 0);
+        for (int i = 0; i < problem->getClients().size(); ++i) {
+            this->unroutedCustomers.push_back(problem->getClient(i).getClientId());
+        }
     }
 
     Solution(const Solution &solution);

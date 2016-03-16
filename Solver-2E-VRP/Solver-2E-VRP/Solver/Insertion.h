@@ -23,7 +23,6 @@ private:
     SDVRPSolver e1Solver;
     LSSolver lsSolver;
     deque<insertEntry> insertStack{};
-    deque<int> unroutedClients{};
 
     double distanceCost(Solution &solution, int client, int route, int position);
 

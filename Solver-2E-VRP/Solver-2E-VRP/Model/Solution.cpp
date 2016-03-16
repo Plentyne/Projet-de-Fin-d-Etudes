@@ -12,7 +12,7 @@ Solution::Solution(const Solution &solution) {
     this->e2Routes = vector<E2Route>(solution.e2Routes.begin(), solution.e2Routes.end());
     this->satelliteDemands = vector<int>(solution.satelliteDemands.begin(), solution.satelliteDemands.end());
     this->deliveredQ = vector<int>(solution.deliveredQ.begin(), solution.deliveredQ.end());
-    this->routedCustomers = vector<short>(solution.routedCustomers.begin(), solution.routedCustomers.end());
+    this->unroutedCustomers = deque<int>(solution.unroutedCustomers.begin(), solution.unroutedCustomers.end());
 }
 
 void Solution::print() {

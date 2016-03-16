@@ -106,7 +106,7 @@ void Insertion::cancelInsertions(Solution &solution, int client) {
     }
     // Réordonner les insertions
     sort(tmp.begin(), tmp.end(), mySortFunction);
-    for (reinsertEntry ent : tmp) unroutedClients.push_front(ent.clientId);
+    for (reinsertEntry ent : tmp) solution.unroutedCustomers.push_front(ent.clientId);
 
     // Recalculer le 1er échelon TODO
     /*for (E1Route route : solution.getE1Routes()) solution.setTotalCost(solution.getTotalCost() - route.cost);
@@ -120,14 +120,6 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
         solution = Solution(problem);
     }
 
-    // Initialisation solver pour le premier échelon
-
-    // Initialiser la liste des clients non routés
-    vector<int> tmpClients(problem->getClients().size(), 0);
-    for (E2Route route : solution.getE2Routes()) {
-        for (int i : route.tour) tmpClients[i] = 1;
-    }
-    for (int i = 0; i < tmpClients.size(); i++) if (tmpClients[i] == 0) unroutedClients.push_back(i);
     // Déclaration des variables de la boucle
     Client tmpClient;
     double cost;
@@ -138,9 +130,9 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
     int insertSatellite;
     bool feasible;
 
-    std::random_shuffle(unroutedClients.begin(), unroutedClients.end());
+    std::random_shuffle(solution.unroutedCustomers.begin(), solution.unroutedCustomers.end());
     // Tant qu'il y a des clients non routés Faire
-    while (unroutedClients.size() > 0) {
+    while (solution.unroutedCustomers.size() > 0) {
         // Initialisation des variables de boucle
         minE1Cost = minCost = Config::DOUBLE_INFINITY;
         insertRoute = -1;
@@ -148,11 +140,11 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
         insertSatellite = -1;
         feasible = false;
         // Retirer un client de la file
-        /*tmpClient = problem->getClient(unroutedClients.front());
-        unroutedClients.pop_front();*/
-        int tmp = Utility::randomInt(0, unroutedClients.size());
-        tmpClient = problem->getClient(unroutedClients[tmp]);
-        unroutedClients.erase(unroutedClients.begin() + tmp);
+        /*tmpClient = problem->getClient(solution.unroutedCustomers.front());
+        solution.unroutedCustomers.pop_front();*/
+        int tmp = Utility::randomInt(0, solution.unroutedCustomers.size());
+        tmpClient = problem->getClient(solution.unroutedCustomers[tmp]);
+        solution.unroutedCustomers.erase(solution.unroutedCustomers.begin() + tmp);
 
         E2Route e2Route;
         // Calculer le coût d'insertion dans les tournées déjà existantes
