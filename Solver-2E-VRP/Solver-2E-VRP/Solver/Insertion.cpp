@@ -75,12 +75,22 @@ void Insertion::insertIntoNewRoute(Solution &solution, int client, int satellite
 }
 
 void Insertion::cancelInsertions(Solution &solution, int client) {
-    int freedSpace = 0;
     insertEntry entry;
     reinsertEntry rentry;
-    vector<reinsertEntry> tmp;
+    deque<reinsertEntry> tmp;
     // Anbulation des insertions
-    while (freedSpace < problem->getClient(client).getDemand()) {
+    int t = insertStack.size();
+    int d = lround(0.1 * static_cast<double>(problem->getClients().size()));
+    if (lastCanceled == client) {
+        cancelations = min(t, cancelations + d);
+    }
+    else {
+        lastCanceled = client;
+        cancelations = min(t, d * 2);
+    }
+
+    int i = cancelations;
+    while (i > 0) {
         // Dernière insertion
         entry = insertStack.back();
         insertStack.pop_back();
@@ -102,12 +112,17 @@ void Insertion::cancelInsertions(Solution &solution, int client) {
         rentry.demand = problem->getClient(entry.clientId).getDemand();
         tmp.push_back(rentry);
         // Espace libéré
-        freedSpace += problem->getClient(entry.clientId).getDemand();
-    }
-    // Réordonner les insertions
-    sort(tmp.begin(), tmp.end(), mySortFunction);
-    for (reinsertEntry ent : tmp) solution.unroutedCustomers.push_front(ent.clientId);
 
+        --i;
+    }
+    // Insérer le client dans la liste des réinsertions
+    rentry.clientId = client;
+    rentry.demand = problem->getClient(client).getDemand();
+    tmp.push_back(rentry);
+    // Réordonner les insertions
+    //sort(tmp.begin(), tmp.end(), mySortFunction);
+    random_shuffle(tmp.begin(), tmp.end());
+    for (reinsertEntry ent : tmp) solution.unroutedCustomers.push_back(ent.clientId);
     // Recalculer le 1er échelon TODO
     /*for (E1Route route : solution.getE1Routes()) solution.setTotalCost(solution.getTotalCost() - route.cost);
     solution.getE1Routes().clear();

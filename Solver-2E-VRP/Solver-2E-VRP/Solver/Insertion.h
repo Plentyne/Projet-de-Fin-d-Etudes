@@ -24,6 +24,9 @@ private:
     LSSolver lsSolver;
     deque<insertEntry> insertStack{};
 
+    int lastCanceled;
+    int cancelations;
+
     double distanceCost(Solution &solution, int client, int route, int position);
 
     void insertIntoRoute(Solution &solution, int client, int route, int position);

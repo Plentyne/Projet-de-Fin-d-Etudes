@@ -129,6 +129,8 @@ void IDCH::doWorstRemoval(Solution &solution, double p2) {
     int i = 0;
     while (i < nc && i < n) {
         cost = 0;
+        rt = 0;
+        rc = 0;
         // Find a customer to remove
         for (int u = 0; u < solution.getE2Routes().size(); ++u) {
             E2Route &route = solution.getE2Routes()[u];
@@ -181,7 +183,21 @@ void IDCH::doRouteRemoval(Solution &solution, double p4) {
 }
 
 void IDCH::doRemoveSingleNodeRoutes(Solution &solution) {
-
+    int i = 0;
+    while (i < solution.getE2Routes().size()) {
+        E2Route &route = solution.getE2Routes()[i];
+        // If it's a single customer trip
+        if (route.tour.size() == 1) {
+            // Insert customer into the unrouted customer's pool
+            solution.unroutedCustomers.push_back(route.tour[0]);
+            // Update satellite demand
+            solution.getSatelliteDemands()[route.departureSatellite] -= route.load;
+            // Update solution cost
+            solution.setTotalCost(solution.getTotalCost() - route.cost);
+            // remove route
+            solution.getE2Routes().erase(solution.getE2Routes().begin() + i);
+        } else i++;
+    }
 }
 
 void IDCH::doSatelliteRemoval(Solution &solution, double p6) {
@@ -247,7 +263,24 @@ void IDCH::doDestroy(Solution &solution) {
     /* Todo 1 changer les paramètres
      * Todo 2 implémenter un schéma pour l'utilisation des opérateurs
     */
-    this->doWorstRemoval(solution, 0.3);
+    //this->doWorstRemoval(solution, 0.3);
+    //this->doRemoveSingleNodeRoutes(solution);
+    /******************************/
+    int choice = Utility::randomInt(0, 3);
+    switch (choice) {
+        case 0:
+            this->doRandomRemoval(solution, 0.23);
+            break;
+        case 1:
+            this->doWorstRemoval(solution, 0.34);
+            break;
+        case 2:
+            this->doRemoveSingleNodeRoutes(solution);
+            break;
+        default:
+            this->doRandomRemoval(solution, 0.4);
+            break;
+    }
 }
 
 void IDCH::doRepair(Solution &solution) {

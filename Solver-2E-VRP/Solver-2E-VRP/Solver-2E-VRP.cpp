@@ -24,8 +24,8 @@ void buildTestSolution(Solution &s, Problem *p);
 int main()
 {
     Problem p;
-    //p.readBreunigFile("../Input/Data/Set2b_E-n51-k5-s32-37.dat");
-    p.readBreunigFile("../Input/Data/Test2.dat");
+    p.readBreunigFile("../Input/Data/Set2b_E-n51-k5-s32-37.dat");
+    //p.readBreunigFile("../Input/Data/Test2.dat");
     //p.readBreunigFile("../Input/Data/Set5_100-5-1.dat");
     //p.readBreunigFile("../Input/Data/Set5_200-10-1.dat");
     Solution s(&p);
