@@ -11,13 +11,8 @@
     </ADDITIONAL_GENERATION_ENVIRONMENT>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d085a341-2604-45ce-8f6d-ee808bc6c283" name="Default" comment="Implémentation des opérateurs de destruction Random Removal et Worst Removal + Opérateur GreedyInsertion">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Debug/Projet_de_Fin_d_Etudes.exe" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Debug/Projet_de_Fin_d_Etudes.exe" />
+    <list default="true" id="d085a341-2604-45ce-8f6d-ee808bc6c283" name="Default" comment="Correction d'une erreur dans l'insertion">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/IDCH.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/IDCH.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.h" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.h" />
     </list>
     <ignored path="Projet-de-Fin-d-Etudes.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -109,7 +104,7 @@
       <file leaf-file-name="Insertion.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.1406518">
+            <state vertical-scroll-proportion="-0.034305315">
               <caret line="76" column="66" selection-start-line="76" selection-start-column="66" selection-end-line="76" selection-end-column="66" />
               <folding />
             </state>
@@ -543,7 +538,13 @@
       <option name="project" value="LOCAL" />
       <updated>1458138239394</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Correction d'une erreur dans l'insertion">
+      <created>1458144443233</created>
+      <option name="number" value="00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1458144443233</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TodoView">
@@ -557,7 +558,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24553572" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289689" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
@@ -633,7 +634,8 @@
     <MESSAGE value="Ajout de 2-opt* (fonctionnelle)" />
     <MESSAGE value="Adaptation de l'heuristique d'insertion pour êre utilisée dans l'idch" />
     <MESSAGE value="Implémentation des opérateurs de destruction Random Removal et Worst Removal + Opérateur GreedyInsertion" />
-    <option name="LAST_COMMIT_MESSAGE" value="Implémentation des opérateurs de destruction Random Removal et Worst Removal + Opérateur GreedyInsertion" />
+    <MESSAGE value="Correction d'une erreur dans l'insertion" />
+    <option name="LAST_COMMIT_MESSAGE" value="Correction d'une erreur dans l'insertion" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -1069,7 +1071,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.1406518">
+        <state vertical-scroll-proportion="-0.034305315">
           <caret line="76" column="66" selection-start-line="76" selection-start-column="66" selection-end-line="76" selection-end-column="66" />
           <folding />
         </state>
