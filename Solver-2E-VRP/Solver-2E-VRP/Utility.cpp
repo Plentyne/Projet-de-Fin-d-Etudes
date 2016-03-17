@@ -23,5 +23,5 @@ int Utility::randomInt(int min, int max) {
     std::uniform_int_distribution<std::mt19937::result_type> int_dist(min, max - 1); // distribution in range [1, 6]
     return int_dist(rng);*/
     srand(time(NULL)); // initialisation de rand
-    return rand() % (max - min) + min;
+    return ((max - min > 0) ? (rand() % (max - min)) : 0) + min;
 }

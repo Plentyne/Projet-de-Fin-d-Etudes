@@ -12,8 +12,40 @@
  *                IDCH HEURISTICS
  *  
  ****************************************************/
-void IDCH::heuristicIDCH(Solution &s) {
+void IDCH::heuristicIDCH(Solution &bestSolution) {
+    int n = this->problem->getClients().size(),
+            iter = 0,
+            itermax = n * n;
 
+    if (bestSolution.getTotalCost() == 0) {
+        this->doGreedyInsertion(bestSolution);
+    }
+
+    Solution solution = bestSolution;
+
+    while (iter < itermax) {
+        // Large destruction step
+        if ((iter + 1) % n == 0) {
+            this->doDestroy(solution);
+        }
+            // Small destruction step
+        else {
+            doDestroySmall(solution);
+        }
+        // Destruction de la solution
+        this->doDestroy(solution);
+
+        // Perturbation de la solution
+        this->apply2OptOnEachTour(solution);
+
+        // Réparation de la solution
+        this->doRepair(solution);
+
+        if (solution.getTotalCost() < bestSolution.getTotalCost()) {
+            bestSolution = solution;
+            iter = 0;
+        } else iter++;
+    }
 }
 
 void IDCH::heuristicFastIDCH(Solution &bestSolution) {
@@ -27,20 +59,15 @@ void IDCH::heuristicFastIDCH(Solution &bestSolution) {
 
     Solution solution = bestSolution;
 
-    //this->doGreedyInsertion(si);
-
-    // Todo enlever
-    SDVRPSolver sdvrpSolver(this->problem);
-
     while (iter < itermax) {
         // Destruction de la solution
-        this->doDestroy(solution);
+        this->doDestroySmall(solution);
 
         // Perturbation de la solution
         this->apply2OptOnEachTour(solution);
 
         // Réparation de la solution
-        this->doGreedyInsertion(solution);
+        this->doRepair(solution);
 
         if (solution.getTotalCost() < bestSolution.getTotalCost()) {
             bestSolution = solution;
@@ -443,38 +470,10 @@ bool IDCH::apply2OptOnEachTour(Solution &solution) {
 }
 
 /****************************************************
- *  
- *                OTHER METHODS
- *  
+ *
+ *        Destroy and Repair for IDCH
+ *
  ****************************************************/
-double IDCH::removalCost(Solution &solution, int customer, int route) {
-
-    if (solution.getE2Routes()[route].tour.size() == 1)
-        return 2 * problem->getDistance(problem->getSatellite(solution.getE2Routes()[route].departureSatellite),
-                                        problem->getClient(solution.getE2Routes()[route].tour[customer]));
-
-    Node p, q, c;
-    c = problem->getClient(solution.getE2Routes()[route].tour[customer]);
-    if (customer == 0) {
-        p = problem->getSatellite(solution.getE2Routes()[route].departureSatellite);
-    }
-    else {
-        p = problem->getClient(solution.getE2Routes()[route].tour[customer - 1]);
-    }
-
-    if (customer == solution.getE2Routes()[route].tour.size() - 1) {
-        q = problem->getSatellite(solution.getE2Routes()[route].departureSatellite);
-    }
-    else {
-        q = problem->getClient(solution.getE2Routes()[route].tour[customer + 1]);
-    }
-    return problem->getDistance(p, q) - (problem->getDistance(p, c) + problem->getDistance(c, q));
-}
-
-bool IDCH::doLocalSearch(Solution &solution) {
-    return false;
-}
-
 void IDCH::doDestroy(Solution &solution) {
     /* Todo 1 changer les paramètres
      * Todo 2 implémenter un schéma pour l'utilisation des opérateurs
@@ -508,7 +507,75 @@ void IDCH::doDestroy(Solution &solution) {
     }*/
 }
 
-void IDCH::doRepair(Solution &solution) {
+void IDCH::doDestroySmall(Solution &solution) {
+/* Todo 1 changer les paramètres
+     * Todo 2 implémenter un schéma pour l'utilisation des opérateurs
+    */
+    this->doRandomRemoval(solution, 0.1);
+    this->doWorstRemoval(solution, 0.15);
+    this->doRelatedRemoval(solution, 0.1);
+    //this->doRemoveSingleNodeRoutes(solution);
+    //this->doRouteRemoval(solution, 5);
+    //this->doSatelliteRemoval(solution, 0);
+    //this->doSatelliteOpening(solution, 0.1);
+    //this->doOpenAllSatellites(solution);
+    /******************************/
+    /*int choice = Utility::randomInt(0, 4);
+    switch (choice) {
+        case 0:
+            this->doRandomRemoval(solution, 0.3);
+            break;
+        case 1:
+            this->doWorstRemoval(solution, 0.4);
+            break;
+        case 2:
+            this->doRouteRemoval(solution, 5);
+            break;
+        case 3:
+            this->doRemoveSingleNodeRoutes(solution);
+            break;
+        default:
+            this->doRandomRemoval(solution, 0.4);
+            break;
+    }*/
+}
 
+// Todo : implement a repair method
+void IDCH::doRepair(Solution &solution) {
+    this->doGreedyInsertion(solution);
+}
+
+/****************************************************
+ *  
+ *                OTHER METHODS
+ *  
+ ****************************************************/
+double IDCH::removalCost(Solution &solution, int customer, int route) {
+
+    if (solution.getE2Routes()[route].tour.size() == 1)
+        return 2 * problem->getDistance(problem->getSatellite(solution.getE2Routes()[route].departureSatellite),
+                                        problem->getClient(solution.getE2Routes()[route].tour[customer]));
+
+    Node p, q, c;
+    c = problem->getClient(solution.getE2Routes()[route].tour[customer]);
+    if (customer == 0) {
+        p = problem->getSatellite(solution.getE2Routes()[route].departureSatellite);
+    }
+    else {
+        p = problem->getClient(solution.getE2Routes()[route].tour[customer - 1]);
+    }
+
+    if (customer == solution.getE2Routes()[route].tour.size() - 1) {
+        q = problem->getSatellite(solution.getE2Routes()[route].departureSatellite);
+    }
+    else {
+        q = problem->getClient(solution.getE2Routes()[route].tour[customer + 1]);
+    }
+    return problem->getDistance(p, q) - (problem->getDistance(p, c) + problem->getDistance(c, q));
+}
+
+// Todo Implement Local Search Step for IDCH
+bool IDCH::doLocalSearch(Solution &solution) {
+    return false;
 }
 

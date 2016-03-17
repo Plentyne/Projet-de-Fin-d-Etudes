@@ -24,7 +24,7 @@ public:
 /*  iterative destruction construction heuristic (original form)
      *  stop at n^2 iterations without improvement
      *  and the search is disturbed every n iterations */
-    void heuristicIDCH(Solution &s);
+    void heuristicIDCH(Solution &bestSolution);
 
     /*  fast version of IDCH, stop at n iterations without improvement (no perturbation) */
     void heuristicFastIDCH(Solution &bestSolution);
@@ -32,6 +32,8 @@ public:
     void doRepair(Solution &solution);
 
     void doDestroy(Solution &solution);
+
+    void doDestroySmall(Solution &solution);
 
     /****************************
     /* Repair operators

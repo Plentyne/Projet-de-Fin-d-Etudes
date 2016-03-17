@@ -38,7 +38,7 @@ int main()
     //MoleJamesonHeuristic solver(&p, 1, 1);
     //solver.solve(s);
     IDCH idchSolver(&p);
-    idchSolver.heuristicFastIDCH(s);
+    idchSolver.heuristicIDCH(s);
     s.print();
     cout << "Validity : " << p.isValidSolution(s) << endl;
     //s.saveHumanReadable("Test.sol","Solution Set5_100-5_1 avec 2opt",false);
