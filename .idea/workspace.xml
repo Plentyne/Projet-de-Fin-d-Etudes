@@ -11,13 +11,8 @@
     </ADDITIONAL_GENERATION_ENVIRONMENT>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d085a341-2604-45ce-8f6d-ee808bc6c283" name="Default" comment="Implémentation : Related Removal, Satellite Removal, Satellite Opening, Open all Satellites + corrections dans GreedyInsertion">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Debug/Projet_de_Fin_d_Etudes.exe" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Debug/Projet_de_Fin_d_Etudes.exe" />
+    <list default="true" id="d085a341-2604-45ce-8f6d-ee808bc6c283" name="Default" comment="Implémentation : IDCH original form&#10;">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/IDCH.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/IDCH.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/IDCH.h" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/IDCH.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Utility.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Utility.cpp" />
     </list>
     <ignored path="Projet-de-Fin-d-Etudes.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -80,19 +75,19 @@
               <caret line="230" column="32" selection-start-line="230" selection-start-column="32" selection-end-line="230" selection-end-column="32" />
               <folding>
                 <element signature="e#43#60#0" expanded="true" />
-                <element signature="e#1199#1910#0" expanded="false" />
-                <element signature="e#2306#4480#0" expanded="false" />
-                <element signature="e#4482#6776#0" expanded="false" />
-                <element signature="e#6778#6854#1" expanded="false" />
-                <element signature="e#9951#10819#0" expanded="false" />
-                <element signature="e#10821#11569#0" expanded="false" />
-                <element signature="e#11571#12987#0" expanded="false" />
-                <element signature="e#12989#16018#0" expanded="false" />
-                <element signature="e#16020#16231#0" expanded="false" />
-                <element signature="e#16783#17980#0" expanded="false" />
-                <element signature="e#19032#19150#0" expanded="false" />
-                <element signature="e#19152#20320#0" expanded="false" />
-                <element signature="e#20322#20433#0" expanded="false" />
+                <element signature="e#1214#1925#0" expanded="false" />
+                <element signature="e#2321#4495#0" expanded="false" />
+                <element signature="e#4497#6791#0" expanded="false" />
+                <element signature="e#6793#6869#1" expanded="false" />
+                <element signature="e#9966#10834#0" expanded="false" />
+                <element signature="e#10836#11584#0" expanded="false" />
+                <element signature="e#11586#13002#0" expanded="false" />
+                <element signature="e#13004#16033#0" expanded="false" />
+                <element signature="e#16035#16246#0" expanded="false" />
+                <element signature="e#16798#17995#0" expanded="false" />
+                <element signature="e#19047#19165#0" expanded="false" />
+                <element signature="e#19167#20335#0" expanded="false" />
+                <element signature="e#20337#20448#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -101,8 +96,8 @@
       <file leaf-file-name="Utility.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Utility.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="1.1297468">
-              <caret line="25" column="47" selection-start-line="25" selection-start-column="47" selection-end-line="25" selection-end-column="47" />
+            <state vertical-scroll-proportion="0.6123499">
+              <caret line="25" column="53" selection-start-line="25" selection-start-column="53" selection-end-line="25" selection-end-column="53" />
               <folding />
             </state>
           </provider>
@@ -352,6 +347,22 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP" />
     <property name="settings.editor.selected.configurable" value="CMakeSettings" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth0" value="138" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder0" value="0" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth1" value="166" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder1" value="1" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth2" value="168" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder2" value="2" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth3" value="842" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder3" value="3" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth0" value="160" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder0" value="0" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth1" value="159" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder1" value="1" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth2" value="160" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder2" value="2" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth3" value="835" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder3" value="3" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -562,7 +573,13 @@
       <option name="project" value="LOCAL" />
       <updated>1458223020553</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="Implémentation : IDCH original form&#10;">
+      <created>1458225173623</created>
+      <option name="number" value="00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1458225173623</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TodoView">
@@ -576,7 +593,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24553572" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289689" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
@@ -584,8 +601,8 @@
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289689" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289689" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23240589" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.43698853" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.7037643" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.43698853" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21502976" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289689" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
@@ -654,7 +671,8 @@
     <MESSAGE value="Implémentation des opérateurs de destruction Random Removal et Worst Removal + Opérateur GreedyInsertion" />
     <MESSAGE value="Correction d'une erreur dans l'insertion" />
     <MESSAGE value="Implémentation : Related Removal, Satellite Removal, Satellite Opening, Open all Satellites + corrections dans GreedyInsertion" />
-    <option name="LAST_COMMIT_MESSAGE" value="Implémentation : Related Removal, Satellite Removal, Satellite Opening, Open all Satellites + corrections dans GreedyInsertion" />
+    <MESSAGE value="Implémentation : IDCH original form&#10;" />
+    <option name="LAST_COMMIT_MESSAGE" value="Implémentation : IDCH original form&#10;" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -1090,27 +1108,27 @@
           <caret line="230" column="32" selection-start-line="230" selection-start-column="32" selection-end-line="230" selection-end-column="32" />
           <folding>
             <element signature="e#43#60#0" expanded="true" />
-            <element signature="e#1199#1910#0" expanded="false" />
-            <element signature="e#2306#4480#0" expanded="false" />
-            <element signature="e#4482#6776#0" expanded="false" />
-            <element signature="e#6778#6854#1" expanded="false" />
-            <element signature="e#9951#10819#0" expanded="false" />
-            <element signature="e#10821#11569#0" expanded="false" />
-            <element signature="e#11571#12987#0" expanded="false" />
-            <element signature="e#12989#16018#0" expanded="false" />
-            <element signature="e#16020#16231#0" expanded="false" />
-            <element signature="e#16783#17980#0" expanded="false" />
-            <element signature="e#19032#19150#0" expanded="false" />
-            <element signature="e#19152#20320#0" expanded="false" />
-            <element signature="e#20322#20433#0" expanded="false" />
+            <element signature="e#1214#1925#0" expanded="false" />
+            <element signature="e#2321#4495#0" expanded="false" />
+            <element signature="e#4497#6791#0" expanded="false" />
+            <element signature="e#6793#6869#1" expanded="false" />
+            <element signature="e#9966#10834#0" expanded="false" />
+            <element signature="e#10836#11584#0" expanded="false" />
+            <element signature="e#11586#13002#0" expanded="false" />
+            <element signature="e#13004#16033#0" expanded="false" />
+            <element signature="e#16035#16246#0" expanded="false" />
+            <element signature="e#16798#17995#0" expanded="false" />
+            <element signature="e#19047#19165#0" expanded="false" />
+            <element signature="e#19167#20335#0" expanded="false" />
+            <element signature="e#20337#20448#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Utility.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.1297468">
-          <caret line="25" column="47" selection-start-line="25" selection-start-column="47" selection-end-line="25" selection-end-column="47" />
+        <state vertical-scroll-proportion="0.6123499">
+          <caret line="25" column="53" selection-start-line="25" selection-start-column="53" selection-end-line="25" selection-end-column="53" />
           <folding />
         </state>
       </provider>
