@@ -5,6 +5,9 @@
 #include "Solution.h"
 #include <fstream>
 
+const bool Solution::OPEN = true;
+const bool Solution::CLOSED = false;
+
 Solution &Solution::operator=(const Solution &solution) {
     this->problem = solution.problem;
     this->totalCost = solution.totalCost;
@@ -13,6 +16,8 @@ Solution &Solution::operator=(const Solution &solution) {
     this->satelliteDemands = vector<int>(solution.satelliteDemands.begin(), solution.satelliteDemands.end());
     this->deliveredQ = vector<int>(solution.deliveredQ.begin(), solution.deliveredQ.end());
     this->unroutedCustomers = deque<int>(solution.unroutedCustomers.begin(), solution.unroutedCustomers.end());
+    this->satelliteState = vector<bool>(solution.satelliteState.begin(), solution.satelliteState.end());
+    this->openSatellites = solution.openSatellites;
     return *this;
 }
 
@@ -24,6 +29,8 @@ Solution::Solution(const Solution &solution) {
     this->satelliteDemands = vector<int>(solution.satelliteDemands.begin(), solution.satelliteDemands.end());
     this->deliveredQ = vector<int>(solution.deliveredQ.begin(), solution.deliveredQ.end());
     this->unroutedCustomers = deque<int>(solution.unroutedCustomers.begin(), solution.unroutedCustomers.end());
+    this->satelliteState = vector<bool>(solution.satelliteState.begin(), solution.satelliteState.end());
+    this->openSatellites = solution.openSatellites;
 }
 
 void Solution::print() {

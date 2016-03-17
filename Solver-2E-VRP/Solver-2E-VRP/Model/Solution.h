@@ -46,7 +46,12 @@ private:
 
 public:
 
+    static const bool OPEN;
+    static const bool CLOSED;
+
     deque<int> unroutedCustomers;
+    vector<bool> satelliteState; // satelliteState[i]== true means that satellite i is available, else it's closed
+    int openSatellites;
     // Constructor
     Solution() : problem(nullptr), e1Routes(), e2Routes() { }
 
@@ -56,6 +61,8 @@ public:
         for (int i = 0; i < problem->getClients().size(); ++i) {
             this->unroutedCustomers.push_back(problem->getClient(i).getClientId());
         }
+        this->satelliteState = vector<bool>(static_cast<int>(problem->getSatellites().size()), OPEN);
+        openSatellites = this->satelliteState.size();
     }
 
     // Operators

@@ -7,7 +7,6 @@
 #include "../Config.h"
 #include "../Utility.h"
 
-
 struct reinsertEntry {
     int clientId;
     int demand;
@@ -88,7 +87,14 @@ void Insertion::cancelInsertions(Solution &solution, int client) {
         lastCanceled = client;
         cancelations = min(t, d * 2);
     }
+    // Si il faut tout annuler, alors recommencer à zéro
+    if (cancelations == t) {
+        insertStack.clear();
+        solution = Solution(this->problem);
+        std::random_shuffle(solution.unroutedCustomers.begin(), solution.unroutedCustomers.end());
+    }
 
+    // Sinon
     int i = cancelations;
     while (i > 0) {
         // Dernière insertion
@@ -134,6 +140,9 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
     if (solution.getProblem() == nullptr) {
         solution = Solution(problem);
     }
+
+    // Clear insertion stack
+    this->insertStack.clear();
 
     // Déclaration des variables de la boucle
     Client tmpClient;
@@ -188,6 +197,8 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
         // Calculer le coût d'insertion dans une nouvelle tournée si c'est possible
         if (solution.getE2Routes().size() < problem->getK2()) {
             for (int i = 0; i < problem->getSatellites().size(); i++) {
+                // Si satellite fermé alors l'ignorer
+                if (solution.satelliteState[i] == Solution::CLOSED) continue;
                 // Estimer le coût d'insertion de c
                 cost = 2 * problem->getDistance(solution.getProblem()->getSatellite(i), tmpClient);
                 //double e1cost =  e1Solver.insertionCost(solution, i, tmpClient.getDemand());
