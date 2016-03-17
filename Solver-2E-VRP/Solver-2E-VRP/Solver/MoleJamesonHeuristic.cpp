@@ -7,6 +7,7 @@
 #include "../Config.h"
 #include "../Utility.h"
 #include "LSSolver.h"
+#include "SDVRPSolver.h"
 
 
 // TODO Clean le code
@@ -82,8 +83,8 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
     for (int i = 0; i < tmpClients.size(); i++) if (tmpClients[i] == 0) unroutedClients.push_back(i);
     // initialiser une tournée (s,k,s) avs s un satellite aléatoire et k un client pris aléatoirement
     E2Route e2route;
-    int tmpSat = Utility::randomInt(0, this->problem->getSatellites().size() - 1);
-    int tmp = Utility::randomInt(0, unroutedClients.size() - 1);
+    int tmpSat = Utility::randomInt(0, this->problem->getSatellites().size());
+    int tmp = Utility::randomInt(0, unroutedClients.size());
     int tmpCli = unroutedClients[tmp];
     unroutedClients.erase(unroutedClients.begin() + tmp);
     e2route.departureSatellite = tmpSat;
@@ -177,6 +178,8 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
             }
             e2route.cost += minCost;
             e2route.departureSatellite = satellite;
+            solution.getSatelliteDemands()[e2route.departureSatellite] -= e2route.load;
+            solution.getSatelliteDemands()[satellite] += e2route.load;
             std::rotate(e2route.tour.begin(), e2route.tour.begin() + position, e2route.tour.end());
             // Insérer la tournée actuelle dans la solution
             // Calculer le nouveau côut de la route
@@ -362,11 +365,6 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
 
     // Amélioration de la tournée Todo Enlever après
     LSSolver ls(this->problem);
-    //ls.applySwap(solution);
-    int llllll;
-    //ls.applyRelocate(solution);
-    //ls.applySwap(solution);
-    //ls.applyRelocate(solution);
     int imp;
     do {
         imp = solution.getTotalCost();
@@ -382,17 +380,16 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
             ls.apply2OptOnTour(e2route);
             solution.setTotalCost(solution.getTotalCost() + e2route.cost);
         }
-        //ls.apply2OptOnTour(e2route);
-        //ls.applyOrOpt(e2route,2);
-        //ls.applyOrOpt(e2route,3);
         imp = solution.getTotalCost() - imp;
     } while (imp < -0.0001);
 
     //--------------------------------------------
 
     // Construire les tournées du premier échelon
+    SDVRPSolver sdvrpSolver(problem);
+    sdvrpSolver.constructiveHeuristic(solution);
     // Todo changer par l'heuristiques pour le sdvrp
-    E1Route e1Route;
+    /*E1Route e1Route;
     e1Route.tour.clear();
     e1Route.cost = 0;
     e1Route.load = 0;
@@ -443,6 +440,6 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
     // Ajout de la dernière route construite
     e1Route.cost += problem->getDistance(problem->getDepot(), problem->getSatellite(e1Route.tour.back()));
     solution.getE1Routes().push_back(e1Route);
-    solution.setTotalCost(solution.getTotalCost() + e1Route.cost);
+    solution.setTotalCost(solution.getTotalCost() + e1Route.cost);*/
 
 }

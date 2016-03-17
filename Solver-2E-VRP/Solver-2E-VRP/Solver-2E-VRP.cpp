@@ -13,6 +13,7 @@
 #include "./Solver/Heuristic.h"
 #include "./Solver/Insertion.h"
 #include "./Solver/MoleJamesonHeuristic.h"
+#include "./Solver/IDCH.h"
 #include "Utility.h"
 
 using namespace std;
@@ -24,36 +25,46 @@ int main()
 {
     Problem p;
     //p.readBreunigFile("../Input/Data/Set2b_E-n51-k5-s32-37.dat");
-    //p.readBreunigFile("../Input/Data/Test2.dat");
-    p.readBreunigFile("../Input/Data/Set5_100-5-1.dat");
+    p.readBreunigFile("../Input/Data/Test2.dat");
+    //p.readBreunigFile("../Input/Data/Set5_100-5-1.dat");
+    //p.readBreunigFile("../Input/Data/Set5_200-10-1.dat");
     Solution s(&p);
     cout << "s = " << s.getProblem()->getClients().size() << endl;
     //buildTestSolution(s, &p);
     //s.saveHumanReadable("Test.sol", "Solution Test2.dat", false);
     //Heuristic::simpleHeuristic(p, s);
-    //Insertion::GreedyInsertionHeuristic(s, &p);
-    MoleJamesonHeuristic solver(&p, 2, 1);
-    solver.solve(s);
+    //Insertion insert(&p);
+    //insert.GreedyInsertionHeuristic(s);
+    //MoleJamesonHeuristic solver(&p, 1, 1);
+    //solver.solve(s);
+    IDCH idchSolver(&p);
+    idchSolver.heuristicIDCH(s);
     s.print();
-
+    cout << "Validity : " << p.isValidSolution(s) << endl;
     //s.saveHumanReadable("Test.sol","Solution Set5_100-5_1 avec 2opt",false);
     //char x ;
     //cin >> x;
-    /* vector<int> v{1,2,3,4,5,6,7,8,9,10};
-     vector<int> v1 = v;
-     v1.erase(v1.begin()+1,v1.begin()+1+2);
+    /* vector<int> u{1,2,3,4,5,6};
+    vector<int> v{7,8,9,10,11,12};
+    int p = 2;
+    int q = 3;
+    vector<int> u1(u.begin(),u.begin()+p+1);
+    u1.insert(u1.end(),v.begin()+q+1,v.end());
+
+     vector<int> v1(v.begin(),v.begin() + q + 1);
+     v1.insert(v1.end(),u.begin()+p+1,u.end());
+
+
      cout << "v1 : ";
      for(int i = 0; i< v1.size() ; i++) cout << v1[i] << " ";
      cout << endl;
-     vector<int> v2(v.begin()+1,v.begin()+1+2);
-     cout << "v2 : ";
-     for(int i = 0; i< v2.size() ; i++) cout << v2[i] << " ";
+     cout << "u1 : ";
+     for(int i = 0; i< u1.size() ; i++) cout << u1[i] << " ";
      cout << endl;
-     v1.insert(v1.begin()+3, v2.begin(),v2.end());
+     v1.insert(v1.begin()+3, u1.begin(),u1.end());
      cout << "insertion v1 : ";
      for(int i = 0; i< v1.size() ; i++) cout << v1[i] << " ";
-     cout << endl; */
-    cout << "Validity : " << p.isValidSolution(s) << endl;
+     cout << endl;*/
 
     return 0;
 }

@@ -5,6 +5,34 @@
 #include "Solution.h"
 #include <fstream>
 
+const bool Solution::OPEN = true;
+const bool Solution::CLOSED = false;
+
+Solution &Solution::operator=(const Solution &solution) {
+    this->problem = solution.problem;
+    this->totalCost = solution.totalCost;
+    this->e1Routes = vector<E1Route>(solution.e1Routes.begin(), solution.e1Routes.end());
+    this->e2Routes = vector<E2Route>(solution.e2Routes.begin(), solution.e2Routes.end());
+    this->satelliteDemands = vector<int>(solution.satelliteDemands.begin(), solution.satelliteDemands.end());
+    this->deliveredQ = vector<int>(solution.deliveredQ.begin(), solution.deliveredQ.end());
+    this->unroutedCustomers = deque<int>(solution.unroutedCustomers.begin(), solution.unroutedCustomers.end());
+    this->satelliteState = vector<bool>(solution.satelliteState.begin(), solution.satelliteState.end());
+    this->openSatellites = solution.openSatellites;
+    return *this;
+}
+
+Solution::Solution(const Solution &solution) {
+    this->problem = solution.problem;
+    this->totalCost = solution.totalCost;
+    this->e1Routes = vector<E1Route>(solution.e1Routes.begin(), solution.e1Routes.end());
+    this->e2Routes = vector<E2Route>(solution.e2Routes.begin(), solution.e2Routes.end());
+    this->satelliteDemands = vector<int>(solution.satelliteDemands.begin(), solution.satelliteDemands.end());
+    this->deliveredQ = vector<int>(solution.deliveredQ.begin(), solution.deliveredQ.end());
+    this->unroutedCustomers = deque<int>(solution.unroutedCustomers.begin(), solution.unroutedCustomers.end());
+    this->satelliteState = vector<bool>(solution.satelliteState.begin(), solution.satelliteState.end());
+    this->openSatellites = solution.openSatellites;
+}
+
 void Solution::print() {
     cout << "Solution" << endl;
     cout << "Total Cost : " << this->getTotalCost() << endl;
@@ -75,3 +103,4 @@ void Solution::saveHumanReadable(const string &fn, const string &header, const b
     fh << "!----------------------------------------------------------------" << endl;
     fh.close();
 }
+

@@ -3,11 +3,11 @@
 //
 
 #include "LSSolver.h"
+#include "../Config.h"
 #include <algorithm>
 
 
-//int LSSolver::calls =0;
-
+// Todo make first improvement
 // For now : does best improvement
 bool LSSolver::apply2OptOnTour(E2Route &e2Route) {
     //cout << "number of calls : " << calls++ << endl;
@@ -69,10 +69,12 @@ bool LSSolver::apply2OptOnTour(E2Route &e2Route) {
     return (e2Route.cost < oldCost);
 }
 
+// Todo make first improvement
 // For now : does best improvement
 bool LSSolver::applyOrOpt(E2Route &e2Route, int seqLength) {
 
     if (seqLength < 1) return false;
+    if (e2Route.tour.size() <= 2) return false;
     if (e2Route.tour.size() <= seqLength) return false;
 
     vector<int> tmpTour;
@@ -164,6 +166,7 @@ bool LSSolver::applyOrOpt(E2Route &e2Route, int seqLength) {
     return (e2Route.cost < oldCost);
 }
 
+// Todo make first improvement
 // For now : does best improvement
 bool LSSolver::applyRelocate(Solution &solution) {
     bool improvement;
@@ -276,6 +279,7 @@ bool LSSolver::applyRelocate(Solution &solution) {
     return solution.getTotalCost() < oldCost;
 }
 
+// Todo make first improvement
 /* For now does Best Improvement*/
 bool LSSolver::applySwap(Solution &solution) {
     bool improvement;
@@ -397,4 +401,125 @@ bool LSSolver::applySwap(Solution &solution) {
     // While there is improvement
     swaped.clear();
     return (solution.getTotalCost() < oldCost);
+}
+/* For now does First Improvement */
+// Todo Optimize code
+bool LSSolver::apply2optStar(Solution &solution) {
+    int position1;
+    int position2;
+    double delta1 = 0;
+    double delta2 = 0;
+    int load1, load2;
+    double cost1, cost2;
+    short choice;
+    double oldCost = solution.getTotalCost();
+    double costChange = 0;
+    bool improvement;
+    Client p, q, p_1, q_1;
+
+    // Repeat
+    do {
+        improvement = false;
+        for (int u = 0; u < solution.getE2Routes().size() && !improvement; ++u) {
+            for (int v = 0; v < solution.getE2Routes().size() && !improvement; ++v) {
+                if (u == v ||
+                    solution.getE2Routes()[u].departureSatellite != solution.getE2Routes()[v].departureSatellite)
+                    continue;
+                E2Route &r1 = solution.getE2Routes()[u];
+                E2Route &r2 = solution.getE2Routes()[v];
+                load1 = 0;
+
+                for (int i = 0; i < r1.tour.size() - 1 && !improvement; ++i) {
+                    p = problem->getClient(r1.tour[i]);
+                    p_1 = problem->getClient(r1.tour[i + 1]);
+                    load1 += p.getDemand();
+                    load2 = 0;
+                    if (i == 0) cost1 = problem->getDistance(p, problem->getSatellite(r1.departureSatellite));
+                    else cost1 += problem->getDistance(p, problem->getClient(r1.tour[i - 1]));
+
+                    for (int j = 0; j < r2.tour.size() - 1 && !improvement; ++j) {
+                        q = problem->getClient(r2.tour[j]);
+                        q_1 = problem->getClient(r2.tour[j + 1]);
+                        load2 += q.getDemand();
+                        if (j == 0) cost2 = problem->getDistance(q, problem->getSatellite(r2.departureSatellite));
+                        else cost2 += problem->getDistance(q, problem->getClient(r2.tour[j - 1]));
+
+                        delta1 = delta2 = Config::DOUBLE_INFINITY;
+
+                        // try the first change : (p,q) , (p+1,q+1)
+                        if ((load1 + load2 <= problem->getE2Capacity()) &&
+                            (r1.load - load1 + r2.load - load2 <= problem->getE2Capacity())) {
+                            delta1 = problem->getDistance(p, q) + problem->getDistance(p_1, q_1) -
+                                     (problem->getDistance(p, p_1) + problem->getDistance(q, q_1));
+                            if (delta1 < -0.0001) {
+                                improvement = true;
+                                choice = 1;
+                            }
+                        }
+
+                        // try the first change : (p,q+1) , (p+1,q)
+                        if ((load1 + r2.load - load2 <= problem->getE2Capacity()) &&
+                            (load2 + r1.load - load1 <= problem->getE2Capacity())) {
+                            delta2 = problem->getDistance(p, q_1) + problem->getDistance(p_1, q) -
+                                     (problem->getDistance(p, p_1) + problem->getDistance(q, q_1));
+                            if (delta2 < -0.0001 && delta2 < delta1) {
+                                improvement = true;
+                                choice = 2;
+                            }
+                        }
+                        //update routes if there is improvement
+                        position1 = i + 1;
+                        position2 = j + 1;
+                        if (improvement) {
+                            costChange -= (r1.cost + r2.cost);
+                            if (choice == 1) {
+                                vector<int> tour1(r1.tour.begin(), r1.tour.begin() + position1);
+                                tour1.insert(tour1.end(), r2.tour.rbegin() + r2.tour.size() - position2,
+                                             r2.tour.rend());
+
+                                vector<int> tour2(r1.tour.rbegin(), r1.tour.rbegin() + r1.tour.size() - position1);
+                                tour2.insert(tour2.end(), r2.tour.begin() + position2, r2.tour.end());
+
+                                r1.tour.assign(tour1.begin(), tour1.end());
+                                r2.tour.assign(tour2.begin(), tour2.end());
+                                // Update route cost
+                                double tmpCost = r1.cost - cost1 + r2.cost - cost2 + problem->getDistance(p_1, q_1)
+                                                 - problem->getDistance(p, p_1) - problem->getDistance(q, q_1);
+                                r1.cost = cost1 + cost2 + problem->getDistance(p, q);
+                                r2.cost = tmpCost;
+                                // Update route load
+                                int tmpLoad = r1.load - load1 + r2.load - load2;
+                                r1.load = load1 + load2;
+                                r2.load = tmpLoad;
+                            } else {
+                                vector<int> tour1(r1.tour.begin(), r1.tour.begin() + position1);
+                                tour1.insert(tour1.end(), r2.tour.begin() + position2, r2.tour.end());
+
+                                vector<int> tour2(r2.tour.begin(), r2.tour.begin() + position2);
+                                tour2.insert(tour2.end(), r1.tour.begin() + position1, r1.tour.end());
+
+                                r1.tour.assign(tour1.begin(), tour1.end());
+                                r2.tour.assign(tour2.begin(), tour2.end());
+                                // Update route cost
+                                double tmpCost = cost2 + r1.cost - cost1 + problem->getDistance(q, p_1)
+                                                 - problem->getDistance(p, p_1);
+                                r1.cost = cost1 + r2.cost - cost2 + problem->getDistance(p, q_1)
+                                          - problem->getDistance(q, q_1);
+                                r2.cost = tmpCost;
+                                // Update route load
+                                int tmpLoad = load2 + r1.load - load1;
+                                r1.load = load1 + r2.load - load2;
+                                r2.load = tmpLoad;
+                            }
+                            costChange += (r1.cost + r2.cost);
+                        }
+                    }
+                }
+
+            }
+        }
+    } while (improvement); // While there is improvement
+
+    solution.setTotalCost(oldCost + costChange);
+    return solution.getTotalCost() < oldCost;
 }
