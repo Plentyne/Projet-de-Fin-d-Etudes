@@ -14,3 +14,8 @@ Satellite::Satellite(const double &x, const double &y)
         : Node(x, y) {
     this->satelliteId = satelliteGlobalId++;
 }
+
+void Satellite::clear() {
+    Satellite::satelliteGlobalId = 0;
+    Node::clear();
+}

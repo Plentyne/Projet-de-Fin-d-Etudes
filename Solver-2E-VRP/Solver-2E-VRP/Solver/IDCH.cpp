@@ -5,6 +5,7 @@
 #include "IDCH.h"
 #include "../Utility.h"
 #include "./SDVRPSolver.h"
+#include "MoleJamesonHeuristic.h"
 #include <algorithm>
 
 /****************************************************
@@ -26,14 +27,12 @@ void IDCH::heuristicIDCH(Solution &bestSolution) {
     while (iter < itermax) {
         // Large destruction step
         if ((iter + 1) % n == 0) {
-            this->doDestroy(solution);
+            this->doDestroyLarge(solution);
         }
             // Small destruction step
         else {
             doDestroySmall(solution);
         }
-        // Destruction de la solution
-        this->doDestroy(solution);
 
         // Perturbation de la solution
         this->apply2OptOnEachTour(solution);
@@ -54,7 +53,9 @@ void IDCH::heuristicFastIDCH(Solution &bestSolution) {
             itermax = n;
 
     if (bestSolution.getTotalCost() == 0) {
-        this->doGreedyInsertion(bestSolution);
+        //this->doGreedyInsertion(bestSolution);
+        MoleJamesonHeuristic solver(this->problem, 1, 1);
+        solver.solve(bestSolution);
     }
 
     Solution solution = bestSolution;
@@ -86,7 +87,7 @@ void IDCH::doGreedyInsertion(Solution &solution) {
 }
 
 void IDCH::doGreedyInsertionPerturbation(Solution &solution) {
-
+    this->insertion.GreedyInsertionNoiseHeuristic(solution);
 }
 
 void IDCH::doMoleAndJamesonInsertion(Solution &solution) {
@@ -167,6 +168,7 @@ void IDCH::doWorstRemoval(Solution &solution, double p2) {
         for (int u = 0; u < solution.getE2Routes().size(); ++u) {
             E2Route &route = solution.getE2Routes()[u];
             for (int v = 0; v < route.tour.size(); ++v) {
+                //tmpCost = removalCost(solution, v, u)/averageArcCost[route.tour[v]];
                 tmpCost = removalCost(solution, v, u);
                 if (tmpCost > cost) {
                     rt = u;
@@ -474,17 +476,17 @@ bool IDCH::apply2OptOnEachTour(Solution &solution) {
  *        Destroy and Repair for IDCH
  *
  ****************************************************/
-void IDCH::doDestroy(Solution &solution) {
+void IDCH::doDestroyLarge(Solution &solution) {
     /* Todo 1 changer les paramètres
      * Todo 2 implémenter un schéma pour l'utilisation des opérateurs
     */
     this->doRandomRemoval(solution, 0.15);
     this->doWorstRemoval(solution, 0.25);
     this->doRelatedRemoval(solution, 0.1);
-    //this->doRemoveSingleNodeRoutes(solution);
-    //this->doRouteRemoval(solution, 5);
-    this->doSatelliteRemoval(solution, 0);
-    this->doSatelliteOpening(solution, 0.1);
+    this->doRemoveSingleNodeRoutes(solution);
+    this->doRouteRemoval(solution, 5);
+    //this->doSatelliteRemoval(solution, 0);
+    //this->doSatelliteOpening(solution, 0.1);
     //this->doOpenAllSatellites(solution);
     /******************************/
     /*int choice = Utility::randomInt(0, 4);
@@ -511,14 +513,17 @@ void IDCH::doDestroySmall(Solution &solution) {
 /* Todo 1 changer les paramètres
      * Todo 2 implémenter un schéma pour l'utilisation des opérateurs
     */
-    this->doRandomRemoval(solution, 0.1);
-    this->doWorstRemoval(solution, 0.15);
+    this->doRandomRemoval(solution, 0.14);
+    this->doWorstRemoval(solution, 0.2);
     this->doRelatedRemoval(solution, 0.1);
-    //this->doRemoveSingleNodeRoutes(solution);
-    //this->doRouteRemoval(solution, 5);
-    //this->doSatelliteRemoval(solution, 0);
+    this->doRouteRemoval(solution, 5);
+    /*double p = Utility::randomDouble(0,1);
+    if(p<0.2) this->doRemoveSingleNodeRoutes(solution);
+    p = Utility::randomDouble(0,1);
+    if(p<0.18) this->doSatelliteRemoval(solution, 0);
     //this->doSatelliteOpening(solution, 0.1);
-    //this->doOpenAllSatellites(solution);
+    p = Utility::randomDouble(0,1);
+    if(p<0.05) this->doOpenAllSatellites(solution);*/
     /******************************/
     /*int choice = Utility::randomInt(0, 4);
     switch (choice) {
@@ -542,7 +547,8 @@ void IDCH::doDestroySmall(Solution &solution) {
 
 // Todo : implement a repair method
 void IDCH::doRepair(Solution &solution) {
-    this->doGreedyInsertion(solution);
+    //this->doGreedyInsertion(solution);
+    this->doGreedyInsertionPerturbation(solution);
 }
 
 /****************************************************

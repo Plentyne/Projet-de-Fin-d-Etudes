@@ -28,3 +28,6 @@ double Node::distance(Node a, Node b) {
     return sqrt(pow(b.x - a.x, 2) + pow(b.y - a.y, 2));
 }
 
+void Node::clear() {
+    Node::globalNodeId = 0;
+}

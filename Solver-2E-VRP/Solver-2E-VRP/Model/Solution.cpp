@@ -68,8 +68,6 @@ void Solution::saveHumanReadable(const string &fn, const string &header, const b
     ofstream fh;
     fh.open(fn.c_str(), (clrFile) ? fstream::trunc : (fstream::app | fstream::ate));
 
-    cout << "Saving solution to : " + fn << endl;
-
     fh << "!----------------------------------------------------------------" << endl;
     fh << header << endl;
 

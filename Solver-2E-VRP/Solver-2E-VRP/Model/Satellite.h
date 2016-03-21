@@ -13,6 +13,7 @@ private:
 
 
 public:
+	static void clear();
 	// initialization
 	/** default constructor */ Satellite();
 

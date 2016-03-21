@@ -17,9 +17,21 @@ private:
 
     double removalCost(Solution &solution, int customer, int route);
 
+    vector<double> averageArcCost;
+
 public:
 
-    IDCH(Problem *problem) : problem(problem), insertion(problem), lsSolver(problem) { }
+    IDCH(Problem *problem) : problem(problem), insertion(problem), lsSolver(problem) {
+        averageArcCost = vector<double>(problem->getClients().size());
+        for (int i = 0; i < problem->getClients().size(); ++i) {
+            double avg = 0;
+            for (int j = 0; j < problem->getClients().size(); ++j) {
+                if (i == j) continue;
+                avg += problem->getDistance(problem->getClient(i), problem->getClient(j));
+            }
+            averageArcCost[i] = avg / (problem->getClients().size() - 1);
+        }
+    }
 
 /*  iterative destruction construction heuristic (original form)
      *  stop at n^2 iterations without improvement
@@ -31,7 +43,7 @@ public:
 
     void doRepair(Solution &solution);
 
-    void doDestroy(Solution &solution);
+    void doDestroyLarge(Solution &solution);
 
     void doDestroySmall(Solution &solution);
 

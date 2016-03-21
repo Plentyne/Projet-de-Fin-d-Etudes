@@ -15,6 +15,7 @@ protected:
     double y;
 
 public:
+    static void clear();
     // Constructeurs
     Node();
     Node(double x, double y);

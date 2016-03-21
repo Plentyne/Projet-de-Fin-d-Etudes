@@ -29,6 +29,8 @@ private:
 
     double distanceCost(Solution &solution, int client, int route, int position);
 
+    double biasedDistanceCost(Solution &solution, int client, int route, int position);
+
     void insertIntoRoute(Solution &solution, int client, int route, int position);
 
     void insertIntoNewRoute(Solution &solution, int client, int satellite);
@@ -42,6 +44,8 @@ public:
     }
 
     void GreedyInsertionHeuristic(Solution &solution);
+
+    void GreedyInsertionNoiseHeuristic(Solution &solution);
 };
 
 

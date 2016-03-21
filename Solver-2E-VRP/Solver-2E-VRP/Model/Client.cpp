@@ -22,3 +22,8 @@ Client::Client(const Client &c) {
         this->demand = c.demand;
     }
 }
+
+void Client::clear() {
+    Client::globalClientId = 0;
+    Node::clear();
+}

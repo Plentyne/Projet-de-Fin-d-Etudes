@@ -20,6 +20,11 @@ public:
     static const string CLIENTS_DATA_RX;
 
     static int randomInt(int min, int max);
+
+    static double randomDouble(double min, double max);
+
+    /** show error message and exit */
+    static void exitOnError(const string &location, const string &message);
 };
 
 

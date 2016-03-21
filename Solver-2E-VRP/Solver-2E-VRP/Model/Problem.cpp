@@ -66,9 +66,14 @@ void Problem::buildDistanceMatrix() {
 // PUBLIC METHODS
 void Problem::clear() {
     e1Capacity = e2Capacity = k1 = k2 = maxCf = 0;
+    Node::clear();
     depot = {};
+    Satellite::clear();
     satellites.clear();
+    Client::clear();
     clients.clear();
+    distances.clear();
+
 }
 
 // Data access methods
@@ -195,8 +200,8 @@ const double Problem::getDistance(const Node &i, const Node &j) const {
 
 // Problem loading
 void Problem::readBreunigFile(const string &fn) {
+    this->clear();
     // TODO Lecture du fichier même si les clients sont répartis sur plusieurs lignes
-    cout << "Loading file : " << fn << endl;
     ifstream fh;
     string line("!"), token, value;
     stringstream sstream, ss;

@@ -15,32 +15,59 @@
 #include "./Solver/MoleJamesonHeuristic.h"
 #include "./Solver/IDCH.h"
 #include "Utility.h"
-
+#include "Config.h"
+#include "./Solver/Sequence.h"
 using namespace std;
 
 void buildTestSolution(Solution &s, Problem *p);
 
+void testFastIDCH(const unsigned int &exec);
 
 int main()
 {
-    Problem p;
+
+    //Config::test();
+    Config::read("config.txt");// Parameters
+
+    Config::_resumeFile = "resume.csv";
+    Config::readInstances("../Input/Data/instances.txt"); // instance set to read
+    testFastIDCH(5);
+    //Problem p;
     //p.readBreunigFile("../Input/Data/Set2b_E-n51-k5-s32-37.dat");
-    p.readBreunigFile("../Input/Data/Test2.dat");
+    //p.readBreunigFile("../Input/Data/Test2.dat");
     //p.readBreunigFile("../Input/Data/Set5_100-5-1.dat");
     //p.readBreunigFile("../Input/Data/Set5_200-10-1.dat");
-    Solution s(&p);
-    cout << "s = " << s.getProblem()->getClients().size() << endl;
+    //Solution s(&p);
+    //cout << "s = " << s.getProblem()->getClients().size() << endl;
     //buildTestSolution(s, &p);
     //s.saveHumanReadable("Test.sol", "Solution Test2.dat", false);
     //Heuristic::simpleHeuristic(p, s);
     //Insertion insert(&p);
     //insert.GreedyInsertionHeuristic(s);
+    //insert.GreedyInsertionNoiseHeuristic(s);
     //MoleJamesonHeuristic solver(&p, 1, 1);
     //solver.solve(s);
-    IDCH idchSolver(&p);
-    idchSolver.heuristicIDCH(s);
+    //IDCH idchSolver(&p);
+    //idchSolver.heuristicIDCH(s);
+    //idchSolver.heuristicFastIDCH(s);
+    /*s.print();
+    Sequence seq(s);
+    seq.extractSolution(s);
     s.print();
-    cout << "Validity : " << p.isValidSolution(s) << endl;
+    for (int i = 0; i < s.getE2Routes().size() ; ++i) {
+        E2Route e2route = s.getE2Routes()[i];
+        e2route.cost =p.getDistance(p.getSatellite(e2route.departureSatellite),
+                                                 p.getClient(e2route.tour[0]))
+                       +p.getDistance(p.getSatellite(e2route.departureSatellite),
+                                                   p.getClient(
+                                                            e2route.tour[e2route.tour.size() - 1]));
+        for (int k = 0; k < e2route.tour.size() - 1; ++k) {
+            e2route.cost += p.getDistance(p.getClient(e2route.tour[k]),
+                                                       p.getClient(e2route.tour[k + 1]));
+        }
+        cout << "Route " << i << " cost : " << e2route.cost <<endl;
+    }
+    cout << "Validity : " << p.isValidSolution(s) << endl;*/
     //s.saveHumanReadable("Test.sol","Solution Set5_100-5_1 avec 2opt",false);
     //char x ;
     //cin >> x;
@@ -68,6 +95,107 @@ int main()
 
     return 0;
 }
+
+void testFastIDCH(const unsigned int &exec = 3) {
+    ofstream fh;
+
+    fh.open((Config::_outputDir + "/" + Config::_resumeFile).c_str());
+
+    fh << "instance;ltime;";
+    fh << ";maxspinit;minpinit;avgpinit;";
+    fh << ";maxscore;minscore;avgscore;";
+    fh << ";maxcpu;mincpu;avgcpu;";
+    fh << ";nshift;nswap;nldr;nsdr";
+    fh << endl;
+
+    vector<unsigned int> score;
+    vector<double> cpu;
+
+    for (list<Instance>::iterator iteri = Config::_fileList.begin();
+         iteri != Config::_fileList.end();
+         iteri++) {
+        //ProcessClock pclock;
+
+        /*fh<<iteri->_fileName<<";";*/
+        cout << "Loading file : " << iteri->_fileName << " .. " << endl;
+        Problem problem;
+
+        //pclock.start();
+        problem.readBreunigFile(Config::_inputDir + "/" + iteri->_fileName);
+        //pclock.end();
+
+        cout << "Ok" << endl;
+        //cout<<"loading time = "<<pclock.getCpuTime()<<endl;
+        //fh<<pclock.getCpuTime()<<";";
+
+        vector<unsigned int> pinit;
+        vector<unsigned int> score;
+        vector<double> cpu;
+        /*Statistic::reset();
+
+        if (Config::_usingBound) {
+            if(iteri->_exist_UB) problem.setUB(iteri->_UB);
+            if(iteri->_exist_SOL) problem.setSOL(iteri->_SOL);
+        }*/
+
+        /*vector<unsigned int> rseed;
+        generateRandomSeed(rseed, Config::_numExec);*/
+        for (unsigned int i = 0; i < Config::_numExec; i++) {
+            cout << "execution = " << i << endl;
+            //srand(rseed[i]);
+
+            //pclock.start();
+            //IDCH solver(&problem);
+            MoleJamesonHeuristic solver(&problem, 1, 1);
+            Solution sol(&problem);
+            //solver.heuristicFastIDCH(sol);
+            solver.solve(sol);
+            //solver.DPSOScheme(sol, 3600);  1h test
+            //pclock.end();
+
+            cout << "\tscore = " << sol.getTotalCost() << endl;
+            //cout<<"\tresolution time = "<<pclock.getCpuTime()<<endl;
+            score.push_back(sol.getTotalCost());
+            //cpu.push_back(pclock.getCpuTime());
+
+            cout << "\tchecking solution .. ";
+            if (problem.isValidSolution(sol)) cout << "Ok";
+            else cout << "failed";
+            cout << endl;
+
+            cout << "\tSaving solution to " << Config::_outputDir + "/" + iteri->_fileName + ".sol.csv" << " .. ";
+            stringstream header;
+            header << "execution = " << i << endl;
+            //header<<"seed = "<<rseed[i]<<endl;
+            //header<<"cpu = "<<pclock.getCpuTime()<<endl;
+            sol.saveHumanReadable(Config::_outputDir + "/" + iteri->_fileName + ".sol", header.str(), false);
+            cout << "Ok" << endl;
+        }
+
+        //fh<<";";
+        /*unsigned int maxscore, minscore, maxpinit, minpinit;
+        double avgscore, avgpinit,
+                maxcpu, mincpu, avgcpu;
+
+        Statistic::calMaxMinAvg(score, maxscore, minscore, avgscore);
+        Statistic::calMaxMinAvg(pinit, maxpinit, minpinit, avgpinit);
+        Statistic::calMaxMinAvg(cpu, maxcpu, mincpu, avgcpu);
+
+        fh<<maxpinit<<";"<<minpinit<<";"<<avgpinit<<";;";
+        fh<<maxscore<<";"<<minscore<<";"<<avgscore<<";;";
+        fh<<maxcpu<<";"<<mincpu<<";"<<avgcpu<<";;";
+
+        fh<<Statistic::_nshift<<";";
+        fh<<Statistic::_nswap<<";";
+        fh<<Statistic::_nldr<<";";
+        fh<<Statistic::_nsdr;
+
+        fh<<endl;*/
+    }
+
+    fh.close();
+}
+
 /*
 void buildTestSolution(Solution &s, Problem *p) {
 

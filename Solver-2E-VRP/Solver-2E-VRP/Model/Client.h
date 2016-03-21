@@ -14,6 +14,8 @@ private:
     int demand;
 
 public:
+    static void clear();
+
     // initialization
     /** default constructor */ Client();
     /** constructor */ Client(const double &x, const double &y, const int & demand);
