@@ -1,0 +1,17 @@
+inputdir;../Input/Data
+outputdir;../Output
+resumefile;resume.csv
+idchsize;5
+stopcondition;40
+numberexec;3
+evalmethod;interval
+idchprofitweight;1
+maxshift;0
+maxswap;0
+maxlargedr;1
+maxshuffledshift;1
+maxshuffledswap;1
+maxsmalldr;0
+maxshuffledshiftOptEval;0
+maxshuffledswapOptEval;0
+EOF

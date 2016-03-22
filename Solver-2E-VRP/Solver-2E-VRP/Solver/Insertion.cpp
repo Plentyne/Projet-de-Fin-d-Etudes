@@ -96,8 +96,13 @@ void Insertion::cancelInsertions(Solution &solution, int client) {
     insertEntry entry;
     reinsertEntry rentry;
     deque<reinsertEntry> tmp;
-    // Anbulation des insertions
-    int t = insertStack.size();
+
+    insertStack.clear();
+    solution = Solution(this->problem);
+    std::random_shuffle(solution.unroutedCustomers.begin(), solution.unroutedCustomers.end());
+    return;
+    // Annulation des insertions
+    /*int t = insertStack.size();
     int d = lround(0.1 * static_cast<double>(problem->getClients().size()));
     if (lastCanceled == client) {
         cancelations = min(t, cancelations + d);
@@ -148,7 +153,7 @@ void Insertion::cancelInsertions(Solution &solution, int client) {
     // Réordonner les insertions
     //sort(tmp.begin(), tmp.end(), mySortFunction);
     random_shuffle(tmp.begin(), tmp.end());
-    for (reinsertEntry ent : tmp) solution.unroutedCustomers.push_back(ent.clientId);
+    for (reinsertEntry ent : tmp) solution.unroutedCustomers.push_back(ent.clientId);*/
     // Recalculer le 1er échelon TODO
     /*for (E1Route route : solution.getE1Routes()) solution.setTotalCost(solution.getTotalCost() - route.cost);
     solution.getE1Routes().clear();
@@ -173,6 +178,9 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
     int insertPosition;
     int insertSatellite;
     bool feasible;
+
+    // Sauvegarder la solution en entrée
+    Solution save(solution);
 
     std::random_shuffle(solution.unroutedCustomers.begin(), solution.unroutedCustomers.end());
     // Tant qu'il y a des clients non routés Faire
@@ -250,7 +258,8 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
         }
         else { //Si aucune insertion feasable, alors retirer des clients de la solution et rajouter c à la liste des clients non routés TODO
                 // Annuler des insertions et recommencer
-            cancelInsertions(solution, tmpClient.getClientId());
+            solution = save;
+            //cancelInsertions(solution, tmpClient.getClientId());
         }
     }
     // FTQ

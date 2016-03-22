@@ -88,11 +88,8 @@ void SDVRPSolver::constructiveHeuristic(Solution &solution) {
                 U[i.getSatelliteId()] -= (problem->getE1Capacity() - route.load);
                 route.load = problem->getE1Capacity();
             }
-            // Optimize route using Local Search
-            // Todo
+            // Optimize route using 2-opt move
             double dCost = apply2Opt(route);
-            dCost += applyOrOpt(route, 1);
-            dCost += applyOrOpt(route, 2);
             // Update solution cost
             solution.setTotalCost(solution.getTotalCost() + minCost + dCost);
         }
@@ -122,6 +119,9 @@ void SDVRPSolver::constructiveHeuristic(Solution &solution) {
     }
     // End While
 
+    // Improve solution with local search Todo
+    this->applyRelocate(solution);
+
     // Update satellite demands
     for (int m = 0; m < solution.getSatelliteDemands().size(); ++m) {
         solution.getDeliveredQ()[m] = Q[m] - U[m];
@@ -129,6 +129,9 @@ void SDVRPSolver::constructiveHeuristic(Solution &solution) {
 
 }
 
+/******************************
+ * LOCAL SEARCH NEIGHBORHOODS
+ ******************************/
 double SDVRPSolver::apply2Opt(E1Route &route) {
     if (route.tour.size() <= 2) return 0;
 
@@ -144,32 +147,32 @@ double SDVRPSolver::apply2Opt(E1Route &route) {
         for (u = 0; u < route.tour.size(); u++) { // inner loop
             if (u == 0)
                 dxu = this->problem->getDistance(this->problem->getDepot(),
-                                                 this->problem->getClient(route.tour[u]));
+                                                 this->problem->getSatellite(route.tour[u]));
             else
-                dxu = this->problem->getDistance(this->problem->getClient(route.tour[u - 1]),
-                                                 this->problem->getClient(route.tour[u]));
+                dxu = this->problem->getDistance(this->problem->getSatellite(route.tour[u - 1]),
+                                                 this->problem->getSatellite(route.tour[u]));
 
             for (v = u + 1; v < route.tour.size(); v++) {
                 if (v == route.tour.size() - 1)
-                    dvy = this->problem->getDistance(this->problem->getClient(route.tour[v]),
+                    dvy = this->problem->getDistance(this->problem->getSatellite(route.tour[v]),
                                                      this->problem->getDepot());
                 else
-                    dvy = this->problem->getDistance(this->problem->getClient(route.tour[v]),
-                                                     this->problem->getClient(route.tour[v + 1]));
+                    dvy = this->problem->getDistance(this->problem->getSatellite(route.tour[v]),
+                                                     this->problem->getSatellite(route.tour[v + 1]));
 
                 if (u == 0)
                     dxv = this->problem->getDistance(this->problem->getDepot(),
-                                                     this->problem->getClient(route.tour[v]));
+                                                     this->problem->getSatellite(route.tour[v]));
                 else
-                    dxv = this->problem->getDistance(this->problem->getClient(route.tour[u - 1]),
-                                                     this->problem->getClient(route.tour[v]));
+                    dxv = this->problem->getDistance(this->problem->getSatellite(route.tour[u - 1]),
+                                                     this->problem->getSatellite(route.tour[v]));
 
                 if (v == route.tour.size() - 1)
-                    duy = this->problem->getDistance(this->problem->getClient(route.tour[u]),
+                    duy = this->problem->getDistance(this->problem->getSatellite(route.tour[u]),
                                                      this->problem->getDepot());
                 else
-                    duy = this->problem->getDistance(this->problem->getClient(route.tour[u]),
-                                                     this->problem->getClient(route.tour[v + 1]));
+                    duy = this->problem->getDistance(this->problem->getSatellite(route.tour[u]),
+                                                     this->problem->getSatellite(route.tour[v + 1]));
 
                 improved = dxv + duy - (dxu + dvy);
 
@@ -187,6 +190,126 @@ double SDVRPSolver::apply2Opt(E1Route &route) {
     } while (minImproved < 0);
 
     return (route.cost - oldCost);
+}
+
+double SDVRPSolver::applyRelocate(Solution &solution) {
+    vector<E1Route> &routes = solution.getE1Routes();
+
+    bool improvement;
+    int position;
+    int insertRoute;
+    double dRemoval, dInsertion;
+    double bestRemoval, bestInsertion;
+    double oldCost = solution.getTotalCost();
+    Node p, q, k, k_1, s;
+    do {
+        improvement = false;
+        bestInsertion = 0;
+        bestRemoval = 0;
+
+        for (int i = 0; i < routes.size() && !improvement; ++i) {
+            for (int j = 0; j < routes[i].tour.size() && !improvement; ++j) {
+
+                s = problem->getSatellite(routes[i].tour[j]);
+
+                if (j == 0)
+                    p = this->problem->getDepot();
+                else
+                    p = this->problem->getSatellite(routes[i].tour[j - 1]);
+
+                if (j == routes[i].tour.size() - 1)
+                    q = this->problem->getDepot();
+                else
+                    q = this->problem->getSatellite(routes[i].tour[j + 1]);
+
+                dRemoval = this->problem->getDistance(p, q) -
+                           (this->problem->getDistance(p, s) + this->problem->getDistance(s, q));
+
+                for (int u = 0; u < routes.size(); ++u) {
+                    // If it's the same tour
+                    if (u == i) {
+                        continue;
+                        // Todo Act like Or Opt
+                    }
+                        // Else
+                    else {
+                        // if there's not enough free space, then ignore the route
+                        if (routes[u].load + routes[i].satelliteGoods[j] > problem->getE1Capacity()) continue;
+                        for (int v = 0; v <= routes[u].tour.size(); ++v) {
+                            // If it's the same satellite
+                            if (routes[u].tour[v] == routes[i].tour[j]) {
+                                bestInsertion = 0;
+                                bestRemoval = dRemoval;
+                                position = v;
+                                insertRoute = u;
+                            }
+                            else {
+                                // Compute insertion cost
+                                if (v == 0) {
+                                    k_1 = this->problem->getDepot();
+                                    k = this->problem->getSatellite(routes[u].tour[v]);
+                                }
+                                else if (v == routes[u].tour.size()) {
+                                    k_1 = this->problem->getSatellite(routes[u].tour[v - 1]);
+                                    k = this->problem->getDepot();
+                                }
+                                else {
+                                    k_1 = this->problem->getSatellite(routes[u].tour[v - 1]);
+                                    k = this->problem->getSatellite(routes[u].tour[v]);
+                                }
+                                dInsertion = this->problem->getDistance(k_1, s) + this->problem->getDistance(s, k) -
+                                             this->problem->getDistance(k_1, k);
+
+
+                                if (dRemoval + dInsertion < bestRemoval + bestInsertion) {
+                                    // Save the insert position and the change in cost
+                                    bestInsertion = dInsertion;
+                                    bestRemoval = dRemoval;
+                                    position = v;
+                                    insertRoute = u;
+                                }
+                            }
+                        }
+
+                    }
+
+                }
+
+                // Update the route
+                if (bestRemoval + bestInsertion < -0.0001) {
+                    improvement = true;
+                    // If customer exists in the route, only move its goods
+                    if (routes[i].tour[j] == routes[insertRoute].tour[position]) {
+                        routes[insertRoute].load += routes[i].satelliteGoods[j];
+                        routes[insertRoute].satelliteGoods[position] += routes[i].satelliteGoods[j];
+                    }
+                        // Else insert it into the new route
+                    else {
+                        // update load
+                        routes[insertRoute].load += routes[i].satelliteGoods[j];
+                        // update cost
+                        routes[insertRoute].cost += bestInsertion;
+                        // Update tour
+                        routes[insertRoute].tour.insert(routes[insertRoute].tour.begin() + position, routes[i].tour[j]);
+                        // Update satelliteGoods
+                        routes[insertRoute].satelliteGoods.insert(routes[insertRoute].satelliteGoods.begin() + position,
+                                                                  routes[i].satelliteGoods[j]);
+                    }
+                    // Remove customer from irs original route
+                    routes[i].cost += bestRemoval;
+                    routes[i].load -= routes[i].satelliteGoods[j];
+                    routes[i].tour.erase(routes[i].tour.begin() + position);
+                    routes[i].satelliteGoods.erase(routes[i].satelliteGoods.begin() + position);
+
+                    // Update solution cost
+                    solution.setTotalCost(solution.getTotalCost() + bestRemoval + bestInsertion);
+                }
+            }
+        }
+    }
+    while (improvement);
+
+    return oldCost - solution.getTotalCost();
 }
 
 double SDVRPSolver::applyOrOpt(E1Route &route, int seqLength) {
@@ -214,8 +337,8 @@ double SDVRPSolver::applyOrOpt(E1Route &route, int seqLength) {
         for (u = 0; u <= route.tour.size() - seqLength; ++u) {
             // Save the first and last elements (respectively i and j) of the sequence being tried
             v = u + seqLength - 1;
-            i = this->problem->getClient(route.tour[u]);
-            j = this->problem->getClient(route.tour[v]);
+            i = this->problem->getSatellite(route.tour[u]);
+            j = this->problem->getSatellite(route.tour[v]);
             tmpTour = route.tour;
             tmpTour.erase(tmpTour.begin() + u, tmpTour.begin() + u + seqLength);
             // Compute the change of cost caused by deleting sequence i-> ... ->j : dRemoval
@@ -224,12 +347,12 @@ double SDVRPSolver::applyOrOpt(E1Route &route, int seqLength) {
             if (u == 0)
                 p = this->problem->getDepot();
             else
-                p = this->problem->getClient(route.tour[u - 1]);
+                p = this->problem->getSatellite(route.tour[u - 1]);
 
             if (v == route.tour.size() - 1)
                 q = this->problem->getDepot();
             else
-                q = this->problem->getClient(route.tour[v + 1]);
+                q = this->problem->getSatellite(route.tour[v + 1]);
 
             dRemoval = this->problem->getDistance(p, q) -
                        (this->problem->getDistance(p, i) + this->problem->getDistance(j, q));
@@ -243,15 +366,15 @@ double SDVRPSolver::applyOrOpt(E1Route &route, int seqLength) {
                 // dInsertion = c(k-1,i)+c(j,k)-c(k-1,k)
                 if (w == 0) {
                     k_1 = this->problem->getDepot();
-                    k = this->problem->getClient(tmpTour[w]);
+                    k = this->problem->getSatellite(tmpTour[w]);
                 }
                 else if (w == tmpTour.size()) {
-                    k_1 = this->problem->getClient(tmpTour[w - 1]);
+                    k_1 = this->problem->getSatellite(tmpTour[w - 1]);
                     k = this->problem->getDepot();
                 }
                 else {
-                    k_1 = this->problem->getClient(tmpTour[w - 1]);
-                    k = this->problem->getClient(tmpTour[w]);
+                    k_1 = this->problem->getSatellite(tmpTour[w - 1]);
+                    k = this->problem->getSatellite(tmpTour[w]);
                 }
 
                 dInsertion = this->problem->getDistance(k_1, i) + this->problem->getDistance(j, k) -
@@ -340,12 +463,12 @@ double SDVRPSolver::insertionCost(Solution &solution, int satelliteId, int dDema
                         if (j == 0)
                             p = this->problem->getDepot();
                         else
-                            p = this->problem->getClient(route.tour[j - 1]);
+                            p = this->problem->getSatellite(route.tour[j - 1]);
 
                         if (j == route.tour.size())
                             q = this->problem->getDepot();
                         else
-                            q = this->problem->getClient(route.tour[j]);
+                            q = this->problem->getSatellite(route.tour[j]);
 
                         cost = problem->getDistance(p,s) + problem->getDistance(s,q) - problem->getDistance(p,q);
 
@@ -464,12 +587,12 @@ void SDVRPSolver::insert(Solution &solution, int satelliteId, int dDemand) {
                         if (j == 0)
                             p = this->problem->getDepot();
                         else
-                            p = this->problem->getClient(route.tour[j - 1]);
+                            p = this->problem->getSatellite(route.tour[j - 1]);
 
                         if (j == route.tour.size())
                             q = this->problem->getDepot();
                         else
-                            q = this->problem->getClient(route.tour[j]);
+                            q = this->problem->getSatellite(route.tour[j]);
 
                         cost = problem->getDistance(p, s) + problem->getDistance(s, q) - problem->getDistance(p, q);
 
@@ -545,3 +668,5 @@ void SDVRPSolver::insert(Solution &solution, int satelliteId, int dDemand) {
         }
     }
 }
+
+

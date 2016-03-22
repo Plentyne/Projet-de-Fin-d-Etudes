@@ -16,12 +16,15 @@
 #include "./Solver/IDCH.h"
 #include "Utility.h"
 #include "Config.h"
+#include "ProcessClock.h"
 #include "./Solver/Sequence.h"
+#include "Statistic.h"
+
 using namespace std;
 
 void buildTestSolution(Solution &s, Problem *p);
 
-void testFastIDCH(const unsigned int &exec);
+void testFastIDCH(const int &exec);
 
 int main()
 {
@@ -95,14 +98,16 @@ int main()
 
     return 0;
 }
+// TODO Rajouter le calcul des temps de résolution
+// TODO Rajouter le calcul des statistiques et le remplissage du fichier résumé.csv
+// TODO remettre la fonction FastIDCH
 
-void testFastIDCH(const unsigned int &exec = 3) {
+void testFastIDCH(const int &exec) {
     ofstream fh;
 
     fh.open((Config::_outputDir + "/" + Config::_resumeFile).c_str());
 
     fh << "instance;ltime;";
-    fh << ";maxspinit;minpinit;avgpinit;";
     fh << ";maxscore;minscore;avgscore;";
     fh << ";maxcpu;mincpu;avgcpu;";
     fh << ";nshift;nswap;nldr;nsdr";
@@ -114,26 +119,25 @@ void testFastIDCH(const unsigned int &exec = 3) {
     for (list<Instance>::iterator iteri = Config::_fileList.begin();
          iteri != Config::_fileList.end();
          iteri++) {
-        //ProcessClock pclock;
+        ProcessClock pclock;
 
-        /*fh<<iteri->_fileName<<";";*/
+        fh << iteri->_fileName << ";";
         cout << "Loading file : " << iteri->_fileName << " .. " << endl;
         Problem problem;
 
-        //pclock.start();
+        pclock.start();
         problem.readBreunigFile(Config::_inputDir + "/" + iteri->_fileName);
-        //pclock.end();
+        pclock.end();
 
         cout << "Ok" << endl;
-        //cout<<"loading time = "<<pclock.getCpuTime()<<endl;
-        //fh<<pclock.getCpuTime()<<";";
-
-        vector<unsigned int> pinit;
+        cout << "loading time = " << pclock.getCpuTime() << endl;
+        fh << pclock.getCpuTime() << ";";
+        
         vector<unsigned int> score;
         vector<double> cpu;
-        /*Statistic::reset();
+        Statistic::reset();
 
-        if (Config::_usingBound) {
+        /*if (Config::_usingBound) {
             if(iteri->_exist_UB) problem.setUB(iteri->_UB);
             if(iteri->_exist_SOL) problem.setSOL(iteri->_SOL);
         }*/
@@ -144,26 +148,26 @@ void testFastIDCH(const unsigned int &exec = 3) {
             cout << "execution = " << i << endl;
             //srand(rseed[i]);
 
-            //pclock.start();
-            //IDCH solver(&problem);
-            MoleJamesonHeuristic solver(&problem, 1, 1);
+            pclock.start();
+            IDCH solver(&problem);
+            //MoleJamesonHeuristic solver(&problem, 1, 1);
             Solution sol(&problem);
-            //solver.heuristicFastIDCH(sol);
-            solver.solve(sol);
+            solver.heuristicFastIDCH(sol);
+            //solver.solve(sol);
             //solver.DPSOScheme(sol, 3600);  1h test
-            //pclock.end();
+            pclock.end();
 
             cout << "\tscore = " << sol.getTotalCost() << endl;
-            //cout<<"\tresolution time = "<<pclock.getCpuTime()<<endl;
+            cout << "\tresolution time = " << pclock.getCpuTime() << endl;
             score.push_back(sol.getTotalCost());
-            //cpu.push_back(pclock.getCpuTime());
+            cpu.push_back(pclock.getCpuTime());
 
             cout << "\tchecking solution .. ";
             if (problem.isValidSolution(sol)) cout << "Ok";
             else cout << "failed";
             cout << endl;
 
-            cout << "\tSaving solution to " << Config::_outputDir + "/" + iteri->_fileName + ".sol.csv" << " .. ";
+            cout << "\tSaving solution to " << Config::_outputDir + "/" + iteri->_fileName + ".sol" << " .. ";
             stringstream header;
             header << "execution = " << i << endl;
             //header<<"seed = "<<rseed[i]<<endl;
@@ -172,16 +176,14 @@ void testFastIDCH(const unsigned int &exec = 3) {
             cout << "Ok" << endl;
         }
 
-        //fh<<";";
-        /*unsigned int maxscore, minscore, maxpinit, minpinit;
-        double avgscore, avgpinit,
+        fh << ";";
+        unsigned int maxscore, minscore;
+        double avgscore,
                 maxcpu, mincpu, avgcpu;
 
         Statistic::calMaxMinAvg(score, maxscore, minscore, avgscore);
-        Statistic::calMaxMinAvg(pinit, maxpinit, minpinit, avgpinit);
         Statistic::calMaxMinAvg(cpu, maxcpu, mincpu, avgcpu);
 
-        fh<<maxpinit<<";"<<minpinit<<";"<<avgpinit<<";;";
         fh<<maxscore<<";"<<minscore<<";"<<avgscore<<";;";
         fh<<maxcpu<<";"<<mincpu<<";"<<avgcpu<<";;";
 
@@ -190,7 +192,7 @@ void testFastIDCH(const unsigned int &exec = 3) {
         fh<<Statistic::_nldr<<";";
         fh<<Statistic::_nsdr;
 
-        fh<<endl;*/
+        fh << endl;
     }
 
     fh.close();

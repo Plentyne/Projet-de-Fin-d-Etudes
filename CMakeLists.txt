@@ -15,18 +15,31 @@ set(SOURCE_FILES
     Solver-2E-VRP/Solver-2E-VRP/Model/Satellite.cpp
     Solver-2E-VRP/Solver-2E-VRP/Model/Satellite.h
     Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp
-    Solver-2E-VRP/Solver-2E-VRP/stdafx.cpp
-    Solver-2E-VRP/Solver-2E-VRP/stdafx.h
         Solver-2E-VRP/Solver-2E-VRP/targetver.h
         Solver-2E-VRP/Solver-2E-VRP/Model/Solution.cpp
         Solver-2E-VRP/Solver-2E-VRP/Model/Solution.h
         Solver-2E-VRP/Solver-2E-VRP/Config.cpp
         Solver-2E-VRP/Solver-2E-VRP/Config.h
-        Solver-2E-VRP/Solver-2E-VRP/Config.cpp
-        Solver-2E-VRP/Solver-2E-VRP/Config.h
+        Solver-2E-VRP/Solver-2E-VRP/ProcessClock.cpp
+        Solver-2E-VRP/Solver-2E-VRP/ProcessClock.h
+        Solver-2E-VRP/Solver-2E-VRP/Statistic.cpp
+        Solver-2E-VRP/Solver-2E-VRP/Statistic.h
         Solver-2E-VRP/Solver-2E-VRP/Utility.cpp
         Solver-2E-VRP/Solver-2E-VRP/Utility.h
         Solver-2E-VRP/Solver-2E-VRP/Solver/Heuristic.cpp
-        Solver-2E-VRP/Solver-2E-VRP/Solver/Heuristic.h Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.cpp Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.h Solver-2E-VRP/Solver-2E-VRP/Solver/MoleJamesonHeuristic.cpp Solver-2E-VRP/Solver-2E-VRP/Solver/MoleJamesonHeuristic.h Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.cpp Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.h Solver-2E-VRP/Solver-2E-VRP/Solver/SDVRPSolver.cpp Solver-2E-VRP/Solver-2E-VRP/Solver/SDVRPSolver.h Solver-2E-VRP/Solver-2E-VRP/Solver/IDCH.cpp Solver-2E-VRP/Solver-2E-VRP/Solver/IDCH.h Solver-2E-VRP/Solver-2E-VRP/Solver/Sequence.cpp Solver-2E-VRP/Solver-2E-VRP/Solver/Sequence.h)
+        Solver-2E-VRP/Solver-2E-VRP/Solver/Heuristic.h
+        Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.cpp
+        Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.h
+        Solver-2E-VRP/Solver-2E-VRP/Solver/MoleJamesonHeuristic.cpp
+        Solver-2E-VRP/Solver-2E-VRP/Solver/MoleJamesonHeuristic.h
+        Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.cpp
+        Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.h
+        Solver-2E-VRP/Solver-2E-VRP/Solver/SDVRPSolver.cpp
+        Solver-2E-VRP/Solver-2E-VRP/Solver/SDVRPSolver.h
+        Solver-2E-VRP/Solver-2E-VRP/Solver/IDCH.cpp
+        Solver-2E-VRP/Solver-2E-VRP/Solver/IDCH.h
+        Solver-2E-VRP/Solver-2E-VRP/Solver/Sequence.cpp
+        Solver-2E-VRP/Solver-2E-VRP/Solver/Sequence.h
+        )
 
 add_executable(Projet_de_Fin_d_Etudes ${SOURCE_FILES})

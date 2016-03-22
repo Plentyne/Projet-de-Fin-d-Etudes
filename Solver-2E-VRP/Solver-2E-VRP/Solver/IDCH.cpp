@@ -53,17 +53,17 @@ void IDCH::heuristicFastIDCH(Solution &bestSolution) {
             itermax = n;
 
     if (bestSolution.getTotalCost() == 0) {
-        //this->doGreedyInsertion(bestSolution);
-        MoleJamesonHeuristic solver(this->problem, 1, 1);
-        solver.solve(bestSolution);
+        this->doGreedyInsertion(bestSolution);
+        //MoleJamesonHeuristic solver(this->problem, 1, 1);
+        //solver.solve(bestSolution);
     }
 
     Solution solution = bestSolution;
 
     while (iter < itermax) {
         // Destruction de la solution
-        this->doDestroySmall(solution);
-
+        //this->doDestroySmall(solution);
+        this->doDestroyLarge(solution);
         // Perturbation de la solution
         this->apply2OptOnEachTour(solution);
 

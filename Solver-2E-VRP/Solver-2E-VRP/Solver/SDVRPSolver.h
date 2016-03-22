@@ -30,6 +30,8 @@ private:
 
     double apply2Opt(E1Route &route);
 
+    double applyRelocate(Solution &solution);
+
     /* Does Best Improvement*/
     double applyOrOpt(E1Route &route, int seqLength); /* Does Best Improvement*/
 
