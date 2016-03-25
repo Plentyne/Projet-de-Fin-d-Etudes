@@ -19,6 +19,165 @@ Sequence::Sequence(Solution &solution) : problem(solution.getProblem()), evaluat
     for (E2Route &route : solution.getE2Routes()) {
         tour.insert(tour.end(), route.tour.begin(), route.tour.end());
     }
+
+}
+
+Sequence::Sequence(Problem *problem) : problem(problem), evaluated(false), solutionCost(0) {
+    this->tour.reserve(problem->numberOfClients() + 1);
+    this->tour.push_back(-1);
+    for (int i = 0; i < problem->getClients().size(); ++i) {
+        this->tour.push_back(i);
+    }
+    std::random_shuffle(tour.begin() + 1, tour.end());
+}
+
+/****************************
+ *
+ * EVALUATION FUNCTION
+ *
+ ****************************/
+
+double Sequence::doEvaluate() {
+    // If the sequence has been evaluated, it's no use to do it again
+    if (this->evaluated)
+        return this->solutionCost;
+
+    // Evaluate the sequence
+    // Initialisation
+    v = vector<double>(this->problem->getClients().size() + 1, Config::DOUBLE_INFINITY);
+    v[0] = 0;
+    vector<double> v2(v.begin(), v.end());
+
+    paths = vector<vector<predecessor>>(this->problem->getClients().size() + 1);
+    paths[0].push_back(predecessor{0, 0, 0});
+    vector<vector<predecessor>> paths2(paths.begin(), paths.end());
+
+    // External loop for the number of vehicles
+    int k = 0;
+    int i, j;
+    int n = v.size() - 1;
+    bool stable;
+    int load;
+    double cost1, cost2;
+    int sat;
+
+    do {
+        k++;
+        stable = true;
+
+        for (i = 1; i <= n && v[i - 1] < Config::DOUBLE_INFINITY; ++i) {
+            load = 0;
+            j = i;
+
+            do {
+                load += problem->getClient(tour[j]).getDemand();
+                if (load <= problem->getE2Capacity()) {
+                    if (j == i) {
+                        cost1 = 2 * problem->getDistance(problem->getClient(tour[i]), problem->getSatellite(0));
+                        if (cost1 == 0) cost1 = Config::DOUBLE_INFINITY;
+                        sat = 0;
+                        for (int l = 1; l < problem->getSatellites().size(); ++l) {
+                            double tmpCost =
+                                    2 * problem->getDistance(problem->getClient(tour[i]), problem->getSatellite(l));
+                            if (tmpCost == 0) tmpCost = Config::DOUBLE_INFINITY;
+                            if (tmpCost - cost1 < -0.0001) {
+                                cost1 = tmpCost;
+                                sat = l;
+                            }
+                        }
+                        cost2 = 0;
+                    }
+                    else {
+                        cost1 = problem->getDistance(problem->getClient(tour[i]), problem->getSatellite(0))
+                                + problem->getDistance(problem->getClient(tour[j]), problem->getSatellite(0));
+                        sat = 0;
+                        for (int l = 1; l < problem->getSatellites().size(); ++l) {
+                            double tmpCost = problem->getDistance(problem->getClient(tour[i]), problem->getSatellite(l))
+                                             + problem->getDistance(problem->getClient(tour[j]),
+                                                                    problem->getSatellite(l));
+                            if (tmpCost - cost1 < -0.0001) {
+                                cost1 = tmpCost;
+                                sat = l;
+                            }
+                        }
+                        cost2 += problem->getDistance(problem->getClient(tour[j - 1]), problem->getClient(tour[j]));
+                    }
+                    if ((v[i - 1] + cost1 + cost2 - v2[j] < -0.0001)) {
+                        v2[j] = v[i - 1] + cost1 + cost2;
+                        stable = false;
+                        paths2[j].assign(paths[i - 1].begin(), paths[i - 1].end());
+                        paths2[j].push_back(predecessor{j, sat, v2[j]});
+                    }
+                    j++;
+                }
+            } while (load <= problem->getE2Capacity() && j <= n);
+        }
+        v.assign(v2.begin(), v2.end());
+        paths.assign(paths2.begin(), paths2.end());
+    } while (k < problem->getK2() && !stable);
+
+    this->evaluated = true;
+    this->solutionCost = v[n];
+
+    return this->solutionCost;
+}
+
+/****************************
+ *
+ * EXTRACT SOLUTION
+ *
+ ****************************/
+void Sequence::extractSolution(Solution &solution) {
+
+    if (!evaluated) this->doEvaluate();
+
+    int j = paths.size() - 1;
+    int i;
+
+    solution = Solution(problem);
+    solution.setTotalCost(solutionCost);
+
+    E2Route route;
+
+    std::reverse(paths[j].begin(), paths[j].end());
+    for (int l = 0; l < paths[j].size() - 1; ++l) {
+        // Initialiser la route
+        route.departureSatellite = paths[j][l].sat;
+        route.tour.clear();
+        route.load = 0;
+        // Construire la route
+        i = paths[j][l + 1].p;
+
+        for (int k = i + 1; k <= paths[j][l].p; ++k) {
+            route.tour.push_back(tour[k]);
+            route.load += problem->getClient(tour[k]).getDemand();
+        }
+        route.cost = paths[j][l].cost - paths[j][l + 1].cost;
+        // Insert route into solution
+        solution.getE2Routes().push_back(route);
+        solution.getSatelliteDemands()[route.departureSatellite] += route.load;
+    }
+    // Résoudre le premier échelon
+    SDVRPSolver sdvrpSolver(problem);
+    sdvrpSolver.constructiveHeuristic(solution);
+}
+/* Contains the original form of the methods
+ *
+// Created by Youcef on 18/03/2016.
+
+#include "Sequence.h"
+#include "../Config.h"
+#include "SDVRPSolver.h"
+
+#include <algorithm>
+
+
+Sequence::Sequence(Solution &solution) : problem(solution.getProblem()), evaluated(false), solutionCost(0) {
+    this->tour.reserve(problem->getClients().size() + 1);
+    this->tour.push_back(-1);
+    for (E2Route &route : solution.getE2Routes()) {
+        tour.insert(tour.end(), route.tour.begin(), route.tour.end());
+    }
     this->p = vector<int>(problem->getClients().size() + 1);
     this->satellites = vector<int>(problem->getClients().size() + 1);
     this->N = vector<int>(problem->getClients().size() + 1);
@@ -36,11 +195,7 @@ Sequence::Sequence(Problem *problem) : problem(problem), evaluated(false), solut
     this->N = vector<int>(problem->getClients().size() + 1);
 }
 
-/****************************
- *
- * EVALUATION FUNCTION
- *
- ****************************/
+
 double Sequence::doEvaluate() {
     // If the sequence has been evaluated, it's no use to do it again
     if (this->evaluated)
@@ -53,7 +208,12 @@ double Sequence::doEvaluate() {
     N[0] = 0;
     vector<double> v2(v.begin(), v.end());
     vector<int> p2(p.begin(), p.end());
+    vector<int> N2(N.begin(),N.end());
     vector<int> satellites2(satellites.begin(), satellites.end());
+
+    pred = vector<vector<predecessor>>(this->problem->getClients().size() + 1);
+    pred[0].push_back(predecessor{0,0,0});
+    vector<vector<predecessor>> pred2(pred.begin(),pred.end());
 
     // External loop for the number of vehicles
     int k = 0;
@@ -110,6 +270,9 @@ double Sequence::doEvaluate() {
                         stable = false;
                         p2[j] = i - 1;
                         satellites2[j] = sat;
+                        N2[j]=N[i-1]+1;
+                        pred2[j].assign(pred[i-1].begin(),pred[i-1].end());
+                        pred2[j].push_back(predecessor{j,sat,v2[j]});
                     }
                     j++;
                 }
@@ -117,7 +280,9 @@ double Sequence::doEvaluate() {
         }
         v.assign(v2.begin(), v2.end());
         p.assign(p2.begin(), p2.end());
+        N.assign(N2.begin(),N2.end());
         satellites.assign(satellites2.begin(), satellites2.end());
+        pred.assign(pred2.begin(),pred2.end());
     } while (k < problem->getK2() && !stable);
 
     this->evaluated = true;
@@ -126,11 +291,7 @@ double Sequence::doEvaluate() {
     return this->solutionCost;
 }
 
-/****************************
- *
- * EXTRACT SOLUTION
- *
- ****************************/
+
 void Sequence::extractSolution(Solution &solution) {
     int j = p.size() - 1;
     int i;
@@ -142,7 +303,7 @@ void Sequence::extractSolution(Solution &solution) {
 
     E2Route route;
 
-    do {
+    /*do {
         // Initialiser la route
         route.departureSatellite = satellites[j];
         route.tour.clear();
@@ -163,4 +324,7 @@ void Sequence::extractSolution(Solution &solution) {
     // Résoudre le premier échelon
     SDVRPSolver sdvrpSolver(problem);
     sdvrpSolver.constructiveHeuristic(solution);
+
 }
+
+*/

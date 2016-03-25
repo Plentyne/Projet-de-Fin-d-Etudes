@@ -7,7 +7,7 @@
 #include "./SDVRPSolver.h"
 #include "MoleJamesonHeuristic.h"
 #include <algorithm>
-
+#include "../Config.h"
 /****************************************************
  *  
  *                IDCH HEURISTICS
@@ -69,6 +69,9 @@ void IDCH::heuristicFastIDCH(Solution &bestSolution) {
 
         // Réparation de la solution
         this->doRepair(solution);
+
+        // local search
+        this->doLocalSearch(solution);
 
         if (solution.getTotalCost() < bestSolution.getTotalCost()) {
             bestSolution = solution;
@@ -170,7 +173,7 @@ void IDCH::doWorstRemoval(Solution &solution, double p2) {
             for (int v = 0; v < route.tour.size(); ++v) {
                 //tmpCost = removalCost(solution, v, u)/averageArcCost[route.tour[v]];
                 tmpCost = removalCost(solution, v, u);
-                if (tmpCost > cost) {
+                if (tmpCost < cost) {
                     rt = u;
                     rc = v;
                     cost = tmpCost;
@@ -462,12 +465,9 @@ void IDCH::doOpenAllSatellites(Solution &solution) {
 bool IDCH::apply2OptOnEachTour(Solution &solution) {
     bool improvement = false;
     double imp = 0;
-    for (E2Route route : solution.getE2Routes()) {
-        imp -= route.cost;
+    for (E2Route &route : solution.getE2Routes()) {
         improvement = improvement || lsSolver.apply2OptOnTour(route);
-        imp += route.cost;
     }
-    if (imp < -0.0001) solution.setTotalCost(solution.getTotalCost() + imp);
     return improvement;
 }
 
@@ -480,11 +480,12 @@ void IDCH::doDestroyLarge(Solution &solution) {
     /* Todo 1 changer les paramètres
      * Todo 2 implémenter un schéma pour l'utilisation des opérateurs
     */
-    this->doRandomRemoval(solution, 0.15);
-    this->doWorstRemoval(solution, 0.25);
-    this->doRelatedRemoval(solution, 0.1);
+    this->doRandomRemoval(solution, Config::p1);
+    this->doWorstRemoval(solution, Config::p2);
+    this->doRelatedRemoval(solution, Config::p3);
     this->doRemoveSingleNodeRoutes(solution);
-    this->doRouteRemoval(solution, 5);
+    this->doRouteRemoval(solution, Config::p4);
+
     //this->doSatelliteRemoval(solution, 0);
     //this->doSatelliteOpening(solution, 0.1);
     //this->doOpenAllSatellites(solution);
@@ -547,8 +548,8 @@ void IDCH::doDestroySmall(Solution &solution) {
 
 // Todo : implement a repair method
 void IDCH::doRepair(Solution &solution) {
-    //this->doGreedyInsertion(solution);
-    this->doGreedyInsertionPerturbation(solution);
+    this->doGreedyInsertion(solution);
+    //this->doGreedyInsertionPerturbation(solution);
 }
 
 /****************************************************
@@ -559,8 +560,7 @@ void IDCH::doRepair(Solution &solution) {
 double IDCH::removalCost(Solution &solution, int customer, int route) {
 
     if (solution.getE2Routes()[route].tour.size() == 1)
-        return 2 * problem->getDistance(problem->getSatellite(solution.getE2Routes()[route].departureSatellite),
-                                        problem->getClient(solution.getE2Routes()[route].tour[customer]));
+        return -solution.getE2Routes()[route].cost;
 
     Node p, q, c;
     c = problem->getClient(solution.getE2Routes()[route].tour[customer]);
@@ -582,6 +582,93 @@ double IDCH::removalCost(Solution &solution, int customer, int route) {
 
 // Todo Implement Local Search Step for IDCH
 bool IDCH::doLocalSearch(Solution &solution) {
-    return false;
+
+    /*double imp;
+    do {
+        imp = solution.getTotalCost();
+        lsSolver.apply2optStar(solution);
+        lsSolver.applyRelocate(solution);
+        lsSolver.applySwap(solution);
+        for (E2Route &e2route : solution.getE2Routes()) {
+            solution.setTotalCost(solution.getTotalCost() - e2route.cost);
+            lsSolver.apply2OptOnTour(e2route);
+            solution.setTotalCost(solution.getTotalCost() + e2route.cost);
+        }
+        //lsSolver.doChangeSatellite(solution);
+        imp = solution.getTotalCost() - imp;
+    } while (imp < -0.001);
+
+    this->doRepair(solution);
+
+    return true;*/
+
+    bool improvement = false;
+
+    int i, selected,
+            nneighbor = 5,
+            nusage[] = {0, 0, 0, 0, 0},
+            nusagemax[] = {1, 1, 1, 1, 1};
+    bool stop = false;
+
+    while (!stop) {
+        do { selected = rand() % nneighbor; } while (nusage[selected] >= nusagemax[selected]);
+
+        switch (selected) {
+            case 0:
+                if (this->apply2OptOnEachTour(solution)) {
+                    for (i = 0; i < nneighbor; i++) nusage[i] = 0;
+                    improvement = true;
+                } else {
+                    nusage[selected]++;
+                }
+                break;
+
+            case 1:
+                if (lsSolver.apply2optStar(solution)) {
+                    for (i = 0; i < nneighbor; i++) nusage[i] = 0;
+                    improvement = true;
+                } else {
+                    nusage[selected]++;
+                }
+                break;
+
+            case 2:
+                if (lsSolver.applyRelocate(solution)) {
+                    for (i = 0; i < nneighbor; i++) nusage[i] = 0;
+                    improvement = true;
+                } else {
+                    nusage[selected]++;
+                }
+                break;
+            case 3:
+                if (lsSolver.applySwap(solution)) {
+                    for (i = 0; i < nneighbor; i++) nusage[i] = 0;
+                    improvement = true;
+                } else {
+                    nusage[selected]++;
+                }
+                break;
+            case 4:
+                if (lsSolver.doChangeSatellite(solution)) {
+                    for (i = 0; i < nneighbor; i++) nusage[i] = 0;
+                    improvement = true;
+                } else {
+                    nusage[selected]++;
+                }
+                break;
+            default:
+                break;
+        }
+
+        for (i = 0; i < nneighbor; i++) {
+            if (nusage[i] < nusagemax[i]) break;
+        }
+
+        solution.doEvaluate();
+
+        if (i >= nneighbor) stop = true;
+    }
+    if (improvement) this->doRepair(solution);
+    return improvement;
 }
 

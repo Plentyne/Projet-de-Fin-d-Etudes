@@ -23,6 +23,8 @@ public:
     bool applyOrOpt(E2Route &e2Route, int seqLength);
     /* 3-opt */
     /* GENI Insertion */
+    /* Satellite Change : changes the satellite of a route with a better one*/
+    bool doChangeSatellite(Solution &solution);
 
     // Mouvements Inter-routes
     /* Relocate : parfois appelé Insert (Vidal 2013) ou Shift (Osman 1993), il consiste à déplacer un client depuis une tournée vers une autre */

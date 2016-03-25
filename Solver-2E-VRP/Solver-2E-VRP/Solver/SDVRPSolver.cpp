@@ -21,6 +21,9 @@ bool sortingCriterion(L_Entry i, L_Entry j) {
     return (i.c < j.c);
 }
 
+/******************************
+ * Constructive Heuristic
+ ******************************/
 void SDVRPSolver::constructiveHeuristic(Solution &solution) {
     // List containig the clients
     vector<L_Entry> L; //= vector<L_Entry>(solution.getProblem()->getSatellites().size());
@@ -114,14 +117,15 @@ void SDVRPSolver::constructiveHeuristic(Solution &solution) {
             // Update solution cost
             solution.setTotalCost(solution.getTotalCost() + route.cost);
         }
+        // Todo enlever après
+        this->applyRelocate(solution);
         // If U[i] is fully supplied, go to the next customer in L
         if (U[i.getSatelliteId()] == 0) c++;
     }
     // End While
 
     // Improve solution with local search Todo
-    this->applyRelocate(solution);
-
+    // this->applyRelocate(solution);
     // Update satellite demands
     for (int m = 0; m < solution.getSatelliteDemands().size(); ++m) {
         solution.getDeliveredQ()[m] = Q[m] - U[m];
@@ -190,126 +194,6 @@ double SDVRPSolver::apply2Opt(E1Route &route) {
     } while (minImproved < 0);
 
     return (route.cost - oldCost);
-}
-
-double SDVRPSolver::applyRelocate(Solution &solution) {
-    vector<E1Route> &routes = solution.getE1Routes();
-
-    bool improvement;
-    int position;
-    int insertRoute;
-    double dRemoval, dInsertion;
-    double bestRemoval, bestInsertion;
-    double oldCost = solution.getTotalCost();
-    Node p, q, k, k_1, s;
-    do {
-        improvement = false;
-        bestInsertion = 0;
-        bestRemoval = 0;
-
-        for (int i = 0; i < routes.size() && !improvement; ++i) {
-            for (int j = 0; j < routes[i].tour.size() && !improvement; ++j) {
-
-                s = problem->getSatellite(routes[i].tour[j]);
-
-                if (j == 0)
-                    p = this->problem->getDepot();
-                else
-                    p = this->problem->getSatellite(routes[i].tour[j - 1]);
-
-                if (j == routes[i].tour.size() - 1)
-                    q = this->problem->getDepot();
-                else
-                    q = this->problem->getSatellite(routes[i].tour[j + 1]);
-
-                dRemoval = this->problem->getDistance(p, q) -
-                           (this->problem->getDistance(p, s) + this->problem->getDistance(s, q));
-
-                for (int u = 0; u < routes.size(); ++u) {
-                    // If it's the same tour
-                    if (u == i) {
-                        continue;
-                        // Todo Act like Or Opt
-                    }
-                        // Else
-                    else {
-                        // if there's not enough free space, then ignore the route
-                        if (routes[u].load + routes[i].satelliteGoods[j] > problem->getE1Capacity()) continue;
-                        for (int v = 0; v <= routes[u].tour.size(); ++v) {
-                            // If it's the same satellite
-                            if (routes[u].tour[v] == routes[i].tour[j]) {
-                                bestInsertion = 0;
-                                bestRemoval = dRemoval;
-                                position = v;
-                                insertRoute = u;
-                            }
-                            else {
-                                // Compute insertion cost
-                                if (v == 0) {
-                                    k_1 = this->problem->getDepot();
-                                    k = this->problem->getSatellite(routes[u].tour[v]);
-                                }
-                                else if (v == routes[u].tour.size()) {
-                                    k_1 = this->problem->getSatellite(routes[u].tour[v - 1]);
-                                    k = this->problem->getDepot();
-                                }
-                                else {
-                                    k_1 = this->problem->getSatellite(routes[u].tour[v - 1]);
-                                    k = this->problem->getSatellite(routes[u].tour[v]);
-                                }
-                                dInsertion = this->problem->getDistance(k_1, s) + this->problem->getDistance(s, k) -
-                                             this->problem->getDistance(k_1, k);
-
-
-                                if (dRemoval + dInsertion < bestRemoval + bestInsertion) {
-                                    // Save the insert position and the change in cost
-                                    bestInsertion = dInsertion;
-                                    bestRemoval = dRemoval;
-                                    position = v;
-                                    insertRoute = u;
-                                }
-                            }
-                        }
-
-                    }
-
-                }
-
-                // Update the route
-                if (bestRemoval + bestInsertion < -0.0001) {
-                    improvement = true;
-                    // If customer exists in the route, only move its goods
-                    if (routes[i].tour[j] == routes[insertRoute].tour[position]) {
-                        routes[insertRoute].load += routes[i].satelliteGoods[j];
-                        routes[insertRoute].satelliteGoods[position] += routes[i].satelliteGoods[j];
-                    }
-                        // Else insert it into the new route
-                    else {
-                        // update load
-                        routes[insertRoute].load += routes[i].satelliteGoods[j];
-                        // update cost
-                        routes[insertRoute].cost += bestInsertion;
-                        // Update tour
-                        routes[insertRoute].tour.insert(routes[insertRoute].tour.begin() + position, routes[i].tour[j]);
-                        // Update satelliteGoods
-                        routes[insertRoute].satelliteGoods.insert(routes[insertRoute].satelliteGoods.begin() + position,
-                                                                  routes[i].satelliteGoods[j]);
-                    }
-                    // Remove customer from irs original route
-                    routes[i].cost += bestRemoval;
-                    routes[i].load -= routes[i].satelliteGoods[j];
-                    routes[i].tour.erase(routes[i].tour.begin() + position);
-                    routes[i].satelliteGoods.erase(routes[i].satelliteGoods.begin() + position);
-
-                    // Update solution cost
-                    solution.setTotalCost(solution.getTotalCost() + bestRemoval + bestInsertion);
-                }
-            }
-        }
-    }
-    while (improvement);
-
-    return oldCost - solution.getTotalCost();
 }
 
 double SDVRPSolver::applyOrOpt(E1Route &route, int seqLength) {
@@ -413,6 +297,368 @@ double SDVRPSolver::applyOrOpt(E1Route &route, int seqLength) {
     return (route.cost - oldCost);
 }
 
+double SDVRPSolver::applyRelocate(Solution &solution) {
+    vector<E1Route> &routes = solution.getE1Routes();
+
+    bool improvement;
+    int position;
+    int insertRoute;
+    double dRemoval, dInsertion;
+    double bestRemoval, bestInsertion;
+    double oldCost = solution.getTotalCost();
+    do {
+        improvement = false;
+        bestInsertion = 0;
+        bestRemoval = 0;
+
+        for (int i = 0; i < routes.size() && !improvement; ++i) {
+            for (int j = 0; j < routes[i].tour.size() && !improvement; ++j) {
+
+                Satellite s = problem->getSatellite(routes[i].tour[j]);
+
+                Node p;
+                if (j == 0)
+                    p = this->problem->getDepot();
+                else
+                    p = this->problem->getSatellite(routes[i].tour[j - 1]);
+
+                Node q;
+                if (j == routes[i].tour.size() - 1)
+                    q = this->problem->getDepot();
+                else
+                    q = this->problem->getSatellite(routes[i].tour[j + 1]);
+
+                dRemoval = this->problem->getDistance(p, q) -
+                           (this->problem->getDistance(p, s) + this->problem->getDistance(s, q));
+
+                for (int u = 0; u < routes.size(); ++u) {
+                    // If it's the same tour
+                    if (u == i) {
+                        continue;
+                        // Todo Act like Or Opt
+                    }
+                        // Else
+                    else {
+                        // if there's not enough free space, then ignore the route
+                        if (routes[u].load + routes[i].satelliteGoods[j] > problem->getE1Capacity()) continue;
+                        for (int v = 0; v <= routes[u].tour.size(); ++v) {
+                            // If it's the same satellite
+                            if (routes[u].tour[v] == routes[i].tour[j]) {
+                                bestInsertion = 0;
+                                bestRemoval = dRemoval;
+                                position = v;
+                                insertRoute = u;
+                                break;
+                            }
+                            else {
+                                // Compute insertion cost
+                                Node k, k_1;
+                                if (v == 0) {
+                                    k_1 = this->problem->getDepot();
+                                    k = this->problem->getSatellite(routes[u].tour[v]);
+                                }
+                                else if (v == routes[u].tour.size()) {
+                                    k_1 = this->problem->getSatellite(routes[u].tour[v - 1]);
+                                    k = this->problem->getDepot();
+                                }
+                                else {
+                                    k_1 = this->problem->getSatellite(routes[u].tour[v - 1]);
+                                    k = this->problem->getSatellite(routes[u].tour[v]);
+                                }
+                                dInsertion = this->problem->getDistance(k_1, s) + this->problem->getDistance(s, k) -
+                                             this->problem->getDistance(k_1, k);
+
+
+                                if (dRemoval + dInsertion < bestRemoval + bestInsertion) {
+                                    // Save the insert position and the change in cost
+                                    bestInsertion = dInsertion;
+                                    bestRemoval = dRemoval;
+                                    position = v;
+                                    insertRoute = u;
+                                }
+                            }
+                        }
+
+                    }
+
+                }
+
+                // Update the route
+                if (bestRemoval + bestInsertion < -0.0001) {
+                    improvement = true;
+                    // If customer exists in the route, only move its goods
+                    if (routes[i].tour[j] == routes[insertRoute].tour[position]) {
+                        routes[insertRoute].load += routes[i].satelliteGoods[j];
+                        routes[insertRoute].satelliteGoods[position] += routes[i].satelliteGoods[j];
+                    }
+                        // Else insert it into the new route
+                    else {
+                        // update load
+                        routes[insertRoute].load += routes[i].satelliteGoods[j];
+                        // update cost
+                        routes[insertRoute].cost += bestInsertion;
+                        // Update tour
+                        routes[insertRoute].tour.insert(routes[insertRoute].tour.begin() + position, routes[i].tour[j]);
+                        // Update satelliteGoods
+                        routes[insertRoute].satelliteGoods.insert(routes[insertRoute].satelliteGoods.begin() + position,
+                                                                  routes[i].satelliteGoods[j]);
+                    }
+                    // Remove customer from irs original route
+                    if (routes[i].tour.size() == 1) {
+                        solution.getE1Routes().erase(solution.getE1Routes().begin() + i);
+                    }
+                    else {
+                        routes[i].cost += bestRemoval;
+                        routes[i].load -= routes[i].satelliteGoods[j];
+                        routes[i].tour.erase(routes[i].tour.begin() + j);
+                        routes[i].satelliteGoods.erase(routes[i].satelliteGoods.begin() + j);
+                    }
+
+                    // Update solution cost
+                    solution.setTotalCost(solution.getTotalCost() + bestRemoval + bestInsertion);
+                }
+            }
+        }
+    }
+    while (improvement);
+
+    return oldCost - solution.getTotalCost();
+}
+
+// Todo corriger le swap, il ne fonctionne pas correctement
+double SDVRPSolver::applySwap(Solution &solution) {
+    vector<E1Route> &routes = solution.getE1Routes();
+
+    bool improvement;
+    int xPosition, yPosition;
+    int insertRoute;
+    double xRemoval, xInsertion;
+    double yRemoval, yInsertion;
+    double bestXRemoval, bestXInsertion;
+    double bestYRemoval, bestYInsertion;
+    double oldCost = solution.getTotalCost();
+    Node p, q, k, k_1, x, y;
+    do {
+        improvement = false;
+        for (int i = 0; i < routes.size() && !improvement; ++i) {
+            if (routes[i].tour.size() == 1) continue;
+            for (int j = 0; j < routes[i].tour.size() && !improvement; ++j) {
+
+                x = problem->getSatellite(routes[i].tour[j]);
+
+                if (j == 0)
+                    p = this->problem->getDepot();
+                else
+                    p = this->problem->getSatellite(routes[i].tour[j - 1]);
+
+                if (j == routes[i].tour.size() - 1)
+                    q = this->problem->getDepot();
+                else
+                    q = this->problem->getSatellite(routes[i].tour[j + 1]);
+
+                xRemoval = this->problem->getDistance(p, q) -
+                           (this->problem->getDistance(p, x) + this->problem->getDistance(x, q));
+
+                // Remove customer x form route
+                E1Route routeX;
+                routeX.cost = routes[i].cost + yRemoval;
+                routeX.load = routes[i].load - routes[i].satelliteGoods[j];
+                routeX.tour = vector<int>(routes[i].tour.begin(), routes[i].tour.begin() + j);
+                routeX.tour.insert(routeX.tour.end(), routes[i].tour.begin() + j + 1, routes[i].tour.end());
+                routeX.satelliteGoods = vector<int>(routes[i].satelliteGoods.begin(),
+                                                    routes[i].satelliteGoods.begin() + j);
+                routeX.satelliteGoods.insert(routeX.satelliteGoods.end(), routes[i].satelliteGoods.begin() + j + 1,
+                                             routes[i].satelliteGoods.end());
+
+
+                for (int u = i + 1; u < routes.size() && !improvement; ++u) {
+                    // If route u only containes oneit's the same tour
+                    if (routes[u].tour.size() == 1) {
+                        continue;
+                        // Todo Act like Or Opt
+                    }
+                        // Else
+                    else {
+                        // For each customer v of route u
+                        for (int v = 0; v <= routes[u].tour.size() && !improvement; ++v) {
+                            // If it's the same satellite, then ignore it
+                            if (routes[u].tour[v] == routes[i].tour[j]) {
+                                continue;
+                            }
+                            else {
+                                // if there isn't enough space for exchanging the customers
+                                if (routes[i].satelliteGoods[j] >
+                                    problem->getE1Capacity() + routes[u].satelliteGoods[v] - routes[u].load
+                                    || routes[u].satelliteGoods[v] >
+                                       problem->getE1Capacity() + routes[i].satelliteGoods[j] - routes[i].load) {
+                                    continue;
+                                }
+
+                                // Remove customer y from route u
+                                y = problem->getSatellite(routes[u].tour[v]);
+
+                                if (v == 0)
+                                    p = this->problem->getDepot();
+                                else
+                                    p = this->problem->getSatellite(routes[u].tour[v - 1]);
+
+                                if (v == routes[u].tour.size() - 1)
+                                    q = this->problem->getDepot();
+                                else
+                                    q = this->problem->getSatellite(routes[u].tour[v + 1]);
+
+                                yRemoval = this->problem->getDistance(p, q) -
+                                           (this->problem->getDistance(p, y) + this->problem->getDistance(y, q));
+
+                                // Remove customer x form route
+                                E1Route routeY;
+                                routeY.cost = routes[u].cost + yRemoval;
+                                routeY.load = routes[u].load - routes[u].satelliteGoods[v];
+                                routeY.tour = vector<int>(routes[u].tour.begin(), routes[u].tour.begin() + v);
+                                routeY.tour.insert(routeY.tour.end(), routes[u].tour.begin() + v + 1,
+                                                   routes[u].tour.end());
+                                routeY.satelliteGoods = vector<int>(routes[u].satelliteGoods.begin(),
+                                                                    routes[u].satelliteGoods.begin() + v);
+                                routeY.satelliteGoods.insert(routeY.satelliteGoods.end(),
+                                                             routes[u].satelliteGoods.begin() + v + 1,
+                                                             routes[u].satelliteGoods.end());
+                                // Find best insertion for customer x in route routeY
+                                bestXInsertion = Config::DOUBLE_INFINITY;
+                                for (int l = 0; l <= routeY.tour.size(); ++l) {
+                                    if (l < routeY.tour.size() && routeY.tour[l] == routes[i].tour[j]) {
+                                        bestXInsertion = 0;
+                                        xPosition = l;
+                                        break;
+                                    }
+                                    else {
+                                        if (l == 0) {
+                                            k_1 = this->problem->getDepot();
+                                            k = this->problem->getSatellite(routeY.tour[l]);
+                                        }
+                                        else if (v == routeY.tour.size()) {
+                                            k_1 = this->problem->getSatellite(routeY.tour[l - 1]);
+                                            k = this->problem->getDepot();
+                                        }
+                                        else {
+                                            k_1 = this->problem->getSatellite(routeY.tour[l - 1]);
+                                            k = this->problem->getSatellite(routeY.tour[l]);
+                                        }
+                                        xInsertion =
+                                                this->problem->getDistance(k_1, x) + this->problem->getDistance(x, k) -
+                                                this->problem->getDistance(k_1, k);
+
+                                        if (xInsertion < bestXInsertion) {
+                                            bestXInsertion = xInsertion;
+                                            xPosition = l;
+                                        }
+                                    }
+                                }
+                                // Find best insertion for customer y in route X
+                                bestYInsertion = Config::DOUBLE_INFINITY;
+                                for (int l = 0; l <= routeX.tour.size(); ++l) {
+                                    if (l < routeY.tour.size() && routeX.tour[l] == routes[u].tour[v]) {
+                                        bestYInsertion = 0;
+                                        yPosition = l;
+                                        break;
+                                    }
+                                    else {
+                                        if (l == 0) {
+                                            k_1 = this->problem->getDepot();
+                                            k = this->problem->getSatellite(routeX.tour[l]);
+                                        }
+                                        else if (v == routeX.tour.size()) {
+                                            k_1 = this->problem->getSatellite(routeX.tour[l - 1]);
+                                            k = this->problem->getDepot();
+                                        }
+                                        else {
+                                            k_1 = this->problem->getSatellite(routeX.tour[l - 1]);
+                                            k = this->problem->getSatellite(routeX.tour[l]);
+                                        }
+                                        yInsertion =
+                                                this->problem->getDistance(k_1, y) + this->problem->getDistance(y, k) -
+                                                this->problem->getDistance(k_1, k);
+
+                                        if (yInsertion < bestYInsertion) {
+                                            bestYInsertion = yInsertion;
+                                            yPosition = l;
+                                        }
+                                    }
+                                }
+                                // if there is improvment
+                                if (xRemoval + bestXInsertion + yRemoval + bestYInsertion < -0.0001) {
+                                    improvement = true;
+                                    // Update routes
+                                    // Insert x into route Y
+                                    // If customer exists in the route, only move its goods
+                                    if (routes[i].tour[j] == routeY.tour[xPosition]) {
+                                        routeY.load += routes[i].satelliteGoods[j];
+                                        routeY.satelliteGoods[xPosition] += routes[i].satelliteGoods[j];
+                                    }
+                                        // Else insert it into the new route
+                                    else {
+                                        // update load
+                                        routeY.load += routes[i].satelliteGoods[j];
+                                        // update cost
+                                        routeY.cost += bestXInsertion;
+                                        // Update tour
+                                        routeY.tour.insert(routeY.tour.begin() + xPosition, routes[i].tour[j]);
+                                        // Update satelliteGoods
+                                        routeY.satelliteGoods.insert(routeY.satelliteGoods.begin() +
+                                                                     xPosition,
+                                                                     routes[i].satelliteGoods[j]);
+                                    }
+                                    // Insert y into route X
+                                    // If customer exists in the route, only move its goods
+                                    if (routes[u].tour[v] == routeX.tour[yPosition]) {
+                                        routeX.load += routes[u].satelliteGoods[v];
+                                        routeX.satelliteGoods[yPosition] += routes[u].satelliteGoods[v];
+                                    }
+                                        // Else insert it into the new route
+                                    else {
+                                        // update load
+                                        routeX.load += routes[u].satelliteGoods[v];
+                                        // update cost
+                                        routeX.cost += bestYInsertion;
+                                        // Update tour
+                                        routeX.tour.insert(routeX.tour.begin() + yPosition, routes[u].tour[v]);
+                                        // Update satelliteGoods
+                                        routeY.satelliteGoods.insert(routeX.satelliteGoods.begin() +
+                                                                     yPosition,
+                                                                     routes[u].satelliteGoods[v]);
+                                    }
+                                    // Update solution routes
+                                    routes[i].load = routeX.load;
+                                    routes[i].cost = routeX.cost;
+                                    routes[i].tour.assign(routeX.tour.begin(), routeX.tour.end());
+                                    routes[i].satelliteGoods.assign(routeX.satelliteGoods.begin(),
+                                                                    routeX.satelliteGoods.end());
+                                    routes[u].load = routeY.load;
+                                    routes[u].cost = routeY.cost;
+                                    routes[u].tour.assign(routeY.tour.begin(), routeY.tour.end());
+                                    routes[u].satelliteGoods.assign(routeY.satelliteGoods.begin(),
+                                                                    routeY.satelliteGoods.end());
+                                    // Update solution costs
+                                    solution.setTotalCost(
+                                            solution.getTotalCost() + xRemoval + bestXInsertion + yRemoval +
+                                            bestYInsertion);
+                                }
+                            }
+                        }
+
+                    }
+
+                }
+            }
+        }
+    }
+    while (improvement);
+
+    return oldCost - solution.getTotalCost();
+}
+
+/******************************
+ * Insertion Heuristics
+ ******************************/
 double SDVRPSolver::insertionCost(Solution &solution, int satelliteId, int dDemand) {
     if (dDemand == 0)
         return 0;
@@ -668,5 +914,4 @@ void SDVRPSolver::insert(Solution &solution, int satelliteId, int dDemand) {
         }
     }
 }
-
 

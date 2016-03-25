@@ -58,16 +58,15 @@ void Insertion::insertIntoRoute(Solution &solution, int client, int route, int p
     solution.getE2Routes()[route].tour.insert(
             solution.getE2Routes()[route].tour.begin() + position, client);
     // Maj infos solution
-    solution.setTotalCost(solution.getTotalCost() + cost);
     solution.getSatelliteDemands()[solution.getE2Routes()[route].departureSatellite] += problem->getClient(
             client).getDemand();
     // Sauvegarder l'insertion
-    insertEntry ent;
+    /*insertEntry ent;
     ent.clientId = client;
     ent.tour = route;
     ent.position = position;
     ent.cost = cost;
-    insertStack.push_back(ent);
+    insertStack.push_back(ent);*/
     // Insérer la demande dans le satellite Todo
     //e1Solver.insert(solution,solution.getE2Routes()[route].departureSatellite,tmpClient.getDemand());
 }
@@ -81,15 +80,14 @@ void Insertion::insertIntoNewRoute(Solution &solution, int client, int satellite
     newRoute.tour.push_back(client);
     // insérer la nouvelle tournée
     solution.getE2Routes().push_back(newRoute);
-    solution.setTotalCost(solution.getTotalCost() + cost);
     solution.getSatelliteDemands()[newRoute.departureSatellite] += problem->getClient(client).getDemand();
     // Sauvegarder l'insertion
-    insertEntry ent;
+    /*insertEntry ent;
     ent.clientId = client;
     ent.tour = solution.getE2Routes().size() - 1;
     ent.cost = cost;
     ent.position = 0;
-    insertStack.push_back(ent);
+    insertStack.push_back(ent);*/
 }
 
 void Insertion::cancelInsertions(Solution &solution, int client) {
@@ -170,7 +168,6 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
     this->insertStack.clear();
 
     // Déclaration des variables de la boucle
-    Client tmpClient;
     double cost;
     double minCost;
     double minE1Cost;
@@ -195,7 +192,7 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
         /*tmpClient = problem->getClient(solution.unroutedCustomers.front());
         solution.unroutedCustomers.pop_front();*/
         int tmp = Utility::randomInt(0, solution.unroutedCustomers.size());
-        tmpClient = problem->getClient(solution.unroutedCustomers[tmp]);
+        Client tmpClient = problem->getClient(solution.unroutedCustomers[tmp]);
         solution.unroutedCustomers.erase(solution.unroutedCustomers.begin() + tmp);
 
         E2Route e2Route;
@@ -263,108 +260,18 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
         }
     }
     // FTQ
-    // Amélioration de la tournée Todo Enlever après
-    double imp;
-    do {
-        imp = solution.getTotalCost();
-        lsSolver.apply2optStar(solution);
-        lsSolver.applySwap(solution);
-        lsSolver.applyRelocate(solution);
-        for (E2Route &e2route : solution.getE2Routes()) {
-            solution.setTotalCost(solution.getTotalCost() - e2route.cost);
-            lsSolver.apply2OptOnTour(e2route);
-            solution.setTotalCost(solution.getTotalCost() + e2route.cost);
-        }
-        imp = solution.getTotalCost() - imp;
-    } while (imp < -0.0001);
 
     //--------------------------------------------
-
-    // Changer le satellite des tournées
-    for (E2Route &e2route : solution.getE2Routes()) {
-        solution.setTotalCost(solution.getTotalCost() - e2route.cost);
-        double minCost = Config::DOUBLE_INFINITY;
-        double tmpCost;
-        int position = -1;
-        int satellite = -1;
-        for (int i = 0; i < this->problem->getSatellites().size(); ++i) {
-
-            for (int j = 0; j < e2route.tour.size(); ++j) {
-                if (j == 0)
-                    tmpCost = this->problem->getDistance(problem->getSatellite(i),
-                                                         problem->getClient(e2route.tour[0]))
-                              + this->problem->getDistance(problem->getSatellite(i),
-                                                           problem->getClient(e2route.tour.back()))
-                              - this->problem->getDistance(problem->getSatellite(e2route.departureSatellite),
-                                                           problem->getClient(e2route.tour[0]))
-                              - this->problem->getDistance(problem->getSatellite(e2route.departureSatellite),
-                                                           problem->getClient(e2route.tour.back()));
-
-                else
-                    tmpCost = this->problem->getDistance(problem->getSatellite(i),
-                                                         problem->getClient(e2route.tour[j - 1]))
-                              + this->problem->getDistance(problem->getSatellite(i),
-                                                           problem->getClient(e2route.tour[j]))
-                              - this->problem->getDistance(problem->getSatellite(e2route.departureSatellite),
-                                                           problem->getClient(e2route.tour[j - 1]))
-                              - this->problem->getDistance(problem->getSatellite(e2route.departureSatellite),
-                                                           problem->getClient(e2route.tour[j]));
-
-                if (tmpCost < minCost) {
-                    minCost = tmpCost;
-                    position = j;
-                    satellite = i;
-                }
-            }
-        }
-        e2route.cost += minCost;
-        solution.getSatelliteDemands()[e2route.departureSatellite] -= e2route.load;
-        solution.getSatelliteDemands()[satellite] += e2route.load;
-
-        e2route.departureSatellite = satellite;
-        std::rotate(e2route.tour.begin(), e2route.tour.begin() + position, e2route.tour.end());
-        // Insérer la tournée actuelle dans la solution
-        // Calculer le nouveau côut de la route
-        e2route.cost = this->problem->getDistance(this->problem->getSatellite(e2route.departureSatellite),
-                                                  this->problem->getClient(e2route.tour[0]))
-                       + this->problem->getDistance(this->problem->getSatellite(e2route.departureSatellite),
-                                                    this->problem->getClient(
-                                                            e2route.tour[e2route.tour.size() - 1]));;
-        for (int k = 0; k < e2route.tour.size() - 1; ++k) {
-            e2route.cost += this->problem->getDistance(this->problem->getClient(e2route.tour[k]),
-                                                       this->problem->getClient(e2route.tour[k + 1]));
-        }
-        solution.setTotalCost(solution.getTotalCost() + e2route.cost);
-    }
-    //--------------------------------------------
-    // Amélioration de la tournée Todo Enlever après
-
-    do {
-        imp = solution.getTotalCost();
-        lsSolver.apply2optStar(solution);
-        lsSolver.applyRelocate(solution);
-        lsSolver.applySwap(solution);
-        for (E2Route &e2route : solution.getE2Routes()) {
-            solution.setTotalCost(solution.getTotalCost() - e2route.cost);
-            //lsSolver.applyOrOpt(e2route, 1);
-            //lsSolver.applyOrOpt(e2route, 2);
-            //lsSolver.applyOrOpt(e2route, 3);
-            lsSolver.apply2OptOnTour(e2route);
-            solution.setTotalCost(solution.getTotalCost() + e2route.cost);
-        }
-        imp = solution.getTotalCost() - imp;
-    } while (imp < -0.0001);
-
     //--------------------------------------------
     // Construction des tournées du 1er échelon
     solution.getE1Routes().clear();
-    /*for (int k = 0; k < solution.getSatelliteDemands().size(); ++k) {
-        solution.getSatelliteDemands()[k] =0;
-    }
-    for (E2Route &route : solution.getE2Routes()) {
-        solution.getSatelliteDemands()[route.departureSatellite] += route.load;
-    }*/
+
     e1Solver.constructiveHeuristic(solution);
+
+    // Compute solution cost
+    solution.doEvaluate();
+    //----------------------------------------
+
 
 }
 
@@ -569,4 +476,15 @@ void Insertion::GreedyInsertionNoiseHeuristic(Solution &solution) {
         solution.getSatelliteDemands()[route.departureSatellite] += route.load;
     }*/
     e1Solver.constructiveHeuristic(solution);
+
+    // Compute solution cost
+    double totalCost = 0;
+    for (E2Route &e2route : solution.getE2Routes()) {
+        totalCost += e2route.cost;
+    }
+    for (E1Route &e1route : solution.getE1Routes()) {
+        totalCost += e1route.cost;
+    }
+    solution.setTotalCost(totalCost);
+    //----------------------------------------
 }

@@ -102,3 +102,13 @@ void Solution::saveHumanReadable(const string &fn, const string &header, const b
     fh.close();
 }
 
+void Solution::doEvaluate() {
+    this->totalCost = 0;
+    for (E2Route &e2route : this->e2Routes) {
+        this->totalCost += e2route.cost;
+    }
+    for (E1Route &e1route : this->e1Routes) {
+        this->totalCost += e1route.cost;
+    }
+}
+

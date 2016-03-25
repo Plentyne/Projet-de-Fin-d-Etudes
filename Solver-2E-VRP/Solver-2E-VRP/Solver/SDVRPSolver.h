@@ -32,6 +32,8 @@ private:
 
     double applyRelocate(Solution &solution);
 
+    double applySwap(Solution &solution);
+
     /* Does Best Improvement*/
     double applyOrOpt(E1Route &route, int seqLength); /* Does Best Improvement*/
 

@@ -78,6 +78,16 @@ public:
     static unsigned int _idchDestructionStep;
     static double _alpha;
 
+    // Destroy operators parametres
+    static double p1; // Proportion of customers to be removed by RandomRemoval
+    static double p2; // Proportion of customers to be removed by WorstRemoval
+    static double p3; // Proportion of customers to be removed by RelatedRemoval
+    static int p4; // Maximum number of routes to be removed by RouteRemoval
+    static double p5; // Probability for using SingleNodeRouteRemoval
+    static double p6; // Probability for using Satellite Removal
+    static double p7; // Probability for using Open Satellite
+    static double p8; // Probability for using Open All Satellites
+
     // local search parameters
     static LocalSearchRateFormula _lsRateFormula;
     static double _lsRateValue;

@@ -4,6 +4,8 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <regex>
+
 
 // Header Files
 #include "Problem.h"
@@ -199,6 +201,7 @@ const double Problem::getDistance(const Node &i, const Node &j) const {
 }
 
 // Problem loading
+#ifdef _WIN32
 void Problem::readBreunigFile(const string &fn) {
     this->clear();
     // TODO Lecture du fichier même si les clients sont répartis sur plusieurs lignes
@@ -293,6 +296,94 @@ void Problem::readBreunigFile(const string &fn) {
     this->buildDistanceMatrix();
 }
 
+#else
+void Problem::readBreunigFile(const string &fn) {
+    this->clear();
+    // TODO Lecture du fichier même si les clients sont répartis sur plusieurs lignes
+    ifstream fh;
+    string line("!"), token, value;
+    stringstream sstream, ss;
+    double x, y, demand;
+
+    try {
+        // Opening File
+        fh.open(fn.c_str(), ifstream::in);
+        if (!fh.good()) throw (string) "Can not open file !!";
+        fh.clear();
+        fh.seekg(0, fh.beg);
+
+        // Reading 1st echelon vehicle data
+        while (getline(fh, line) && (line.size() == 0 || line.at(0) == '!'));
+        sstream.clear();
+        sstream.str(line);
+        getline(sstream, token, ',');
+        stringstream(token) >> this->k1;
+        getline(sstream, token, ',');
+        stringstream(token) >> this->e1Capacity;
+
+        // Reading 2nd echelon vehicle data
+        while (getline(fh, line) && (line.size() == 0 || line.at(0) == '!'));
+        sstream.clear();
+        sstream.str(line);
+        getline(sstream, token, ',');
+        stringstream(token) >> this->maxCf;
+        getline(sstream, token, ',');
+        stringstream(token) >> this->k2;
+        getline(sstream, token, ',');
+        stringstream(token) >> this->e2Capacity;
+
+        // Reading depot information
+        while (getline(fh, line) && (line.size() == 0 || line.at(0) == '!'));
+        sstream.clear();
+        sstream.str(line);
+        sstream >> token;
+        ss.clear();
+        ss.str(token);
+        getline(ss, value, ',');
+        stringstream(value) >> x;
+        getline(ss, value, ',');
+        stringstream(value) >> y;
+        this->depot = Depot(x, y);
+
+        // Reading satellite information
+        while (sstream >> token) {
+            stringstream ss(token);
+            getline(ss, value, ',');
+            stringstream(value) >> x;
+            getline(ss, value, ',');
+            stringstream(value) >> y;
+            this->satellites.push_back(Satellite(x, y));
+        }
+
+        // Reading client information
+        do {
+            while (getline(fh, line) && (line.size() == 0 || line.at(0) == '!'));
+            sstream.clear();
+            sstream.str(line);
+            while (sstream >> token) {
+                stringstream ss(token);
+                getline(ss, value, ',');
+                stringstream(value) >> x;
+                getline(ss, value, ',');
+                stringstream(value) >> y;
+                getline(ss, value, ',');
+                stringstream(value) >> demand;
+                this->clients.push_back(Client(x, y, demand));
+            }
+        } while (!fh.eof());
+
+
+        fh.close();
+
+    } catch (const string &emsg) {
+        if (fh.is_open()) fh.close();
+        cout << "Error : " << emsg << endl;
+        exit(1);
+    }
+    // Construction de la matrice des distances
+    this->buildDistanceMatrix();
+}
+#endif
 // TODO Make Solution parametre const
 // Todo implement == operator for problem comparison
 short Problem::isValidSolution(const Solution &s) const {

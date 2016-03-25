@@ -65,6 +65,8 @@ public:
         openSatellites = this->satelliteState.size();
     }
 
+    void doEvaluate();
+
     // Operators
     Solution &operator=(const Solution &solution);
 

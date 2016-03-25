@@ -7,14 +7,18 @@
 
 #include "../Model/Solution.h"
 
+struct predecessor {
+    int p;
+    int sat;
+    double cost;
+};
+
 class Sequence {
 private:
     const Problem *problem;
-    vector<int> p;
     vector<double> v;
-    vector<int> N;
-    vector<int> satellites;
     vector<int> tour;
+    vector<vector<predecessor>> paths;
 
     bool evaluated;
     double solutionCost;

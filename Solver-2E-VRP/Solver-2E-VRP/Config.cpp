@@ -31,6 +31,16 @@ Config::InsertionCriteria Config::_idchInsertionCriteria = Config::DefaultInsert
 unsigned int Config::_idchDestructionStep = 3; // small destruction step for IDCH
 double Config::_alpha = 1;;// profit idch weight
 
+// Destroy operators parametres
+double Config::p1 = 0.15; // Proportion of customers to be removed by RandomRemoval
+double Config::p2 = 0.25; // Proportion of customers to be removed by WorstRemoval
+double Config::p3 = 0.12; // Proportion of customers to be removed by RelatedRemoval
+int    Config::p4 = 5; // Maximum number of routes to be removed by RouteRemoval
+double Config::p5 = 0.2; // Probability for using SingleNodeRouteRemoval
+double Config::p6 = 0.15; // Probability for using Satellite Removal
+double Config::p7 = 0.1; // Probability for using Open Satellite
+double Config::p8 = 0.08; // Probability for using Open All Satellites
+
 // local search parameters
 Config::LocalSearchRateFormula Config::_lsRateFormula = Config::IntenseFirstRate; // formula for local search rate
 double Config::_lsRateBending = 1.0; // bending measure, value k in 1-x^k if IntenseFirstRate is used (or 1-(1-x)^k if IntenseLastRate is used)
@@ -166,7 +176,23 @@ void Config::read(const string &fn) {
                     Config::_evaluationMethod = Config::UnsaturatedTourEvaluation;
                 else if (value.compare("interval") == 0) Config::_evaluationMethod = Config::IntervalModelEvaluation;
                 else throw (string) "unknown data type";
-
+                // Destroy Operators
+            } else if (Config::getKeyValue(line, (string) "p1", value)) {
+                stringstream(value) >> Config::p1;
+            } else if (Config::getKeyValue(line, (string) "p2", value)) {
+                stringstream(value) >> Config::p2;
+            } else if (Config::getKeyValue(line, (string) "p3", value)) {
+                stringstream(value) >> Config::p3;
+            } else if (Config::getKeyValue(line, (string) "p4", value)) {
+                stringstream(value) >> Config::p4;
+            } else if (Config::getKeyValue(line, (string) "p5", value)) {
+                stringstream(value) >> Config::p5;
+            } else if (Config::getKeyValue(line, (string) "p6", value)) {
+                stringstream(value) >> Config::p6;
+            } else if (Config::getKeyValue(line, (string) "p7", value)) {
+                stringstream(value) >> Config::p7;
+            } else if (Config::getKeyValue(line, (string) "p8", value)) {
+                stringstream(value) >> Config::p8;
                 // local search
             } else if (Config::getKeyValue(line, (string) "maxshift", value)) {
                 stringstream(value) >> Config::_lsShiftUse;

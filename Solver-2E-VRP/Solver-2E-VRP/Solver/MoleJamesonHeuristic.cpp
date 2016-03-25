@@ -3,6 +3,7 @@
 //
 
 #include <deque>
+#include <algorithm>
 #include "MoleJamesonHeuristic.h"
 #include "../Config.h"
 #include "../Utility.h"

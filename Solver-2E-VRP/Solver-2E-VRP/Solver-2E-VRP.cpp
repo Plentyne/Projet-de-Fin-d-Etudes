@@ -28,32 +28,43 @@ void testFastIDCH(const int &exec);
 
 int main()
 {
-
+    /*********
+     *  Fonctions de Test
+     * Config::read("config.txt");// Parameters
+     * Config::_resumeFile = "resume.csv";
+     * Config::readInstances("./Input/instances.txt"); // instance set to read
+     * testFastIDCH(5);
+     */
     //Config::test();
-    Config::read("config.txt");// Parameters
 
-    Config::_resumeFile = "resume.csv";
-    Config::readInstances("../Input/Data/instances.txt"); // instance set to read
-    testFastIDCH(5);
-    //Problem p;
-    //p.readBreunigFile("../Input/Data/Set2b_E-n51-k5-s32-37.dat");
+    //Config::read("config.txt");// Parameters
+    //Config::_resumeFile = "resume.csv";
+    //Config::readInstances("./Input/instances.txt"); // instance set to read
+    //testFastIDCH(5);
+
+    Utility::initializeRandomGenerators();
+    Problem p;
+    p.readBreunigFile("./Input/Data/Set2b_E-n51-k5-s32-37.dat");
     //p.readBreunigFile("../Input/Data/Test2.dat");
     //p.readBreunigFile("../Input/Data/Set5_100-5-1.dat");
     //p.readBreunigFile("../Input/Data/Set5_200-10-1.dat");
-    //Solution s(&p);
-    //cout << "s = " << s.getProblem()->getClients().size() << endl;
+    //p.readBreunigFile("./Input/Data/Set5_200-10-3.dat");
+
+    Solution s(&p);
+    cout << "s = " << s.getProblem()->getClients().size() << endl;
     //buildTestSolution(s, &p);
     //s.saveHumanReadable("Test.sol", "Solution Test2.dat", false);
     //Heuristic::simpleHeuristic(p, s);
-    //Insertion insert(&p);
-    //insert.GreedyInsertionHeuristic(s);
+    Insertion insert(&p);
+    insert.GreedyInsertionHeuristic(s);
     //insert.GreedyInsertionNoiseHeuristic(s);
     //MoleJamesonHeuristic solver(&p, 1, 1);
     //solver.solve(s);
+
     //IDCH idchSolver(&p);
     //idchSolver.heuristicIDCH(s);
     //idchSolver.heuristicFastIDCH(s);
-    /*s.print();
+    s.print();
     Sequence seq(s);
     seq.extractSolution(s);
     s.print();
@@ -70,7 +81,7 @@ int main()
         }
         cout << "Route " << i << " cost : " << e2route.cost <<endl;
     }
-    cout << "Validity : " << p.isValidSolution(s) << endl;*/
+    cout << "Validity : " << p.isValidSolution(s) << endl;
     //s.saveHumanReadable("Test.sol","Solution Set5_100-5_1 avec 2opt",false);
     //char x ;
     //cin >> x;
@@ -98,9 +109,7 @@ int main()
 
     return 0;
 }
-// TODO Rajouter le calcul des temps de résolution
-// TODO Rajouter le calcul des statistiques et le remplissage du fichier résumé.csv
-// TODO remettre la fonction FastIDCH
+
 
 void testFastIDCH(const int &exec) {
     ofstream fh;
@@ -113,8 +122,8 @@ void testFastIDCH(const int &exec) {
     fh << ";nshift;nswap;nldr;nsdr";
     fh << endl;
 
-    vector<unsigned int> score;
-    vector<double> cpu;
+
+    Utility::initializeRandomGenerators();
 
     for (list<Instance>::iterator iteri = Config::_fileList.begin();
          iteri != Config::_fileList.end();
@@ -132,8 +141,8 @@ void testFastIDCH(const int &exec) {
         cout << "Ok" << endl;
         cout << "loading time = " << pclock.getCpuTime() << endl;
         fh << pclock.getCpuTime() << ";";
-        
-        vector<unsigned int> score;
+
+        vector<double> score;
         vector<double> cpu;
         Statistic::reset();
 
@@ -150,11 +159,8 @@ void testFastIDCH(const int &exec) {
 
             pclock.start();
             IDCH solver(&problem);
-            //MoleJamesonHeuristic solver(&problem, 1, 1);
             Solution sol(&problem);
             solver.heuristicFastIDCH(sol);
-            //solver.solve(sol);
-            //solver.DPSOScheme(sol, 3600);  1h test
             pclock.end();
 
             cout << "\tscore = " << sol.getTotalCost() << endl;
@@ -177,7 +183,7 @@ void testFastIDCH(const int &exec) {
         }
 
         fh << ";";
-        unsigned int maxscore, minscore;
+        double maxscore, minscore;
         double avgscore,
                 maxcpu, mincpu, avgcpu;
 

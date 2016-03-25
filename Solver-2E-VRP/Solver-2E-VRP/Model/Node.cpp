@@ -21,7 +21,9 @@ Node::~Node() {
 
 // Class Methods
 double Node::distanceTo(Node n) {
-    return sqrt(pow(n.x - this->x, 2) + pow(n.y - this->y, 2));
+    double d = sqrt(pow(n.x - this->x, 2) + pow(n.y - this->y, 2));
+    d = round(d * 10000) / 10000;
+    return d;
 }
 
 double Node::distance(Node a, Node b) {
