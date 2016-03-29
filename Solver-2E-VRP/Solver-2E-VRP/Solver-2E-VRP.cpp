@@ -44,10 +44,10 @@ int main()
 
     Utility::initializeRandomGenerators();
     Problem p;
-    p.readBreunigFile("./Input/Data/Set2b_E-n51-k5-s32-37.dat");
+    //p.readBreunigFile("./Input/Data/Set2b_E-n51-k5-s32-37.dat");
     //p.readBreunigFile("../Input/Data/Test2.dat");
     //p.readBreunigFile("../Input/Data/Set5_100-5-1.dat");
-    //p.readBreunigFile("../Input/Data/Set5_200-10-1.dat");
+    p.readBreunigFile("../Input/Data/Set5_200-10-1.dat");
     //p.readBreunigFile("./Input/Data/Set5_200-10-3.dat");
 
     Solution s(&p);
@@ -55,17 +55,17 @@ int main()
     //buildTestSolution(s, &p);
     //s.saveHumanReadable("Test.sol", "Solution Test2.dat", false);
     //Heuristic::simpleHeuristic(p, s);
-    Insertion insert(&p);
-    insert.GreedyInsertionHeuristic(s);
+    //Insertion insert(&p);
+    //insert.GreedyInsertionHeuristic(s);
     //insert.GreedyInsertionNoiseHeuristic(s);
     //MoleJamesonHeuristic solver(&p, 1, 1);
     //solver.solve(s);
 
-    //IDCH idchSolver(&p);
+    IDCH idchSolver(&p);
     //idchSolver.heuristicIDCH(s);
-    //idchSolver.heuristicFastIDCH(s);
+    idchSolver.heuristicFastIDCH(s);
     s.print();
-    Sequence seq(s);
+    /*Sequence seq(s);
     seq.extractSolution(s);
     s.print();
     for (int i = 0; i < s.getE2Routes().size() ; ++i) {
@@ -80,7 +80,7 @@ int main()
                                                        p.getClient(e2route.tour[k + 1]));
         }
         cout << "Route " << i << " cost : " << e2route.cost <<endl;
-    }
+    }*/
     cout << "Validity : " << p.isValidSolution(s) << endl;
     //s.saveHumanReadable("Test.sol","Solution Set5_100-5_1 avec 2opt",false);
     //char x ;

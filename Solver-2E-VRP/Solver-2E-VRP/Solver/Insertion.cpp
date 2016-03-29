@@ -170,7 +170,6 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
     // Déclaration des variables de la boucle
     double cost;
     double minCost;
-    double minE1Cost;
     int insertRoute;
     int insertPosition;
     int insertSatellite;
@@ -183,7 +182,7 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
     // Tant qu'il y a des clients non routés Faire
     while (solution.unroutedCustomers.size() > 0) {
         // Initialisation des variables de boucle
-        minE1Cost = minCost = Config::DOUBLE_INFINITY;
+        minCost = Config::DOUBLE_INFINITY;
         insertRoute = -1;
         insertPosition = -1;
         insertSatellite = -1;
@@ -202,15 +201,14 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
             if (tmpClient.getDemand() <= (problem->getE2Capacity() - solution.getE2Routes()[i].load)) {
                 e2Route = solution.getE2Routes()[i];
                 // Imprimer coût sur le 1er échelon TODO
-                //double e1cost =  e1Solver.insertionCost(solution, e2Route.departureSatellite, tmpClient.getDemand());
-                double e1cost = 0;
+                double e1cost =  e1Solver.insertionCost(solution, e2Route.departureSatellite, tmpClient.getDemand());
+
                 // Estimer le coût d'insertion de c
                 for (int j = 0; j <= e2Route.tour.size(); j++) {
                     cost = this->distanceCost(solution, tmpClient.getClientId(), i, j);
                     // Si il est meilleure que celui de la meilleure insertion actuelle alors le garder
-                    if (cost + e1cost < minCost + minE1Cost) {
-                        minCost = cost;
-                        minE1Cost = e1cost;
+                    if (cost + e1cost < minCost) {
+                        minCost = cost + e1cost;
                         insertRoute = i;
                         insertPosition = j;
                         feasible = true;
@@ -229,10 +227,9 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
                 //double e1cost =  e1Solver.insertionCost(solution, i, tmpClient.getDemand());
                 double e1cost = 0;
                 // Si il est meilleure que celui de la meilleure insertion actuelle alors le garder
-                if (cost + e1cost < minCost + minE1Cost) {
+                if (cost + e1cost < minCost) {
                     feasible = true;
-                    minE1Cost = e1cost;
-                    minCost = cost;
+                    minCost = cost+e1cost ;
                     insertSatellite = i;
                 }
                 // FSI
@@ -288,7 +285,6 @@ void Insertion::GreedyInsertionNoiseHeuristic(Solution &solution) {
     Client tmpClient;
     double cost;
     double minCost;
-    double minE1Cost;
     int insertRoute;
     int insertPosition;
     int insertSatellite;
@@ -298,7 +294,7 @@ void Insertion::GreedyInsertionNoiseHeuristic(Solution &solution) {
     // Tant qu'il y a des clients non routés Faire
     while (solution.unroutedCustomers.size() > 0) {
         // Initialisation des variables de boucle
-        minE1Cost = minCost = Config::DOUBLE_INFINITY;
+        minCost = Config::DOUBLE_INFINITY;
         insertRoute = -1;
         insertPosition = -1;
         insertSatellite = -1;
@@ -323,9 +319,8 @@ void Insertion::GreedyInsertionNoiseHeuristic(Solution &solution) {
                 for (int j = 0; j <= e2Route.tour.size(); j++) {
                     cost = this->biasedDistanceCost(solution, tmpClient.getClientId(), i, j);
                     // Si il est meilleure que celui de la meilleure insertion actuelle alors le garder
-                    if (cost + e1cost < minCost + minE1Cost) {
-                        minCost = cost;
-                        minE1Cost = e1cost;
+                    if (cost + e1cost < minCost) {
+                        minCost = cost + e1cost;
                         insertRoute = i;
                         insertPosition = j;
                         feasible = true;
@@ -344,10 +339,9 @@ void Insertion::GreedyInsertionNoiseHeuristic(Solution &solution) {
                 //double e1cost =  e1Solver.insertionCost(solution, i, tmpClient.getDemand());
                 double e1cost = 0;
                 // Si il est meilleure que celui de la meilleure insertion actuelle alors le garder
-                if (cost + e1cost < minCost + minE1Cost) {
+                if (cost + e1cost < minCost) {
                     feasible = true;
-                    minE1Cost = e1cost;
-                    minCost = cost;
+                    minCost = cost + e1cost;
                     insertSatellite = i;
                 }
                 // FSI

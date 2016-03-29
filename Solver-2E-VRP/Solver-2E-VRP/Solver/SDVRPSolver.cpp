@@ -123,8 +123,8 @@ void SDVRPSolver::constructiveHeuristic(Solution &solution) {
         if (U[i.getSatelliteId()] == 0) c++;
     }
     // End While
-
     // Improve solution with local search Todo
+    this->applySwap(solution);
     // this->applyRelocate(solution);
     // Update satellite demands
     for (int m = 0; m < solution.getSatelliteDemands().size(); ++m) {
@@ -444,13 +444,15 @@ double SDVRPSolver::applySwap(Solution &solution) {
             if (routes[i].tour.size() == 1) continue;
             for (int j = 0; j < routes[i].tour.size() && !improvement; ++j) {
 
-                x = problem->getSatellite(routes[i].tour[j]);
+                Satellite x = problem->getSatellite(routes[i].tour[j]);
 
+                Node p;
                 if (j == 0)
                     p = this->problem->getDepot();
                 else
                     p = this->problem->getSatellite(routes[i].tour[j - 1]);
 
+                Node q;
                 if (j == routes[i].tour.size() - 1)
                     q = this->problem->getDepot();
                 else
@@ -461,18 +463,19 @@ double SDVRPSolver::applySwap(Solution &solution) {
 
                 // Remove customer x form route
                 E1Route routeX;
-                routeX.cost = routes[i].cost + yRemoval;
+                routeX.cost = routes[i].cost + xRemoval;
                 routeX.load = routes[i].load - routes[i].satelliteGoods[j];
                 routeX.tour = vector<int>(routes[i].tour.begin(), routes[i].tour.begin() + j);
-                routeX.tour.insert(routeX.tour.end(), routes[i].tour.begin() + j + 1, routes[i].tour.end());
                 routeX.satelliteGoods = vector<int>(routes[i].satelliteGoods.begin(),
                                                     routes[i].satelliteGoods.begin() + j);
-                routeX.satelliteGoods.insert(routeX.satelliteGoods.end(), routes[i].satelliteGoods.begin() + j + 1,
-                                             routes[i].satelliteGoods.end());
-
+                if(j<routes[i].tour.size()-1){
+                    routeX.tour.insert(routeX.tour.end(), routes[i].tour.begin() + j + 1, routes[i].tour.end());
+                    routeX.satelliteGoods.insert(routeX.satelliteGoods.end(), routes[i].satelliteGoods.begin() + j + 1,
+                                                 routes[i].satelliteGoods.end());
+                }
 
                 for (int u = i + 1; u < routes.size() && !improvement; ++u) {
-                    // If route u only containes oneit's the same tour
+                    // If route u only containes one customer it's the same tour
                     if (routes[u].tour.size() == 1) {
                         continue;
                         // Todo Act like Or Opt
@@ -480,7 +483,7 @@ double SDVRPSolver::applySwap(Solution &solution) {
                         // Else
                     else {
                         // For each customer v of route u
-                        for (int v = 0; v <= routes[u].tour.size() && !improvement; ++v) {
+                        for (int v = 0; v < routes[u].tour.size() && !improvement; ++v) {
                             // If it's the same satellite, then ignore it
                             if (routes[u].tour[v] == routes[i].tour[j]) {
                                 continue;
@@ -495,33 +498,38 @@ double SDVRPSolver::applySwap(Solution &solution) {
                                 }
 
                                 // Remove customer y from route u
-                                y = problem->getSatellite(routes[u].tour[v]);
+                                Satellite y = problem->getSatellite(routes[u].tour[v]);
 
+                                Node p1;
                                 if (v == 0)
-                                    p = this->problem->getDepot();
+                                    p1 = this->problem->getDepot();
                                 else
-                                    p = this->problem->getSatellite(routes[u].tour[v - 1]);
+                                    p1 = this->problem->getSatellite(routes[u].tour[v - 1]);
 
+                                Node q1;
                                 if (v == routes[u].tour.size() - 1)
-                                    q = this->problem->getDepot();
+                                    q1 = this->problem->getDepot();
                                 else
-                                    q = this->problem->getSatellite(routes[u].tour[v + 1]);
+                                    q1 = this->problem->getSatellite(routes[u].tour[v + 1]);
 
-                                yRemoval = this->problem->getDistance(p, q) -
-                                           (this->problem->getDistance(p, y) + this->problem->getDistance(y, q));
+                                yRemoval = this->problem->getDistance(p1, q1) -
+                                           (this->problem->getDistance(p1, y) + this->problem->getDistance(y, q1));
 
-                                // Remove customer x form route
+                                // Remove customer y form route
                                 E1Route routeY;
                                 routeY.cost = routes[u].cost + yRemoval;
                                 routeY.load = routes[u].load - routes[u].satelliteGoods[v];
                                 routeY.tour = vector<int>(routes[u].tour.begin(), routes[u].tour.begin() + v);
-                                routeY.tour.insert(routeY.tour.end(), routes[u].tour.begin() + v + 1,
-                                                   routes[u].tour.end());
                                 routeY.satelliteGoods = vector<int>(routes[u].satelliteGoods.begin(),
                                                                     routes[u].satelliteGoods.begin() + v);
-                                routeY.satelliteGoods.insert(routeY.satelliteGoods.end(),
-                                                             routes[u].satelliteGoods.begin() + v + 1,
-                                                             routes[u].satelliteGoods.end());
+                                if(v<routes[u].tour.size()-1){
+                                    routeY.tour.insert(routeY.tour.end(), routes[u].tour.begin() + v + 1,
+                                                       routes[u].tour.end());
+                                    routeY.satelliteGoods.insert(routeY.satelliteGoods.end(),
+                                                                 routes[u].satelliteGoods.begin() + v + 1,
+                                                                 routes[u].satelliteGoods.end());
+                                }
+
                                 // Find best insertion for customer x in route routeY
                                 bestXInsertion = Config::DOUBLE_INFINITY;
                                 for (int l = 0; l <= routeY.tour.size(); ++l) {
@@ -531,11 +539,12 @@ double SDVRPSolver::applySwap(Solution &solution) {
                                         break;
                                     }
                                     else {
+                                        Node k,k_1;
                                         if (l == 0) {
                                             k_1 = this->problem->getDepot();
                                             k = this->problem->getSatellite(routeY.tour[l]);
                                         }
-                                        else if (v == routeY.tour.size()) {
+                                        else if (l == routeY.tour.size()) {
                                             k_1 = this->problem->getSatellite(routeY.tour[l - 1]);
                                             k = this->problem->getDepot();
                                         }
@@ -562,11 +571,12 @@ double SDVRPSolver::applySwap(Solution &solution) {
                                         break;
                                     }
                                     else {
+                                        Node k,k_1;
                                         if (l == 0) {
                                             k_1 = this->problem->getDepot();
                                             k = this->problem->getSatellite(routeX.tour[l]);
                                         }
-                                        else if (v == routeX.tour.size()) {
+                                        else if (l == routeX.tour.size()) {
                                             k_1 = this->problem->getSatellite(routeX.tour[l - 1]);
                                             k = this->problem->getDepot();
                                         }
@@ -622,7 +632,7 @@ double SDVRPSolver::applySwap(Solution &solution) {
                                         // Update tour
                                         routeX.tour.insert(routeX.tour.begin() + yPosition, routes[u].tour[v]);
                                         // Update satelliteGoods
-                                        routeY.satelliteGoods.insert(routeX.satelliteGoods.begin() +
+                                        routeX.satelliteGoods.insert(routeX.satelliteGoods.begin() +
                                                                      yPosition,
                                                                      routes[u].satelliteGoods[v]);
                                     }
@@ -660,7 +670,9 @@ double SDVRPSolver::applySwap(Solution &solution) {
  * Insertion Heuristics
  ******************************/
 double SDVRPSolver::insertionCost(Solution &solution, int satelliteId, int dDemand) {
-    if (dDemand == 0)
+    return 0;
+
+    /*if (dDemand == 0)
         return 0;
 
     Solution s1(solution);
@@ -668,7 +680,7 @@ double SDVRPSolver::insertionCost(Solution &solution, int satelliteId, int dDema
     Solution s2(solution);
     s2.getSatelliteDemands()[satelliteId] += dDemand;
     this->constructiveHeuristic(s2);
-    return s2.getTotalCost() - s1.getTotalCost();
+    return s2.getTotalCost() - s1.getTotalCost();*/
 
     /*double totalCost = 0;
     vector<E1Route> routes(solution.getE1Routes().begin(),solution.getE1Routes().end());
