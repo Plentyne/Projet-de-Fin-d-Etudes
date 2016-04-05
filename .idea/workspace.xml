@@ -11,27 +11,8 @@
     </ADDITIONAL_GENERATION_ENVIRONMENT>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d085a341-2604-45ce-8f6d-ee808bc6c283" name="Default" comment="Split implémenté et corrigé">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Debug/Projet_de_Fin_d_Etudes.exe" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Debug/Projet_de_Fin_d_Etudes.exe" />
+    <list default="true" id="d085a341-2604-45ce-8f6d-ee808bc6c283" name="Default" comment="Coût infini integré dans l'idch et l'insertion">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Debug/Input/instances.txt" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Debug/Input/instances.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Debug/Output/Set5_200-10-3.dat.sol" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Debug/Output/Set5_200-10-3.dat.sol" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Debug/Output/resume.csv" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Debug/Output/resume.csv" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Debug/config.txt" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Debug/config.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Input/Data/instances.txt" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Input/Data/instances.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Problem.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Problem.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Problem.h" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Problem.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Solution.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Solution.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Solution.h" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Solution.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/IDCH.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/IDCH.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.h" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Insertion.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/LSSolver.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/MoleJamesonHeuristic.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/MoleJamesonHeuristic.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/SDVRPSolver.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/SDVRPSolver.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Sequence.cpp" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Sequence.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Sequence.h" afterPath="$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver/Sequence.h" />
     </list>
     <ignored path="Projet-de-Fin-d-Etudes.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -62,12 +43,12 @@
         <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="-0.68421054">
-              <caret line="363" column="48" selection-start-line="363" selection-start-column="48" selection-end-line="363" selection-end-column="48" />
+              <caret line="364" column="48" selection-start-line="364" selection-start-column="48" selection-end-line="364" selection-end-column="48" />
               <folding>
                 <element signature="e#103#121#0" expanded="true" />
                 <element signature="e#214#242#0" expanded="true" />
-                <element signature="e#4024#7021#0" expanded="false" />
-                <element signature="e#7023#10028#0" expanded="false" />
+                <element signature="e#4025#7060#0" expanded="false" />
+                <element signature="e#7062#10105#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -81,11 +62,11 @@
               <folding>
                 <element signature="e#152#413#0" expanded="false" />
                 <element signature="e#415#473#1" expanded="false" />
-                <element signature="e#565#1572#0" expanded="false" />
-                <element signature="e#1574#2650#0" expanded="false" />
-                <element signature="e#3590#4590#0" expanded="false" />
-                <element signature="e#4592#7276#0" expanded="false" />
-                <element signature="e#7278#12195#0" expanded="false" />
+                <element signature="e#565#1579#0" expanded="false" />
+                <element signature="e#1581#2664#0" expanded="false" />
+                <element signature="e#3604#4604#0" expanded="false" />
+                <element signature="e#4606#7290#0" expanded="false" />
+                <element signature="e#7292#12209#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -106,7 +87,7 @@
                 <element signature="e#8383#12588#0" expanded="false" />
                 <element signature="e#12590#18478#0" expanded="false" />
                 <element signature="e#18480#32763#0" expanded="false" />
-                <element signature="e#39249#45419#0" expanded="false" />
+                <element signature="e#39249#45420#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -129,21 +110,21 @@
               <caret line="105" column="58" selection-start-line="105" selection-start-column="58" selection-end-line="105" selection-end-column="58" />
               <folding>
                 <element signature="e#1211#2125#0" expanded="false" />
-                <element signature="e#2581#5546#0" expanded="false" />
-                <element signature="e#5548#8173#0" expanded="false" />
-                <element signature="e#8175#8251#1" expanded="false" />
-                <element signature="e#8333#11678#0" expanded="false" />
-                <element signature="e#11680#12679#0" expanded="false" />
-                <element signature="e#12681#13561#0" expanded="false" />
-                <element signature="e#13563#15069#0" expanded="false" />
-                <element signature="e#15071#18233#0" expanded="false" />
-                <element signature="e#18235#18446#0" expanded="false" />
-                <element signature="e#18448#18866#0" expanded="false" />
-                <element signature="e#18868#20099#0" expanded="false" />
-                <element signature="e#20101#21294#0" expanded="false" />
-                <element signature="e#21296#21467#0" expanded="false" />
-                <element signature="e#21469#22574#0" expanded="false" />
-                <element signature="e#22576#25390#0" expanded="false" />
+                <element signature="e#2581#5556#0" expanded="false" />
+                <element signature="e#5558#8188#0" expanded="false" />
+                <element signature="e#8190#8266#1" expanded="false" />
+                <element signature="e#8348#11699#0" expanded="false" />
+                <element signature="e#11701#12700#0" expanded="false" />
+                <element signature="e#12702#13582#0" expanded="false" />
+                <element signature="e#13584#15090#0" expanded="false" />
+                <element signature="e#15092#18254#0" expanded="false" />
+                <element signature="e#18256#18467#0" expanded="false" />
+                <element signature="e#18469#18887#0" expanded="false" />
+                <element signature="e#18889#20120#0" expanded="false" />
+                <element signature="e#20122#21315#0" expanded="false" />
+                <element signature="e#21317#21488#0" expanded="false" />
+                <element signature="e#21490#22599#0" expanded="false" />
+                <element signature="e#22601#25415#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -163,7 +144,7 @@
         <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Solution.h">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="70" column="6" selection-start-line="70" selection-start-column="6" selection-end-line="70" selection-end-column="6" />
+              <caret line="71" column="6" selection-start-line="71" selection-start-column="6" selection-end-line="71" selection-end-column="6" />
               <folding>
                 <element signature="e#1402#2115#0" expanded="false" />
               </folding>
@@ -175,7 +156,7 @@
         <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Solution.cpp">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="128" column="30" selection-start-line="128" selection-start-column="30" selection-end-line="128" selection-end-column="30" />
+              <caret line="130" column="30" selection-start-line="130" selection-start-column="30" selection-end-line="130" selection-end-column="30" />
               <folding />
             </state>
           </provider>
@@ -659,7 +640,13 @@
       <option name="project" value="LOCAL" />
       <updated>1458904104166</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="Coût infini integré dans l'idch et l'insertion">
+      <created>1459860840165</created>
+      <option name="number" value="00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1459860840165</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="TodoView">
@@ -673,7 +660,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24330357" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289689" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
@@ -682,7 +669,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289689" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.7037643" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.38625205" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38625205" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21502976" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289689" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
@@ -727,7 +714,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="-Rajout de la classe Problème&#10;-Manque la construction de la matrice des distances&#10;-Manque la lecture depuis un fichier&#10;-Setters pour les satellites et les clients non faits dans la classe Problem" />
     <MESSAGE value="-Correction de quelques erreurs dans Client, Satellite et Problem" />
     <MESSAGE value="-Implémentation partielle de la lecture depuis un fichier instance dans le format unifié de Breunig.&#10;-La lecture suppose que le format est correcte et ne fait aucune vérification&#10;" />
     <MESSAGE value="-Correction d'une erreur dans ReadFile&#10;" />
@@ -752,7 +738,8 @@
     <MESSAGE value="- Lecture fichier de configuration&#10;- Fonction de test&#10;" />
     <MESSAGE value="Inclusion des statistiques dans la fonction de test" />
     <MESSAGE value="Split implémenté et corrigé" />
-    <option name="LAST_COMMIT_MESSAGE" value="Split implémenté et corrigé" />
+    <MESSAGE value="Coût infini integré dans l'idch et l'insertion" />
+    <option name="LAST_COMMIT_MESSAGE" value="Coût infini integré dans l'idch et l'insertion" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -761,7 +748,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp</url>
-          <line>116</line>
+          <line>117</line>
           <option name="timeStamp" value="472" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
@@ -791,27 +778,27 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp</url>
-          <line>170</line>
+          <line>171</line>
           <option name="timeStamp" value="607" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp</url>
-          <line>174</line>
+          <line>175</line>
           <option name="timeStamp" value="608" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp</url>
-          <line>180</line>
+          <line>181</line>
           <option name="timeStamp" value="609" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp</url>
-          <line>183</line>
+          <line>184</line>
           <option name="timeStamp" value="610" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp</url>
-          <line>191</line>
+          <line>192</line>
           <option name="timeStamp" value="611" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
@@ -975,6 +962,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.063432835">
           <caret line="565" column="0" selection-start-line="565" selection-start-column="0" selection-end-line="565" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1201,7 +1189,7 @@
     <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Solution.h">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="70" column="6" selection-start-line="70" selection-start-column="6" selection-end-line="70" selection-end-column="6" />
+          <caret line="71" column="6" selection-start-line="71" selection-start-column="6" selection-end-line="71" selection-end-column="6" />
           <folding>
             <element signature="e#1402#2115#0" expanded="false" />
           </folding>
@@ -1219,7 +1207,7 @@
     <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Model/Solution.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="128" column="30" selection-start-line="128" selection-start-column="30" selection-end-line="128" selection-end-column="30" />
+          <caret line="130" column="30" selection-start-line="130" selection-start-column="30" selection-end-line="130" selection-end-column="30" />
           <folding />
         </state>
       </provider>
@@ -1227,12 +1215,12 @@
     <entry file="file://$PROJECT_DIR$/Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-0.68421054">
-          <caret line="363" column="48" selection-start-line="363" selection-start-column="48" selection-end-line="363" selection-end-column="48" />
+          <caret line="364" column="48" selection-start-line="364" selection-start-column="48" selection-end-line="364" selection-end-column="48" />
           <folding>
             <element signature="e#103#121#0" expanded="true" />
             <element signature="e#214#242#0" expanded="true" />
-            <element signature="e#4024#7021#0" expanded="false" />
-            <element signature="e#7023#10028#0" expanded="false" />
+            <element signature="e#4025#7060#0" expanded="false" />
+            <element signature="e#7062#10105#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1244,11 +1232,11 @@
           <folding>
             <element signature="e#152#413#0" expanded="false" />
             <element signature="e#415#473#1" expanded="false" />
-            <element signature="e#565#1572#0" expanded="false" />
-            <element signature="e#1574#2650#0" expanded="false" />
-            <element signature="e#3590#4590#0" expanded="false" />
-            <element signature="e#4592#7276#0" expanded="false" />
-            <element signature="e#7278#12195#0" expanded="false" />
+            <element signature="e#565#1579#0" expanded="false" />
+            <element signature="e#1581#2664#0" expanded="false" />
+            <element signature="e#3604#4604#0" expanded="false" />
+            <element signature="e#4606#7290#0" expanded="false" />
+            <element signature="e#7292#12209#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1275,7 +1263,7 @@
             <element signature="e#8383#12588#0" expanded="false" />
             <element signature="e#12590#18478#0" expanded="false" />
             <element signature="e#18480#32763#0" expanded="false" />
-            <element signature="e#39249#45419#0" expanded="false" />
+            <element signature="e#39249#45420#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1286,21 +1274,21 @@
           <caret line="105" column="58" selection-start-line="105" selection-start-column="58" selection-end-line="105" selection-end-column="58" />
           <folding>
             <element signature="e#1211#2125#0" expanded="false" />
-            <element signature="e#2581#5546#0" expanded="false" />
-            <element signature="e#5548#8173#0" expanded="false" />
-            <element signature="e#8175#8251#1" expanded="false" />
-            <element signature="e#8333#11678#0" expanded="false" />
-            <element signature="e#11680#12679#0" expanded="false" />
-            <element signature="e#12681#13561#0" expanded="false" />
-            <element signature="e#13563#15069#0" expanded="false" />
-            <element signature="e#15071#18233#0" expanded="false" />
-            <element signature="e#18235#18446#0" expanded="false" />
-            <element signature="e#18448#18866#0" expanded="false" />
-            <element signature="e#18868#20099#0" expanded="false" />
-            <element signature="e#20101#21294#0" expanded="false" />
-            <element signature="e#21296#21467#0" expanded="false" />
-            <element signature="e#21469#22574#0" expanded="false" />
-            <element signature="e#22576#25390#0" expanded="false" />
+            <element signature="e#2581#5556#0" expanded="false" />
+            <element signature="e#5558#8188#0" expanded="false" />
+            <element signature="e#8190#8266#1" expanded="false" />
+            <element signature="e#8348#11699#0" expanded="false" />
+            <element signature="e#11701#12700#0" expanded="false" />
+            <element signature="e#12702#13582#0" expanded="false" />
+            <element signature="e#13584#15090#0" expanded="false" />
+            <element signature="e#15092#18254#0" expanded="false" />
+            <element signature="e#18256#18467#0" expanded="false" />
+            <element signature="e#18469#18887#0" expanded="false" />
+            <element signature="e#18889#20120#0" expanded="false" />
+            <element signature="e#20122#21315#0" expanded="false" />
+            <element signature="e#21317#21488#0" expanded="false" />
+            <element signature="e#21490#22599#0" expanded="false" />
+            <element signature="e#22601#25415#0" expanded="false" />
           </folding>
         </state>
       </provider>
