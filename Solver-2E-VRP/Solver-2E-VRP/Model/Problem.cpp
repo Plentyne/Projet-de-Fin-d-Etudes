@@ -177,7 +177,7 @@ const int Problem::getE2Capacity() const {
     return this->e2Capacity;
 }
 
-int Problem::getMaxCf() {
+int Problem::getMaxCf() const {
     return this->maxCf;
 }
 

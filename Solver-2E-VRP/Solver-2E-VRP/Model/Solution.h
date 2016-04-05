@@ -51,6 +51,7 @@ public:
 
     deque<int> unroutedCustomers;
     vector<bool> satelliteState; // satelliteState[i]== true means that satellite i is available, else it's closed
+    vector<int> satelliteAssignedRoutes; // Number of routes assigned to each satellite
     int openSatellites;
     // Constructor
     Solution() : problem(nullptr), e1Routes(), e2Routes() { }
@@ -58,6 +59,7 @@ public:
     Solution(const Problem *problem) : totalCost(0), problem(problem), e1Routes{}, e2Routes{} {
         this->satelliteDemands = vector<int>(static_cast<int>(problem->getSatellites().size()), 0);
         this->deliveredQ = vector<int>(static_cast<int>(problem->getSatellites().size()), 0);
+        this->satelliteAssignedRoutes = vector<int>(static_cast<int>(problem->getSatellites().size()), 0);
         for (int i = 0; i < problem->getClients().size(); ++i) {
             this->unroutedCustomers.push_back(problem->getClient(i).getClientId());
         }
@@ -65,7 +67,9 @@ public:
         openSatellites = this->satelliteState.size();
     }
 
-    void doEvaluate();
+    void doQuickEvaluation();
+
+    void recomputeCost();
 
     // Operators
     Solution &operator=(const Solution &solution);

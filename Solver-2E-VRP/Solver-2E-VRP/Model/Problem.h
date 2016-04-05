@@ -78,7 +78,8 @@ public:
 
     /** get the capacity of 2nd level vehicles (City Freighters) */ const int getE2Capacity() const;
     /** set X coordination value */ void setMaxCf(const int &value);
-    /** get X coordination value */ int getMaxCf();
+
+    /** get X coordination value */ int getMaxCf() const;
 
     // Distance Matrix
     /** get the distance between node i and node j*/ const double getDistance(const Node &i, const Node &j) const;

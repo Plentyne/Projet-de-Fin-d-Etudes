@@ -40,11 +40,12 @@ void IDCH::heuristicIDCH(Solution &bestSolution) {
         // Réparation de la solution
         this->doRepair(solution);
 
-        if (solution.getTotalCost() < bestSolution.getTotalCost()) {
+        if (solution.getTotalCost() - bestSolution.getTotalCost() < -0.01) {
             bestSolution = solution;
             iter = 0;
         } else iter++;
     }
+
 }
 
 void IDCH::heuristicFastIDCH(Solution &bestSolution) {
@@ -113,13 +114,28 @@ void IDCH::doRandomRemoval(Solution &solution, double p1) {
 
     double cost;
 
+    // Todo améliorer l'implémentation
+    int remaining = n;
+    vector<bool> tried(problem->getClients().size(), false);
+    for (int j = 0; j < solution.unroutedCustomers.size(); ++j) {
+        tried[solution.unroutedCustomers[j]] = true;
+        remaining--;
+    }
+
     int i = 0;
-    while (i < nc) {
+    while (i < nc && remaining > 0) {
         // Find a customer to remove
-        rt = Utility::randomInt(0, solution.getE2Routes().size());
-        rc = Utility::randomInt(0, solution.getE2Routes()[rt].tour.size());
-        // Compute removal cost
-        cost = removalCost(solution, rc, rt);
+        do {
+            rt = Utility::randomInt(0, solution.getE2Routes().size());
+            rc = Utility::randomInt(0, solution.getE2Routes()[rt].tour.size());
+            // In case we already tried to remove the customer but couldn't do it, ignore it
+            if (tried[solution.getE2Routes()[rt].tour[rc]]) continue;
+            // Mark the customer as already tried
+            tried[solution.getE2Routes()[rt].tour[rc]] = true;
+            remaining--;
+            // Compute removal cost
+            cost = removalCost(solution, rc, rt);
+        } while (cost == Config::DOUBLE_INFINITY);
         // Insert customer into list of unrouted customers
         solution.unroutedCustomers.push_back(solution.getE2Routes()[rt].tour[rc]);
 
@@ -128,6 +144,8 @@ void IDCH::doRandomRemoval(Solution &solution, double p1) {
             // Update satellite demand
             solution.getSatelliteDemands()[solution.getE2Routes()[rt].departureSatellite] -= problem->getClient(
                     solution.getE2Routes()[rt].tour[rc]).getDemand();
+            // Update assigned routes
+            solution.satelliteAssignedRoutes[solution.getE2Routes()[rt].departureSatellite]--;
             // remove route
             solution.getE2Routes().erase(solution.getE2Routes().begin() + rt);
         }
@@ -165,8 +183,8 @@ void IDCH::doWorstRemoval(Solution &solution, double p2) {
     int i = 0;
     while (i < nc) {
         cost = 0;
-        rt = 0;
-        rc = 0;
+        rt = -1;
+        rc = -1;
         // Find a customer to remove
         for (int u = 0; u < solution.getE2Routes().size(); ++u) {
             E2Route &route = solution.getE2Routes()[u];
@@ -181,6 +199,9 @@ void IDCH::doWorstRemoval(Solution &solution, double p2) {
 
             }
         }
+        // If no customer can be removed, then stop removal
+        if (rt == -1 && rc == -1)
+            return;
         // Insert customer into list of unrouted customers
         solution.unroutedCustomers.push_back(solution.getE2Routes()[rt].tour[rc]);
 
@@ -189,6 +210,8 @@ void IDCH::doWorstRemoval(Solution &solution, double p2) {
             // Update satellite demand
             solution.getSatelliteDemands()[solution.getE2Routes()[rt].departureSatellite] -= problem->getClient(
                     solution.getE2Routes()[rt].tour[rc]).getDemand();
+            // Update assigned routes
+            solution.satelliteAssignedRoutes[solution.getE2Routes()[rt].departureSatellite]--;
             // remove route
             solution.getE2Routes().erase(solution.getE2Routes().begin() + rt);
         }
@@ -250,12 +273,18 @@ void IDCH::doRelatedRemoval(Solution &solution, double p3) {
     std::sort(L.begin() + 1, L.end(), neighborSort);
 
     int i = 0;
-    while (i < nc) {
+    int removed = 0;
+    while (removed < nc && i < L.size()) {
         // Find a customer to remove
         rt = L[i].rt;
         rc = L[i].rc;
         // Compute removal cost
         cost = removalCost(solution, rc, rt);
+
+        if (cost == Config::DOUBLE_INFINITY) {
+            i++;
+            continue;
+        }
         // Insert customer into list of unrouted customers
         solution.unroutedCustomers.push_back(L[i].id);
 
@@ -264,6 +293,8 @@ void IDCH::doRelatedRemoval(Solution &solution, double p3) {
             // Update satellite demand
             solution.getSatelliteDemands()[solution.getE2Routes()[rt].departureSatellite] -= problem->getClient(
                     L[i].id).getDemand();
+            // Update assigned routes
+            solution.satelliteAssignedRoutes[solution.getE2Routes()[rt].departureSatellite]--;
             // remove route
             solution.getE2Routes().erase(solution.getE2Routes().begin() + rt);
             // Update value of rt in L entries
@@ -288,6 +319,8 @@ void IDCH::doRelatedRemoval(Solution &solution, double p3) {
         }
         // Update solution cost
         solution.setTotalCost(solution.getTotalCost() + cost);
+        // Update number of removed customers
+        removed++;
         // Go to the next customer
         i++;
     }
@@ -310,6 +343,8 @@ void IDCH::doRouteRemoval(Solution &solution, int p4) {
         for (int i = 0; i < routes[r].tour.size(); ++i) {
             solution.unroutedCustomers.push_back(routes[r].tour[i]);
         }
+        // Update number of routes assigned to satellite
+        solution.satelliteAssignedRoutes[routes[r].departureSatellite]--;
         // Remove route
         routes.erase(routes.begin() + r);
         nr--;
@@ -329,6 +364,8 @@ void IDCH::doRemoveSingleNodeRoutes(Solution &solution) {
             solution.getSatelliteDemands()[route.departureSatellite] -= route.load;
             // Update solution cost
             solution.setTotalCost(solution.getTotalCost() - route.cost);
+            // Update assigned routes
+            solution.satelliteAssignedRoutes[solution.getE2Routes()[i].departureSatellite]--;
             // remove route
             solution.getE2Routes().erase(solution.getE2Routes().begin() + i);
         } else i++;
@@ -361,6 +398,8 @@ void IDCH::doSatelliteRemoval(Solution &solution, double p6) {
     }
     // Update satellite demand
     solution.getSatelliteDemands()[sat] = 0;
+    // Update routes assigned to satellite
+    solution.satelliteAssignedRoutes[sat] = 0;
     // Close satellite
     solution.satelliteState[sat] = Solution::CLOSED;
     solution.openSatellites--;
@@ -423,6 +462,8 @@ void IDCH::doSatelliteOpening(Solution &solution, double p7) {
             // Update satellite demand
             solution.getSatelliteDemands()[solution.getE2Routes()[rt].departureSatellite] -= problem->getClient(
                     L[i].id).getDemand();
+            // Update assigned routes
+            solution.satelliteAssignedRoutes[solution.getE2Routes()[rt].departureSatellite]--;
             // remove route
             solution.getE2Routes().erase(solution.getE2Routes().begin() + rt);
             // Update value of rt in L entries
@@ -514,10 +555,10 @@ void IDCH::doDestroySmall(Solution &solution) {
 /* Todo 1 changer les paramètres
      * Todo 2 implémenter un schéma pour l'utilisation des opérateurs
     */
-    this->doRandomRemoval(solution, 0.14);
-    this->doWorstRemoval(solution, 0.2);
-    this->doRelatedRemoval(solution, 0.1);
-    this->doRouteRemoval(solution, 5);
+    this->doRandomRemoval(solution, 0.07);
+    this->doWorstRemoval(solution, 0.12);
+    this->doRelatedRemoval(solution, 0.05);
+    this->doRouteRemoval(solution, 2);
     /*double p = Utility::randomDouble(0,1);
     if(p<0.2) this->doRemoveSingleNodeRoutes(solution);
     p = Utility::randomDouble(0,1);
@@ -577,7 +618,10 @@ double IDCH::removalCost(Solution &solution, int customer, int route) {
     else {
         q = problem->getClient(solution.getE2Routes()[route].tour[customer + 1]);
     }
-    return problem->getDistance(p, q) - (problem->getDistance(p, c) + problem->getDistance(c, q));
+
+    if (problem->getDistance(p, q) == Config::DOUBLE_INFINITY)
+        return Config::DOUBLE_INFINITY;
+    else return problem->getDistance(p, q) - (problem->getDistance(p, c) + problem->getDistance(c, q));
 }
 
 // Todo Implement Local Search Step for IDCH
@@ -596,7 +640,7 @@ bool IDCH::doLocalSearch(Solution &solution) {
         }
         //lsSolver.doChangeSatellite(solution);
         imp = solution.getTotalCost() - imp;
-    } while (imp < -0.001);
+    } while (imp < -0.01);
 
     this->doRepair(solution);
 
@@ -664,10 +708,11 @@ bool IDCH::doLocalSearch(Solution &solution) {
             if (nusage[i] < nusagemax[i]) break;
         }
 
-        solution.doEvaluate();
+        solution.doQuickEvaluation();
 
         if (i >= nneighbor) stop = true;
     }
+
     if (improvement) this->doRepair(solution);
     return improvement;
 }

@@ -7,6 +7,15 @@
 #include "../Config.h"
 #include "../Utility.h"
 
+bool Insertion::apply2OptOnEachTour(Solution &solution) {
+    bool improvement = false;
+    double imp = 0;
+    for (E2Route &route : solution.getE2Routes()) {
+        improvement = improvement || lsSolver.apply2OptOnTour(route);
+    }
+    return improvement;
+}
+
 struct reinsertEntry {
     int clientId;
     int demand;
@@ -29,7 +38,9 @@ double Insertion::distanceCost(Solution &solution, int client, int route, int po
         p = problem->getClient(solution.getE2Routes()[route].tour[position - 1]);
         q = problem->getClient(solution.getE2Routes()[route].tour[position]);
     }
-    return problem->getDistance(p, c) + problem->getDistance(c, q) - problem->getDistance(p, q);
+    if (problem->getDistance(p, c) == Config::DOUBLE_INFINITY || problem->getDistance(c, q) == Config::DOUBLE_INFINITY)
+        return Config::DOUBLE_INFINITY;
+    else return problem->getDistance(p, c) + problem->getDistance(c, q) - problem->getDistance(p, q);
 }
 
 double Insertion::biasedDistanceCost(Solution &solution, int client, int route, int position) {
@@ -48,7 +59,10 @@ double Insertion::biasedDistanceCost(Solution &solution, int client, int route, 
         p = problem->getClient(solution.getE2Routes()[route].tour[position - 1]);
         q = problem->getClient(solution.getE2Routes()[route].tour[position]);
     }
-    return (problem->getDistance(p, c) + problem->getDistance(c, q) - problem->getDistance(p, q)) * noise;
+
+    if (problem->getDistance(p, c) == Config::DOUBLE_INFINITY || problem->getDistance(c, q) == Config::DOUBLE_INFINITY)
+        return Config::DOUBLE_INFINITY;
+    else return (problem->getDistance(p, c) + problem->getDistance(c, q) - problem->getDistance(p, q)) * noise;
 }
 
 void Insertion::insertIntoRoute(Solution &solution, int client, int route, int position) {
@@ -68,7 +82,7 @@ void Insertion::insertIntoRoute(Solution &solution, int client, int route, int p
     ent.cost = cost;
     insertStack.push_back(ent);*/
     // Insérer la demande dans le satellite Todo
-    //e1Solver.insert(solution,solution.getE2Routes()[route].departureSatellite,tmpClient.getDemand());
+    //e1Solver.insert(solution,solution.getE2Routes()[route].departureSatellite,problem->getClient(client).getDemand());
 }
 
 void Insertion::insertIntoNewRoute(Solution &solution, int client, int satellite) {
@@ -81,6 +95,7 @@ void Insertion::insertIntoNewRoute(Solution &solution, int client, int satellite
     // insérer la nouvelle tournée
     solution.getE2Routes().push_back(newRoute);
     solution.getSatelliteDemands()[newRoute.departureSatellite] += problem->getClient(client).getDemand();
+    solution.satelliteAssignedRoutes[satellite]++;
     // Sauvegarder l'insertion
     /*insertEntry ent;
     ent.clientId = client;
@@ -88,6 +103,8 @@ void Insertion::insertIntoNewRoute(Solution &solution, int client, int satellite
     ent.cost = cost;
     ent.position = 0;
     insertStack.push_back(ent);*/
+    // Insérer la demande dans le satellite Todo
+    //e1Solver.insert(solution,solution.getE2Routes().back().departureSatellite,problem->getClient(client).getDemand());
 }
 
 void Insertion::cancelInsertions(Solution &solution, int client) {
@@ -202,7 +219,6 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
                 e2Route = solution.getE2Routes()[i];
                 // Imprimer coût sur le 1er échelon TODO
                 double e1cost =  e1Solver.insertionCost(solution, e2Route.departureSatellite, tmpClient.getDemand());
-
                 // Estimer le coût d'insertion de c
                 for (int j = 0; j <= e2Route.tour.size(); j++) {
                     cost = this->distanceCost(solution, tmpClient.getClientId(), i, j);
@@ -222,10 +238,11 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
             for (int i = 0; i < problem->getSatellites().size(); i++) {
                 // Si satellite fermé alors l'ignorer
                 if (solution.satelliteState[i] == Solution::CLOSED) continue;
+                // Si le satellite ne peux plus avoir de tournées
+                if (solution.satelliteAssignedRoutes[i] >= problem->getMaxCf()) continue;
                 // Estimer le coût d'insertion de c
                 cost = 2 * problem->getDistance(solution.getProblem()->getSatellite(i), tmpClient);
-                //double e1cost =  e1Solver.insertionCost(solution, i, tmpClient.getDemand());
-                double e1cost = 0;
+                double e1cost = e1Solver.insertionCost(solution, i, tmpClient.getDemand());
                 // Si il est meilleure que celui de la meilleure insertion actuelle alors le garder
                 if (cost + e1cost < minCost) {
                     feasible = true;
@@ -258,15 +275,13 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
     }
     // FTQ
 
-    //--------------------------------------------
-    //--------------------------------------------
     // Construction des tournées du 1er échelon
     solution.getE1Routes().clear();
 
     e1Solver.constructiveHeuristic(solution);
 
     // Compute solution cost
-    solution.doEvaluate();
+    solution.doQuickEvaluation();
     //----------------------------------------
 
 
@@ -312,9 +327,7 @@ void Insertion::GreedyInsertionNoiseHeuristic(Solution &solution) {
             // S'il n'y a pas assez d'espace pour l'insertion
             if (tmpClient.getDemand() <= (problem->getE2Capacity() - solution.getE2Routes()[i].load)) {
                 e2Route = solution.getE2Routes()[i];
-                // Imprimer coût sur le 1er échelon TODO
-                //double e1cost =  e1Solver.insertionCost(solution, e2Route.departureSatellite, tmpClient.getDemand());
-                double e1cost = 0;
+                double e1cost = e1Solver.insertionCost(solution, e2Route.departureSatellite, tmpClient.getDemand());
                 // Estimer le coût d'insertion de c
                 for (int j = 0; j <= e2Route.tour.size(); j++) {
                     cost = this->biasedDistanceCost(solution, tmpClient.getClientId(), i, j);
@@ -334,10 +347,11 @@ void Insertion::GreedyInsertionNoiseHeuristic(Solution &solution) {
             for (int i = 0; i < problem->getSatellites().size(); i++) {
                 // Si satellite fermé alors l'ignorer
                 if (solution.satelliteState[i] == Solution::CLOSED) continue;
+                // Si le satellite ne peux plus avoir de tournées
+                if (solution.satelliteAssignedRoutes[i] >= problem->getMaxCf()) continue;
                 // Estimer le coût d'insertion de c
                 cost = 2 * problem->getDistance(solution.getProblem()->getSatellite(i), tmpClient);
-                //double e1cost =  e1Solver.insertionCost(solution, i, tmpClient.getDemand());
-                double e1cost = 0;
+                double e1cost = e1Solver.insertionCost(solution, i, tmpClient.getDemand());
                 // Si il est meilleure que celui de la meilleure insertion actuelle alors le garder
                 if (cost + e1cost < minCost) {
                     feasible = true;
@@ -368,97 +382,6 @@ void Insertion::GreedyInsertionNoiseHeuristic(Solution &solution) {
         }
     }
     // FTQ
-    // Amélioration de la tournée Todo Enlever après
-    double imp;
-    do {
-        imp = solution.getTotalCost();
-        lsSolver.apply2optStar(solution);
-        lsSolver.applySwap(solution);
-        lsSolver.applyRelocate(solution);
-        for (E2Route &e2route : solution.getE2Routes()) {
-            solution.setTotalCost(solution.getTotalCost() - e2route.cost);
-            lsSolver.apply2OptOnTour(e2route);
-            solution.setTotalCost(solution.getTotalCost() + e2route.cost);
-        }
-        imp = solution.getTotalCost() - imp;
-    } while (imp < -0.0001);
-
-    //--------------------------------------------
-
-    // Changer le satellite des tournées
-    for (E2Route &e2route : solution.getE2Routes()) {
-        solution.setTotalCost(solution.getTotalCost() - e2route.cost);
-        double minCost = Config::DOUBLE_INFINITY;
-        double tmpCost;
-        int position = -1;
-        int satellite = -1;
-        for (int i = 0; i < this->problem->getSatellites().size(); ++i) {
-
-            for (int j = 0; j < e2route.tour.size(); ++j) {
-                if (j == 0)
-                    tmpCost = this->problem->getDistance(problem->getSatellite(i),
-                                                         problem->getClient(e2route.tour[0]))
-                              + this->problem->getDistance(problem->getSatellite(i),
-                                                           problem->getClient(e2route.tour.back()))
-                              - this->problem->getDistance(problem->getSatellite(e2route.departureSatellite),
-                                                           problem->getClient(e2route.tour[0]))
-                              - this->problem->getDistance(problem->getSatellite(e2route.departureSatellite),
-                                                           problem->getClient(e2route.tour.back()));
-
-                else
-                    tmpCost = this->problem->getDistance(problem->getSatellite(i),
-                                                         problem->getClient(e2route.tour[j - 1]))
-                              + this->problem->getDistance(problem->getSatellite(i),
-                                                           problem->getClient(e2route.tour[j]))
-                              - this->problem->getDistance(problem->getSatellite(e2route.departureSatellite),
-                                                           problem->getClient(e2route.tour[j - 1]))
-                              - this->problem->getDistance(problem->getSatellite(e2route.departureSatellite),
-                                                           problem->getClient(e2route.tour[j]));
-
-                if (tmpCost < minCost) {
-                    minCost = tmpCost;
-                    position = j;
-                    satellite = i;
-                }
-            }
-        }
-        e2route.cost += minCost;
-        solution.getSatelliteDemands()[e2route.departureSatellite] -= e2route.load;
-        solution.getSatelliteDemands()[satellite] += e2route.load;
-
-        e2route.departureSatellite = satellite;
-        std::rotate(e2route.tour.begin(), e2route.tour.begin() + position, e2route.tour.end());
-        // Insérer la tournée actuelle dans la solution
-        // Calculer le nouveau côut de la route
-        e2route.cost = this->problem->getDistance(this->problem->getSatellite(e2route.departureSatellite),
-                                                  this->problem->getClient(e2route.tour[0]))
-                       + this->problem->getDistance(this->problem->getSatellite(e2route.departureSatellite),
-                                                    this->problem->getClient(
-                                                            e2route.tour[e2route.tour.size() - 1]));;
-        for (int k = 0; k < e2route.tour.size() - 1; ++k) {
-            e2route.cost += this->problem->getDistance(this->problem->getClient(e2route.tour[k]),
-                                                       this->problem->getClient(e2route.tour[k + 1]));
-        }
-        solution.setTotalCost(solution.getTotalCost() + e2route.cost);
-    }
-    //--------------------------------------------
-    // Amélioration de la tournée Todo Enlever après
-
-    do {
-        imp = solution.getTotalCost();
-        lsSolver.apply2optStar(solution);
-        lsSolver.applyRelocate(solution);
-        lsSolver.applySwap(solution);
-        for (E2Route &e2route : solution.getE2Routes()) {
-            solution.setTotalCost(solution.getTotalCost() - e2route.cost);
-            //lsSolver.applyOrOpt(e2route, 1);
-            //lsSolver.applyOrOpt(e2route, 2);
-            //lsSolver.applyOrOpt(e2route, 3);
-            lsSolver.apply2OptOnTour(e2route);
-            solution.setTotalCost(solution.getTotalCost() + e2route.cost);
-        }
-        imp = solution.getTotalCost() - imp;
-    } while (imp < -0.0001);
 
     //--------------------------------------------
     // Construction des tournées du 1er échelon

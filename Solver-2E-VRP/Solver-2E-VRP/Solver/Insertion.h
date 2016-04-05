@@ -37,6 +37,8 @@ private:
 
     void cancelInsertions(Solution &solution, int client);
 
+    bool apply2OptOnEachTour(Solution &solution);
+
 public:
     Insertion(Problem *problem) : problem(problem) {
         e1Solver = SDVRPSolver(this->problem);

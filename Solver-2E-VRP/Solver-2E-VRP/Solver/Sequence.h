@@ -17,26 +17,42 @@ class Sequence {
 private:
     const Problem *problem;
     vector<double> v;
-    vector<int> tour;
     vector<vector<predecessor>> paths;
+
+public:
+    vector<int> tour;
 
     bool evaluated;
     double solutionCost;
 
-
-public:
     /* Construct from solution */
-
     Sequence(Solution &solution);
 
-/* Construct from a problem and randomly initialize*/
-    Sequence(Problem *problem);
+    /* Construct from a problem and randomly initialize*/
+    Sequence(const Problem *problem);
 
-/* Compute split cost*/
+    /* Copy Constructor : Construction from another Sequence */
+    Sequence(Sequence &sequence);
+
+    /* Compute split cost*/
     double doEvaluate();
 
+    double doQuickEvaluation();
+
     /* Extract Solution from a Sequence*/
-    void extractSolution(Solution &solution);
+    bool extractSolution(Solution &solution);
+
+    /*Local Search*/
+    static bool apply2Opt(Sequence &sequence);
+
+    void applyOrOpt();
+
+    static bool applySingleShiftMove(Sequence &sequence);
+
+    bool applySingleSwapMove();
+
+    /* Operators */
+    Sequence &operator=(const Sequence &sequence);
 
 };
 

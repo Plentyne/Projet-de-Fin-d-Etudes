@@ -19,17 +19,40 @@ Sequence::Sequence(Solution &solution) : problem(solution.getProblem()), evaluat
     for (E2Route &route : solution.getE2Routes()) {
         tour.insert(tour.end(), route.tour.begin(), route.tour.end());
     }
-
+    this->v = vector<double>(this->problem->getClients().size() + 1);
+    //this->paths = vector<vector<predecessor>>(this->problem->getClients().size() + 1);
 }
 
-Sequence::Sequence(Problem *problem) : problem(problem), evaluated(false), solutionCost(0) {
-    this->tour.reserve(problem->numberOfClients() + 1);
+Sequence::Sequence(const Problem *problem) : problem(problem), evaluated(false), solutionCost(0) {
+    this->tour.reserve(problem->getClients().size() + 1);
     this->tour.push_back(-1);
     for (int i = 0; i < problem->getClients().size(); ++i) {
         this->tour.push_back(i);
     }
     std::random_shuffle(tour.begin() + 1, tour.end());
+    this->v = vector<double>(this->problem->getClients().size() + 1);
+    //this->paths = vector<vector<predecessor>>(this->problem->getClients().size() + 1);
 }
+
+Sequence::Sequence(Sequence &sequence) {
+    this->problem = sequence.problem;
+    this->evaluated = sequence.evaluated;
+    this->solutionCost = sequence.solutionCost;
+    this->tour.assign(sequence.tour.begin(), sequence.tour.end());
+    this->v.assign(sequence.v.begin(), sequence.v.end());
+    this->paths.assign(sequence.paths.begin(), sequence.paths.end());
+}
+
+Sequence &Sequence::operator=(const Sequence &sequence) {
+    this->problem = sequence.problem;
+    this->evaluated = sequence.evaluated;
+    this->solutionCost = sequence.solutionCost;
+    this->tour.assign(sequence.tour.begin(), sequence.tour.end());
+    this->v.assign(sequence.v.begin(), sequence.v.end());
+    this->paths.assign(sequence.paths.begin(), sequence.paths.end());
+    return *this;
+}
+
 
 /****************************
  *
@@ -44,7 +67,7 @@ double Sequence::doEvaluate() {
 
     // Evaluate the sequence
     // Initialisation
-    v = vector<double>(this->problem->getClients().size() + 1, Config::DOUBLE_INFINITY);
+    std::fill(v.begin(), v.end(), Config::DOUBLE_INFINITY);
     v[0] = 0;
     vector<double> v2(v.begin(), v.end());
 
@@ -80,7 +103,7 @@ double Sequence::doEvaluate() {
                             double tmpCost =
                                     2 * problem->getDistance(problem->getClient(tour[i]), problem->getSatellite(l));
                             if (tmpCost == 0) tmpCost = Config::DOUBLE_INFINITY;
-                            if (tmpCost - cost1 < -0.0001) {
+                            if (tmpCost - cost1 < -0.01) {
                                 cost1 = tmpCost;
                                 sat = l;
                             }
@@ -95,14 +118,14 @@ double Sequence::doEvaluate() {
                             double tmpCost = problem->getDistance(problem->getClient(tour[i]), problem->getSatellite(l))
                                              + problem->getDistance(problem->getClient(tour[j]),
                                                                     problem->getSatellite(l));
-                            if (tmpCost - cost1 < -0.0001) {
+                            if (tmpCost - cost1 < -0.01) {
                                 cost1 = tmpCost;
                                 sat = l;
                             }
                         }
                         cost2 += problem->getDistance(problem->getClient(tour[j - 1]), problem->getClient(tour[j]));
                     }
-                    if ((v[i - 1] + cost1 + cost2 - v2[j] < -0.0001)) {
+                    if ((v[i - 1] + cost1 + cost2 - v2[j] < -0.01)) {
                         v2[j] = v[i - 1] + cost1 + cost2;
                         stable = false;
                         paths2[j].assign(paths[i - 1].begin(), paths[i - 1].end());
@@ -122,98 +145,10 @@ double Sequence::doEvaluate() {
     return this->solutionCost;
 }
 
-/****************************
- *
- * EXTRACT SOLUTION
- *
- ****************************/
-void Sequence::extractSolution(Solution &solution) {
-
-    if (!evaluated) this->doEvaluate();
-
-    int j = paths.size() - 1;
-    int i;
-
-    solution = Solution(problem);
-    solution.setTotalCost(solutionCost);
-
-    E2Route route;
-
-    std::reverse(paths[j].begin(), paths[j].end());
-    for (int l = 0; l < paths[j].size() - 1; ++l) {
-        // Initialiser la route
-        route.departureSatellite = paths[j][l].sat;
-        route.tour.clear();
-        route.load = 0;
-        // Construire la route
-        i = paths[j][l + 1].p;
-
-        for (int k = i + 1; k <= paths[j][l].p; ++k) {
-            route.tour.push_back(tour[k]);
-            route.load += problem->getClient(tour[k]).getDemand();
-        }
-        route.cost = paths[j][l].cost - paths[j][l + 1].cost;
-        // Insert route into solution
-        solution.getE2Routes().push_back(route);
-        solution.getSatelliteDemands()[route.departureSatellite] += route.load;
-    }
-    // Résoudre le premier échelon
-    SDVRPSolver sdvrpSolver(problem);
-    sdvrpSolver.constructiveHeuristic(solution);
-}
-/* Contains the original form of the methods
- *
-// Created by Youcef on 18/03/2016.
-
-#include "Sequence.h"
-#include "../Config.h"
-#include "SDVRPSolver.h"
-
-#include <algorithm>
-
-
-Sequence::Sequence(Solution &solution) : problem(solution.getProblem()), evaluated(false), solutionCost(0) {
-    this->tour.reserve(problem->getClients().size() + 1);
-    this->tour.push_back(-1);
-    for (E2Route &route : solution.getE2Routes()) {
-        tour.insert(tour.end(), route.tour.begin(), route.tour.end());
-    }
-    this->p = vector<int>(problem->getClients().size() + 1);
-    this->satellites = vector<int>(problem->getClients().size() + 1);
-    this->N = vector<int>(problem->getClients().size() + 1);
-}
-
-Sequence::Sequence(Problem *problem) : problem(problem), evaluated(false), solutionCost(0) {
-    this->tour.reserve(problem->numberOfClients() + 1);
-    this->tour.push_back(-1);
-    for (int i = 0; i < problem->getClients().size(); ++i) {
-        this->tour.push_back(i);
-    }
-    std::random_shuffle(tour.begin() + 1, tour.end());
-    this->p = vector<int>(problem->getClients().size() + 1);
-    this->satellites = vector<int>(problem->getClients().size() + 1);
-    this->N = vector<int>(problem->getClients().size() + 1);
-}
-
-
-double Sequence::doEvaluate() {
-    // If the sequence has been evaluated, it's no use to do it again
-    if (this->evaluated)
-        return this->solutionCost;
-
-    // Evaluate the sequence
-    // Initialisation
-    v = vector<double>(this->problem->getClients().size() + 1, Config::DOUBLE_INFINITY);
+double Sequence::doQuickEvaluation() {
+    std::fill(v.begin(), v.end(), Config::DOUBLE_INFINITY);
     v[0] = 0;
-    N[0] = 0;
     vector<double> v2(v.begin(), v.end());
-    vector<int> p2(p.begin(), p.end());
-    vector<int> N2(N.begin(),N.end());
-    vector<int> satellites2(satellites.begin(), satellites.end());
-
-    pred = vector<vector<predecessor>>(this->problem->getClients().size() + 1);
-    pred[0].push_back(predecessor{0,0,0});
-    vector<vector<predecessor>> pred2(pred.begin(),pred.end());
 
     // External loop for the number of vehicles
     int k = 0;
@@ -243,7 +178,7 @@ double Sequence::doEvaluate() {
                             double tmpCost =
                                     2 * problem->getDistance(problem->getClient(tour[i]), problem->getSatellite(l));
                             if (tmpCost == 0) tmpCost = Config::DOUBLE_INFINITY;
-                            if (tmpCost - cost1 < -0.0001) {
+                            if (tmpCost - cost1 < -0.01) {
                                 cost1 = tmpCost;
                                 sat = l;
                             }
@@ -258,73 +193,191 @@ double Sequence::doEvaluate() {
                             double tmpCost = problem->getDistance(problem->getClient(tour[i]), problem->getSatellite(l))
                                              + problem->getDistance(problem->getClient(tour[j]),
                                                                     problem->getSatellite(l));
-                            if (tmpCost - cost1 < -0.0001) {
+                            if (tmpCost - cost1 < -0.01) {
                                 cost1 = tmpCost;
                                 sat = l;
                             }
                         }
                         cost2 += problem->getDistance(problem->getClient(tour[j - 1]), problem->getClient(tour[j]));
                     }
-                    if ((v[i - 1] + cost1 + cost2 - v2[j] < -0.0001)) {
+                    if ((v[i - 1] + cost1 + cost2 - v2[j] < -0.01)) {
                         v2[j] = v[i - 1] + cost1 + cost2;
                         stable = false;
-                        p2[j] = i - 1;
-                        satellites2[j] = sat;
-                        N2[j]=N[i-1]+1;
-                        pred2[j].assign(pred[i-1].begin(),pred[i-1].end());
-                        pred2[j].push_back(predecessor{j,sat,v2[j]});
                     }
                     j++;
                 }
             } while (load <= problem->getE2Capacity() && j <= n);
         }
         v.assign(v2.begin(), v2.end());
-        p.assign(p2.begin(), p2.end());
-        N.assign(N2.begin(),N2.end());
-        satellites.assign(satellites2.begin(), satellites2.end());
-        pred.assign(pred2.begin(),pred2.end());
     } while (k < problem->getK2() && !stable);
 
-    this->evaluated = true;
     this->solutionCost = v[n];
 
     return this->solutionCost;
 }
 
-
-void Sequence::extractSolution(Solution &solution) {
-    int j = p.size() - 1;
-    int i;
+/****************************
+ *
+ * EXTRACT SOLUTION
+ *
+ ****************************/
+bool Sequence::extractSolution(Solution &solution) {
 
     if (!evaluated) this->doEvaluate();
+
+    if (this->solutionCost == Config::DOUBLE_INFINITY) return false;
+
+    int j = paths.size() - 1;
+    int i;
 
     solution = Solution(problem);
     solution.setTotalCost(solutionCost);
 
     E2Route route;
 
-    /*do {
+    vector<predecessor> path(paths[j].begin(), paths[j].end());
+    std::reverse(path.begin(), path.end());
+
+    for (int l = 0; l < path.size() - 1; ++l) {
         // Initialiser la route
-        route.departureSatellite = satellites[j];
+        route.departureSatellite = path[l].sat;
         route.tour.clear();
         route.load = 0;
         // Construire la route
-        i = p[j];
-        for (int k = i + 1; k <= j; ++k) {
+        i = path[l + 1].p;
+
+        for (int k = i + 1; k <= path[l].p; ++k) {
             route.tour.push_back(tour[k]);
             route.load += problem->getClient(tour[k]).getDemand();
         }
-        route.cost = v[j] - v[i];
+        route.cost = path[l].cost - path[l + 1].cost;
         // Insert route into solution
         solution.getE2Routes().push_back(route);
         solution.getSatelliteDemands()[route.departureSatellite] += route.load;
-        // Passer à la tournée suivante
-        j = i;
-    } while (i > 0);
+    }
     // Résoudre le premier échelon
     SDVRPSolver sdvrpSolver(problem);
     sdvrpSolver.constructiveHeuristic(solution);
 
+    return true;
 }
 
-*/
+bool Sequence::apply2Opt(Sequence &sequence) {
+    if (sequence.tour.size() <= 2) return false;
+
+    Sequence testSeq(sequence);
+    double improved;
+    int u, v;
+    double dxu, dvy, dxv, duy;
+    bool improvement = false;
+    bool improvementFound;
+
+    Solution bestSolution, tmpSol;
+    sequence.extractSolution(bestSolution);
+
+    do {
+
+        improvementFound = false;
+        for (u = 1; u < testSeq.tour.size() && !improvementFound; u++) { // inner loop
+            if (u == 1)
+                dxu = testSeq.problem->getDistance(testSeq.problem->getClient(testSeq.tour.back()),
+                                                   testSeq.problem->getClient(testSeq.tour[u]));
+            else
+                dxu = testSeq.problem->getDistance(testSeq.problem->getClient(testSeq.tour[u - 1]),
+                                                   testSeq.problem->getClient(testSeq.tour[u]));
+
+            for (v = u + 1; v < testSeq.tour.size() && !improvementFound; v++) {
+                if (v == testSeq.tour.size() - 1)
+                    dvy = testSeq.problem->getDistance(testSeq.problem->getClient(testSeq.tour[v]),
+                                                       testSeq.problem->getClient(testSeq.tour[1]));
+                else
+                    dvy = testSeq.problem->getDistance(testSeq.problem->getClient(testSeq.tour[v]),
+                                                       testSeq.problem->getClient(testSeq.tour[v + 1]));
+
+                if (u == 1)
+                    dxv = testSeq.problem->getDistance(testSeq.problem->getClient(testSeq.tour.back()),
+                                                       testSeq.problem->getClient(testSeq.tour[v]));
+                else
+                    dxv = testSeq.problem->getDistance(testSeq.problem->getClient(testSeq.tour[u - 1]),
+                                                       testSeq.problem->getClient(testSeq.tour[v]));
+
+                if (v == testSeq.tour.size() - 1)
+                    duy = testSeq.problem->getDistance(testSeq.problem->getClient(testSeq.tour[u]),
+                                                       testSeq.problem->getClient(testSeq.tour[1]));
+                else
+                    duy = testSeq.problem->getDistance(testSeq.problem->getClient(testSeq.tour[u]),
+                                                       testSeq.problem->getClient(testSeq.tour[v + 1]));
+
+                improved = dxv + duy - (dxu + dvy);
+
+                if (improved < -0.01) {
+                    improvementFound = true;
+                    // inverse sequence order between u and v
+                    std::reverse(testSeq.tour.begin() + u, testSeq.tour.begin() + v + 1);
+                    testSeq.evaluated = false;
+                    testSeq.extractSolution(tmpSol);
+                    double ttt = testSeq.doQuickEvaluation();
+                    double lll = sequence.doQuickEvaluation();
+                    if (tmpSol.getTotalCost() - bestSolution.getTotalCost() < -0.01) {
+                        improvement = true;
+                        sequence = testSeq;
+                        bestSolution = tmpSol;
+                    }
+                }
+            }
+        }
+
+    } while (improvementFound);
+
+    return improvement;
+}
+
+void Sequence::applyOrOpt() {
+
+}
+
+bool Sequence::applySingleShiftMove(Sequence &sequence) {
+    int i, j, n = (int) sequence.tour.size();
+    if (n < 2) return false;
+
+
+    for (i = 1; i < n; i++) { // take for all customer i of the sequence
+        // First, try to move it to the left
+        Sequence leftTest(sequence);
+        for (j = i - 1; j >= 1; j--) {
+            swap(leftTest.tour[j], leftTest.tour[j + 1]); // take the change
+            leftTest.doQuickEvaluation();
+
+            // improvement found ?
+            if (leftTest.solutionCost - sequence.solutionCost < -0.01) {
+                sequence = leftTest;
+                sequence.evaluated = false;
+                return true;
+            }
+            // the next test, we keep moving the client i, so we do not need a reset here
+        }
+
+        // Try to move it to the right
+        Sequence rightTest(sequence);
+        for (j = i + 1; j < n; j++) {
+            swap(rightTest.tour[j], rightTest.tour[j - 1]); // take the change
+            rightTest.doQuickEvaluation();
+
+            // improvement found ?
+            if (rightTest.solutionCost - rightTest.solutionCost < -0.01) {
+                sequence = rightTest;
+                sequence.evaluated = false;
+                return true;
+            }
+            // the next test, we keep moving the client i, so we do not need a reset here
+        }
+    }
+
+    return false;
+}
+
+bool Sequence::applySingleSwapMove() {
+    return false;
+}
+
+

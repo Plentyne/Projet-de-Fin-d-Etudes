@@ -148,7 +148,8 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
             int position = -1;
             int satellite = -1;
             for (int i = 0; i < this->problem->getSatellites().size(); ++i) {
-
+                // Si le satellite ne peux plus avoir de tournées
+                if (solution.satelliteAssignedRoutes[i] >= problem->getMaxCf()) continue;
                 for (int j = 0; j < e2route.tour.size(); ++j) {
                     if (j == 0)
                         tmpCost = this->problem->getDistance(problem->getSatellite(i),
@@ -203,6 +204,7 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
             solution.getE2Routes().push_back(e2route);
             solution.getSatelliteDemands()[e2route.departureSatellite] += e2route.load;
             solution.setTotalCost(solution.getTotalCost() + e2route.cost);
+            solution.satelliteAssignedRoutes[satellite]++;
             // initiliasier une nouvelle tournée (s',k',s')
             tmpSat = Utility::randomInt(0, this->problem->getSatellites().size() - 1);
             tmp = Utility::randomInt(0, unroutedClients.size() - 1);
@@ -382,65 +384,13 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
             solution.setTotalCost(solution.getTotalCost() + e2route.cost);
         }
         imp = solution.getTotalCost() - imp;
-    } while (imp < -0.0001);
+    } while (imp < -0.01);
 
     //--------------------------------------------
 
     // Construire les tournées du premier échelon
     SDVRPSolver sdvrpSolver(problem);
     sdvrpSolver.constructiveHeuristic(solution);
-    // Todo changer par l'heuristiques pour le sdvrp
-    /*E1Route e1Route;
-    e1Route.tour.clear();
-    e1Route.cost = 0;
-    e1Route.load = 0;
 
-    int closestSatellite;
-    while ((closestSatellite = MoleJamesonHeuristic::getClosestSatellite(e1Route, solution)) >= 0) {
-        if ((e1Route.load + solution.getSatelliteDemands()[closestSatellite] -
-             solution.getDeliveredQ()[closestSatellite]) > problem->getE1Capacity()) {
-            // Si la demande d'un satellite dépasse celle du véhicule
-            // On prend une partie de sa demande et on la charge dans la tournée courantes
-            if (solution.getSatelliteDemands()[closestSatellite] - solution.getDeliveredQ()[closestSatellite] >
-                problem->getE1Capacity()) {
-                solution.getDeliveredQ()[closestSatellite] += (problem->getE1Capacity() - e1Route.load);
-                if (e1Route.tour.size() > 0) {
-                    e1Route.cost += problem->getDistance(problem->getSatellite(e1Route.tour.back()),
-                                                         problem->getSatellite(closestSatellite));
-                } else {
-                    e1Route.cost += problem->getDistance(problem->getDepot(), problem->getSatellite(closestSatellite));
-                }
-                e1Route.tour.push_back(problem->getSatellite(closestSatellite).getSatelliteId());
-                e1Route.load = problem->getE1Capacity();
-            }
-            // Sinon
-
-            e1Route.cost += problem->getDistance(problem->getDepot(), problem->getSatellite(e1Route.tour.back()));
-
-            solution.getE1Routes().push_back(e1Route);
-            solution.setTotalCost(solution.getTotalCost() + e1Route.cost);
-
-            e1Route.tour.clear();
-            e1Route.load = 0;
-            e1Route.cost = 0;
-        } else {
-            // Ajout du satellite dans la tournée actuelle
-            if (e1Route.tour.size() > 0) {
-                e1Route.cost += problem->getDistance(problem->getSatellite(e1Route.tour.back()),
-                                                     problem->getSatellite(closestSatellite));
-            } else {
-                e1Route.cost += problem->getDistance(problem->getDepot(), problem->getSatellite(closestSatellite));
-            }
-            e1Route.tour.push_back(problem->getSatellite(closestSatellite).getSatelliteId());
-            e1Route.load +=
-                    solution.getSatelliteDemands()[closestSatellite] - solution.getDeliveredQ()[closestSatellite];
-            solution.getDeliveredQ()[e1Route.tour.back()] = solution.getSatelliteDemands()[closestSatellite];
-        }
-
-    }
-    // Ajout de la dernière route construite
-    e1Route.cost += problem->getDistance(problem->getDepot(), problem->getSatellite(e1Route.tour.back()));
-    solution.getE1Routes().push_back(e1Route);
-    solution.setTotalCost(solution.getTotalCost() + e1Route.cost);*/
 
 }

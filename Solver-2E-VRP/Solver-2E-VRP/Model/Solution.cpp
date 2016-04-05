@@ -18,6 +18,8 @@ Solution &Solution::operator=(const Solution &solution) {
     this->unroutedCustomers = deque<int>(solution.unroutedCustomers.begin(), solution.unroutedCustomers.end());
     this->satelliteState = vector<bool>(solution.satelliteState.begin(), solution.satelliteState.end());
     this->openSatellites = solution.openSatellites;
+    this->satelliteAssignedRoutes = vector<int>(solution.satelliteAssignedRoutes.begin(),
+                                                solution.satelliteAssignedRoutes.end());
     return *this;
 }
 
@@ -30,6 +32,8 @@ Solution::Solution(const Solution &solution) {
     this->deliveredQ = vector<int>(solution.deliveredQ.begin(), solution.deliveredQ.end());
     this->unroutedCustomers = deque<int>(solution.unroutedCustomers.begin(), solution.unroutedCustomers.end());
     this->satelliteState = vector<bool>(solution.satelliteState.begin(), solution.satelliteState.end());
+    this->satelliteAssignedRoutes = vector<int>(solution.satelliteAssignedRoutes.begin(),
+                                                solution.satelliteAssignedRoutes.end());
     this->openSatellites = solution.openSatellites;
 }
 
@@ -102,7 +106,7 @@ void Solution::saveHumanReadable(const string &fn, const string &header, const b
     fh.close();
 }
 
-void Solution::doEvaluate() {
+void Solution::doQuickEvaluation() {
     this->totalCost = 0;
     for (E2Route &e2route : this->e2Routes) {
         this->totalCost += e2route.cost;
@@ -112,3 +116,17 @@ void Solution::doEvaluate() {
     }
 }
 
+void Solution::recomputeCost() {
+    for (E2Route e2route : this->e2Routes) {
+        e2route.cost = this->problem->getDistance(this->problem->getSatellite(e2route.departureSatellite),
+                                                  this->problem->getClient(e2route.tour[0]))
+                       + this->problem->getDistance(this->problem->getSatellite(e2route.departureSatellite),
+                                                    this->problem->getClient(
+                                                            e2route.tour[e2route.tour.size() - 1]));;
+        for (int k = 0; k < e2route.tour.size() - 1; ++k) {
+            e2route.cost += this->problem->getDistance(this->problem->getClient(e2route.tour[k]),
+                                                       this->problem->getClient(e2route.tour[k + 1]));
+        }
+    }
+    this->doQuickEvaluation();
+}

@@ -384,7 +384,7 @@ double SDVRPSolver::applyRelocate(Solution &solution) {
                 }
 
                 // Update the route
-                if (bestRemoval + bestInsertion < -0.0001) {
+                if (bestRemoval + bestInsertion < -0.01) {
                     improvement = true;
                     // If customer exists in the route, only move its goods
                     if (routes[i].tour[j] == routes[insertRoute].tour[position]) {
@@ -595,7 +595,7 @@ double SDVRPSolver::applySwap(Solution &solution) {
                                     }
                                 }
                                 // if there is improvment
-                                if (xRemoval + bestXInsertion + yRemoval + bestYInsertion < -0.0001) {
+                                if (xRemoval + bestXInsertion + yRemoval + bestYInsertion < -0.01) {
                                     improvement = true;
                                     // Update routes
                                     // Insert x into route Y
@@ -671,6 +671,17 @@ double SDVRPSolver::applySwap(Solution &solution) {
  ******************************/
 double SDVRPSolver::insertionCost(Solution &solution, int satelliteId, int dDemand) {
     return 0;
+
+    /*Solution tmp(solution);
+    //this->insert(tmp,satelliteId,dDemand);
+    solution.getE1Routes().clear();
+    this->constructiveHeuristic(solution);
+    tmp.getSatelliteDemands()[satelliteId]+=dDemand;
+    tmp.getE1Routes().clear();
+    this->constructiveHeuristic(tmp);
+    tmp.doEvaluate();
+    solution.doEvaluate();
+    return tmp.getTotalCost()-solution.getTotalCost();*/
 
     /*if (dDemand == 0)
         return 0;
@@ -806,12 +817,17 @@ double SDVRPSolver::insertionCost(Solution &solution, int satelliteId, int dDema
 void SDVRPSolver::insert(Solution &solution, int satelliteId, int dDemand) {
     if (dDemand == 0) return;
 
-    double totalCost = 0;
+    solution.getE1Routes().clear();
+    Solution tmp(solution);
+    this->constructiveHeuristic(tmp);
+    solution.getE1Routes().assign(tmp.getE1Routes().begin(), tmp.getE1Routes().end());
+
+    /*double totalCost = 0;
     vector<E1Route> routes = solution.getE1Routes();
     if (dDemand < 0) {
         while (dDemand != 0) {
             // Find route containing minimum demand for satelliteID
-            // Remove dDemand or par of it from route
+            // Remove dDemand or part of it from route
             // If there is no more demand for satelliteId then remove it from route
         }
     }
@@ -923,7 +939,9 @@ void SDVRPSolver::insert(Solution &solution, int satelliteId, int dDemand) {
                     totalCost += route.cost;
                 }
             }
+            this->applyRelocate(solution);
         }
     }
+    this->applySwap(solution); */
 }
 

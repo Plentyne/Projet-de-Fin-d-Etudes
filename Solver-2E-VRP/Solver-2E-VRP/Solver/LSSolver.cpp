@@ -55,7 +55,7 @@ bool LSSolver::apply2OptOnTour(E2Route &e2Route) {
 
                 improved = dxv + duy - (dxu + dvy);
 
-                if (improved - minImproved < -0.001) {
+                if (improved - minImproved < -0.01) {
                     minImproved = improved;
                     i = u;
                     j = v;
@@ -165,7 +165,7 @@ bool LSSolver::applyOrOpt(E2Route &e2Route, int seqLength) {
 
     } while (delta < 0); // While there is improvement
 
-    return (e2Route.cost - oldCost < -0.001);
+    return (e2Route.cost - oldCost < -0.01);
 }
 
 bool LSSolver::doChangeSatellite(Solution &solution) {
@@ -178,6 +178,8 @@ bool LSSolver::doChangeSatellite(Solution &solution) {
         int position = -1;
         int satellite = -1;
         for (int i = 0; i < this->problem->getSatellites().size(); ++i) {
+            // Si le satellite ne peux plus avoir de tournées
+            if (solution.satelliteAssignedRoutes[i] >= problem->getMaxCf()) continue;
 
             for (int j = 0; j < e2Route.tour.size(); ++j) {
                 if (j == 0)
@@ -204,7 +206,7 @@ bool LSSolver::doChangeSatellite(Solution &solution) {
                               - this->problem->getDistance(problem->getSatellite(e2Route.departureSatellite),
                                                            problem->getClient(e2Route.tour.back()));
 
-                if (tmpCost - minCost < -0.001) {
+                if (tmpCost - minCost < -0.01) {
                     minCost = tmpCost;
                     position = j;
                     satellite = i;
@@ -214,7 +216,8 @@ bool LSSolver::doChangeSatellite(Solution &solution) {
         e2Route.cost += minCost;
         solution.getSatelliteDemands()[e2Route.departureSatellite] -= e2Route.load;
         solution.getSatelliteDemands()[satellite] += e2Route.load;
-
+        solution.satelliteAssignedRoutes[e2Route.departureSatellite]--;
+        solution.satelliteAssignedRoutes[satellite]++;
         e2Route.departureSatellite = satellite;
         std::rotate(e2Route.tour.begin(), e2Route.tour.begin() + position, e2Route.tour.end());
         // Insérer la tournée actuelle dans la solution
@@ -230,7 +233,7 @@ bool LSSolver::doChangeSatellite(Solution &solution) {
         }
         solution.setTotalCost(solution.getTotalCost() + e2Route.cost);
     }
-    return solution.getTotalCost() - oldCost < -0.001;
+    return solution.getTotalCost() - oldCost < -0.01;
 }
 
 
@@ -299,7 +302,7 @@ bool LSSolver::applyRelocate(Solution &solution) {
                         dInsertion = (this->problem->getDistance(u, client) + this->problem->getDistance(client, v)) -
                                      this->problem->getDistance(u, v);
 
-                        if ((dRemoval + dInsertion) - (minRemoval + minInsertion) < -0.001) {
+                        if ((dRemoval + dInsertion) - (minRemoval + minInsertion) < -0.01) {
 
                             // Keep the best possible improvement for client c
                             minRemoval = dRemoval;
@@ -314,7 +317,7 @@ bool LSSolver::applyRelocate(Solution &solution) {
                 }
                 // End For
                 // Take the change if there is improvement
-                if (minRemoval + minInsertion < -0.001) {
+                if (minRemoval + minInsertion < -0.01) {
                     improvement = true;
                     // Remove from route r
                     solution.getE2Routes()[r].cost += minRemoval;
@@ -346,7 +349,7 @@ bool LSSolver::applyRelocate(Solution &solution) {
         // End For
     } while (improvement);
     // Until there is no improvement
-    return solution.getTotalCost() - oldCost < -0.001;
+    return solution.getTotalCost() - oldCost < -0.01;
 }
 
 // Todo make first improvement
@@ -438,7 +441,7 @@ bool LSSolver::applySwap(Solution &solution) {
                 }
                 // End For
                 // If there is a possible swap then swap the two customers
-                if (minXRemoval + minXInsertion + minYRemoval + minYInsertion < -0.001) {
+                if (minXRemoval + minXInsertion + minYRemoval + minYInsertion < -0.01) {
                     improvement = true;
                     // Insert x into t
                     Client yClient = this->problem->getClient(solution.getE2Routes()[insertRoute].tour[insertPosition]);
@@ -471,7 +474,7 @@ bool LSSolver::applySwap(Solution &solution) {
     } while (improvement);
     // While there is improvement
     swaped.clear();
-    return (solution.getTotalCost() - oldCost) < -0.001;
+    return (solution.getTotalCost() - oldCost) < -0.01;
 }
 /* For now does First Improvement */
 // Todo Optimize code
@@ -524,7 +527,7 @@ bool LSSolver::apply2optStar(Solution &solution) {
                             (r1.load - load1 + r2.load - load2 <= problem->getE2Capacity())) {
                             delta1 = problem->getDistance(p, q) + problem->getDistance(p_1, q_1) -
                                      (problem->getDistance(p, p_1) + problem->getDistance(q, q_1));
-                            if (delta1 < -0.001) {
+                            if (delta1 < -0.01) {
                                 improvement = true;
                                 choice = 1;
                             }
@@ -535,7 +538,7 @@ bool LSSolver::apply2optStar(Solution &solution) {
                             (load2 + r1.load - load1 <= problem->getE2Capacity())) {
                             delta2 = problem->getDistance(p, q_1) + problem->getDistance(p_1, q) -
                                      (problem->getDistance(p, p_1) + problem->getDistance(q, q_1));
-                            if (delta2 < -0.001 && delta2 < delta1) {
+                            if (delta2 < -0.01 && delta2 < delta1) {
                                 improvement = true;
                                 choice = 2;
                             }
@@ -593,5 +596,5 @@ bool LSSolver::apply2optStar(Solution &solution) {
         }
     } while (improvement); // While there is improvement
 
-    return costChange < -0.001;
+    return costChange < -0.01;
 }
