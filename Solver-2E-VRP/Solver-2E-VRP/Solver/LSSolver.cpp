@@ -10,11 +10,9 @@
 // Todo make first improvement
 // For now : does best improvement
 bool LSSolver::apply2OptOnTour(E2Route &e2Route) {
-    //cout << "number of calls : " << calls++ << endl;
     if (e2Route.tour.size() <= 2) return false;
 
     double improved, minImproved;
-    double oldCost = e2Route.cost;
     int u, v, i, j;
     double dxu, dvy, dxv, duy;
     bool res = false;
@@ -23,6 +21,7 @@ bool LSSolver::apply2OptOnTour(E2Route &e2Route) {
         minImproved = 0;
         i = j = 0;
 
+        // We try removing arcs (x,u) and (v,y) and replace them by (x,v) and (u,y)
         for (u = 0; u < e2Route.tour.size(); u++) { // inner loop
             if (u == 0)
                 dxu = this->problem->getDistance(this->problem->getSatellite(e2Route.departureSatellite),
@@ -46,12 +45,18 @@ bool LSSolver::apply2OptOnTour(E2Route &e2Route) {
                     dxv = this->problem->getDistance(this->problem->getClient(e2Route.tour[u - 1]),
                                                      this->problem->getClient(e2Route.tour[v]));
 
+                // If customers x and v can't be connected // Todo
+                if (dxv == Config::DOUBLE_INFINITY) continue;
+
                 if (v == e2Route.tour.size() - 1)
                     duy = this->problem->getDistance(this->problem->getClient(e2Route.tour[u]),
                                                      this->problem->getSatellite(e2Route.departureSatellite));
                 else
                     duy = this->problem->getDistance(this->problem->getClient(e2Route.tour[u]),
                                                      this->problem->getClient(e2Route.tour[v + 1]));
+
+                // If customers u and y can't be connected / Todo
+                if (duy == Config::DOUBLE_INFINITY) continue;
 
                 improved = dxv + duy - (dxu + dvy);
 
@@ -115,6 +120,9 @@ bool LSSolver::applyOrOpt(E2Route &e2Route, int seqLength) {
             else
                 q = this->problem->getClient(e2Route.tour[v + 1]);
 
+            // If removing the sequence creates a prohibited arc Todo
+            if (this->problem->getDistance(p, q) == Config::DOUBLE_INFINITY) continue;
+            // else
             dRemoval = this->problem->getDistance(p, q) -
                        (this->problem->getDistance(p, i) + this->problem->getDistance(j, q));
 
@@ -138,7 +146,11 @@ bool LSSolver::applyOrOpt(E2Route &e2Route, int seqLength) {
                     k_1 = this->problem->getClient(tmpTour[w - 1]);
                     k = this->problem->getClient(tmpTour[w]);
                 }
-
+                // If inserting the sequence creates  prohibited arcs Todo
+                if (this->problem->getDistance(k_1, i) == Config::DOUBLE_INFINITY
+                    || this->problem->getDistance(j, k) == Config::DOUBLE_INFINITY)
+                    continue;
+                // else
                 dInsertion = this->problem->getDistance(k_1, i) + this->problem->getDistance(j, k) -
                              this->problem->getDistance(k_1, k);
 
@@ -180,8 +192,8 @@ bool LSSolver::doChangeSatellite(Solution &solution) {
         for (int i = 0; i < this->problem->getSatellites().size(); ++i) {
             // Si le satellite ne peux plus avoir de tournées
             if (solution.satelliteAssignedRoutes[i] >= problem->getMaxCf()) continue;
-
-            for (int j = 0; j < e2Route.tour.size(); ++j) {
+            bool stop = false;
+            for (int j = 0; j < e2Route.tour.size() && !stop; ++j) {
                 if (j == 0)
                     tmpCost = this->problem->getDistance(problem->getSatellite(i),
                                                          problem->getClient(e2Route.tour[0]))
@@ -192,7 +204,14 @@ bool LSSolver::doChangeSatellite(Solution &solution) {
                               - this->problem->getDistance(problem->getSatellite(e2Route.departureSatellite),
                                                            problem->getClient(e2Route.tour.back()));
 
-                else
+                else {
+                    // If we can't connect the first and last customers of the route Todo
+                    if (this->problem->getDistance(problem->getClient(e2Route.tour[0]),
+                                                   problem->getClient(e2Route.tour.back())) ==
+                        Config::DOUBLE_INFINITY) {
+                        stop = true;
+                        continue;
+                    }
                     tmpCost = this->problem->getDistance(problem->getSatellite(i),
                                                          problem->getClient(e2Route.tour[j - 1]))
                               + this->problem->getDistance(problem->getSatellite(i),
@@ -205,6 +224,8 @@ bool LSSolver::doChangeSatellite(Solution &solution) {
                                                            problem->getClient(e2Route.tour[0]))
                               - this->problem->getDistance(problem->getSatellite(e2Route.departureSatellite),
                                                            problem->getClient(e2Route.tour.back()));
+                }
+
 
                 if (tmpCost - minCost < -0.01) {
                     minCost = tmpCost;
@@ -235,7 +256,6 @@ bool LSSolver::doChangeSatellite(Solution &solution) {
     }
     return solution.getTotalCost() - oldCost < -0.01;
 }
-
 
 // Todo make first improvement
 // For now : does best improvement
@@ -273,6 +293,9 @@ bool LSSolver::applyRelocate(Solution &solution) {
                 else
                     q = this->problem->getClient(solution.getE2Routes()[r].tour[c + 1]);
 
+                // If the nodes p and q can not be connected Todo
+                if (this->problem->getDistance(p, q) == Config::DOUBLE_INFINITY) continue;
+                // Else
                 dRemoval = this->problem->getDistance(p, q) -
                            (this->problem->getDistance(p, client) + this->problem->getDistance(client, q));
 
@@ -299,6 +322,10 @@ bool LSSolver::applyRelocate(Solution &solution) {
                         else
                             v = this->problem->getClient(solution.getE2Routes()[t].tour[i]);
 
+                        // If the insertion is impossible Todo
+                        if (this->problem->getDistance(u, client) == Config::DOUBLE_INFINITY
+                            || this->problem->getDistance(client, v) == Config::DOUBLE_INFINITY)
+                            continue;
                         dInsertion = (this->problem->getDistance(u, client) + this->problem->getDistance(client, v)) -
                                      this->problem->getDistance(u, v);
 
@@ -409,6 +436,8 @@ bool LSSolver::applySwap(Solution &solution) {
 
                         // Compute the cost for inserting y in x's location  : yInsertion
                         yInsertion = this->problem->getDistance(p, yClient) + this->problem->getDistance(yClient, q);
+                        // if the insertion is impossible Todo
+                        if (yInsertion >= Config::DOUBLE_INFINITY) continue;
                         // Compute the cost for inserting x in y's location : xInsertion
                         Node u;
                         if (y == 0)
@@ -423,6 +452,8 @@ bool LSSolver::applySwap(Solution &solution) {
                             v = this->problem->getClient(solution.getE2Routes()[t].tour[y + 1]);
 
                         xInsertion = (this->problem->getDistance(u, xClient) + this->problem->getDistance(xClient, v));
+                        // If the insertion is impossible
+                        if (xInsertion >= Config::DOUBLE_INFINITY) continue;
                         // Compute the cost for removing y from t : yRemoval
                         yRemoval = -(this->problem->getDistance(u, yClient) + this->problem->getDistance(yClient, v));
                         // if there is improvement i.e. : xRemoval + xInsertion + yRemoval + yInsertion then
@@ -476,6 +507,7 @@ bool LSSolver::applySwap(Solution &solution) {
     swaped.clear();
     return (solution.getTotalCost() - oldCost) < -0.01;
 }
+
 /* For now does First Improvement */
 // Todo Optimize code
 bool LSSolver::apply2optStar(Solution &solution) {
@@ -486,7 +518,6 @@ bool LSSolver::apply2optStar(Solution &solution) {
     int load1, load2;
     double cost1, cost2;
     short choice;
-    double oldCost = solution.getTotalCost();
     double costChange = 0;
     bool improvement;
 
@@ -514,7 +545,6 @@ bool LSSolver::apply2optStar(Solution &solution) {
 
                     for (int j = 0; j < r2.tour.size() - 1 && !improvement; ++j) {
                         Client q = problem->getClient(r2.tour[j]);
-                        int j1 = j + 1;
                         Client q_1 = problem->getClient(r2.tour[j + 1]);
                         load2 += q.getDemand();
                         if (j == 0) cost2 = problem->getDistance(q, problem->getSatellite(r2.departureSatellite));
@@ -525,6 +555,7 @@ bool LSSolver::apply2optStar(Solution &solution) {
                         // try the first change : (p,q) , (p+1,q+1)
                         if ((load1 + load2 <= problem->getE2Capacity()) &&
                             (r1.load - load1 + r2.load - load2 <= problem->getE2Capacity())) {
+                            // Todo vérifier la granularité
                             delta1 = problem->getDistance(p, q) + problem->getDistance(p_1, q_1) -
                                      (problem->getDistance(p, p_1) + problem->getDistance(q, q_1));
                             if (delta1 < -0.01) {
@@ -536,6 +567,7 @@ bool LSSolver::apply2optStar(Solution &solution) {
                         // try the first change : (p,q+1) , (p+1,q)
                         if ((load1 + r2.load - load2 <= problem->getE2Capacity()) &&
                             (load2 + r1.load - load1 <= problem->getE2Capacity())) {
+                            // Todo vérifier la granularité
                             delta2 = problem->getDistance(p, q_1) + problem->getDistance(p_1, q) -
                                      (problem->getDistance(p, p_1) + problem->getDistance(q, q_1));
                             if (delta2 < -0.01 && delta2 < delta1) {

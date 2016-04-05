@@ -168,9 +168,10 @@ void testIDCH(const int &exec) {
             IDCH solver(&problem);
             Solution sol(&problem);
             solver.heuristicIDCH(sol);
-            sol.recomputeCost();
             pclock.end();
 
+            cout << "tmp cost = " << sol.getTotalCost() << endl;
+            sol.recomputeCost();
             cout << "\tscore = " << sol.getTotalCost() << endl;
             cout << "\tresolution time = " << pclock.getCpuTime() << endl;
             score.push_back(sol.getTotalCost());
