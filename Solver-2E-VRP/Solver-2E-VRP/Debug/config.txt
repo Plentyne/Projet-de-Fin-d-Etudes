@@ -3,7 +3,7 @@ outputdir;./Output
 resumefile;resume.csv
 idchsize;5
 stopcondition;40
-numberexec;5
+numberexec;10
 evalmethod;interval
 idchprofitweight;1
 maxshift;0

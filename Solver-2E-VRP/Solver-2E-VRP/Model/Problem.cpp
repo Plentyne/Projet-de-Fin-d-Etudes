@@ -133,7 +133,7 @@ const Depot Problem::getDepot() const {
 }
 
 // Problem Data
-int Problem::getDimension() {
+int Problem::getDimension() const {
     return this->clients.size() + this->satellites.size() + 1;
 }
 
@@ -438,6 +438,23 @@ short Problem::isValidSolution(const Solution &s) const {
             cout << "Charge plus grande que la capacité du véhicule" << endl;
             return E1CAP_VIOLATION;
         } // Charge plus grande que la capacité du véhicule
+    }
+
+    // Vérifier que les satellites sont bien servis
+    vector<int> demands(this->satellites.size(), 0);
+    vector<int> delivered(this->satellites.size(), 0);
+    for (int j = 0; j < s.getE2Routes().size(); ++j) {
+        demands[s.getE2Routes()[j].departureSatellite] += s.getE2Routes()[j].load;
+    }
+
+    for (int j = 0; j < s.getE1Routes().size(); ++j) {
+        for (int k = 0; k < s.getE1Routes()[j].satelliteGoods.size(); ++k) {
+            delivered[s.getE1Routes()[j].tour[k]] += s.getE1Routes()[j].satelliteGoods[k];
+        }
+    }
+
+    for (int l = 0; l < demands.size(); ++l) {
+        if (demands[l] != delivered[l]) return UNSERVED_SATELLITE_VIOLATION;
     }
 
     return VALID_SOLUTION;

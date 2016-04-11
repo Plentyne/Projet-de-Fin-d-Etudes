@@ -64,7 +64,7 @@ public:
 
 
     // Problem Data
-    /** get problem dimension */ int getDimension();
+    /** get problem dimension */ int getDimension() const;
     /** set number of vehicles of 1st Echelon*/ void setK1(const int &value);
     /** set number of vehicles of 2nd Echelon*/ void setK2(const int &value);
     /** get number of vehicles of 1st Echelon*/ int getK1() const;

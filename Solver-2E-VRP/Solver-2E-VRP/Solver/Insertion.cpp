@@ -38,8 +38,15 @@ double Insertion::distanceCost(Solution &solution, int client, int route, int po
         p = problem->getClient(solution.getE2Routes()[route].tour[position - 1]);
         q = problem->getClient(solution.getE2Routes()[route].tour[position]);
     }
-    if (problem->getDistance(p, c) == Config::DOUBLE_INFINITY || problem->getDistance(c, q) == Config::DOUBLE_INFINITY)
+    // If arcs were removed because of the granularity threshold
+    if (solution.Mask(p, c) == Solution::PROHIBITED
+        || solution.Mask(c, q) == Solution::PROHIBITED)
         return Config::DOUBLE_INFINITY;
+        // If one arc at least doesn't exist
+    else if (problem->getDistance(p, c) == Config::DOUBLE_INFINITY ||
+             problem->getDistance(c, q) == Config::DOUBLE_INFINITY)
+        return Config::DOUBLE_INFINITY;
+        // Else
     else return problem->getDistance(p, c) + problem->getDistance(c, q) - problem->getDistance(p, q);
 }
 
@@ -60,8 +67,15 @@ double Insertion::biasedDistanceCost(Solution &solution, int client, int route, 
         q = problem->getClient(solution.getE2Routes()[route].tour[position]);
     }
 
-    if (problem->getDistance(p, c) == Config::DOUBLE_INFINITY || problem->getDistance(c, q) == Config::DOUBLE_INFINITY)
+    // If arcs were removed because of the granularity threshold
+    if (solution.Mask(p, c) == Solution::PROHIBITED
+        || solution.Mask(c, q) == Solution::PROHIBITED)
         return Config::DOUBLE_INFINITY;
+        // If one arc at least doesn't exist
+    else if (problem->getDistance(p, c) == Config::DOUBLE_INFINITY ||
+             problem->getDistance(c, q) == Config::DOUBLE_INFINITY)
+        return Config::DOUBLE_INFINITY;
+        // Else
     else return (problem->getDistance(p, c) + problem->getDistance(c, q) - problem->getDistance(p, q)) * noise;
 }
 

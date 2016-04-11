@@ -13,7 +13,9 @@
  *                IDCH HEURISTICS
  *  
  ****************************************************/
-void IDCH::heuristicIDCH(Solution &bestSolution) {
+/* Version Classique de l'IDCH
+ */
+/* void IDCH::heuristicIDCH(Solution &bestSolution) {
     int n = this->problem->getClients().size(),
             iter = 0,
             itermax = n * n;
@@ -40,6 +42,9 @@ void IDCH::heuristicIDCH(Solution &bestSolution) {
         // Réparation de la solution
         this->doRepair(solution);
 
+        // Recherche locale
+        this->doLocalSearch(solution);
+
         if (solution.getTotalCost() - bestSolution.getTotalCost() < -0.01) {
             bestSolution = solution;
             iter = 0;
@@ -47,6 +52,122 @@ void IDCH::heuristicIDCH(Solution &bestSolution) {
     }
 
 }
+*/
+
+/* Version utilisant BestSolution à chaque fois
+ * */
+void IDCH::heuristicIDCH(Solution &bestSolution) {
+    int n = this->problem->getClients().size(),
+            iter = 0,
+            itermax = n * n;
+
+    if (bestSolution.getTotalCost() == 0) {
+        this->doGreedyInsertion(bestSolution);
+    }
+
+    Solution solution = bestSolution;
+
+    while (iter < itermax) {
+
+        solution = bestSolution;
+
+        // Large destruction step
+        if ((iter + 1) % n == 0) {
+            this->doDestroyLarge(solution);
+        }
+            // Small destruction step
+        else {
+            doDestroySmall(solution);
+        }
+
+        Solution dest(solution);
+
+        // Perturbation de la solution
+        this->apply2OptOnEachTour(solution);
+
+        // Réparation de la solution
+        this->doRepair(solution);
+
+        Solution rep(solution);
+
+        // Recherche locale
+        this->doLocalSearch(solution);
+
+        Solution ls(solution);
+
+
+        if (solution.getTotalCost() - bestSolution.getTotalCost() < -0.01) {
+            /*if(solution.getTotalCost()<778){
+                cout << "iteration = " << llll << endl;
+                cout << "debut boucle " << endl;
+                bestSolution.print();
+                cout << endl << "apres destroy" << endl;
+                dest.print();
+                cout << endl << "apres repair" << endl;
+                rep.print();
+                cout << endl << "apres LS" << endl;
+                ls.print();
+                int x;
+                cin >> x;
+            }*/
+            bestSolution = solution;
+            iter = 0;
+        } else iter++;
+
+    }
+
+}
+
+/* Version commençant par une destruction petite puis agrandi*/
+/* void IDCH::heuristicIDCH(Solution &bestSolution) {
+    int n = this->problem->getClients().size(),
+            iter = 0,
+            itermax = n * n;
+
+    if (bestSolution.getTotalCost() == 0) {
+        this->doGreedyInsertion(bestSolution);
+    }
+
+    Solution solution = bestSolution;
+
+    double beta = 0.1;
+
+    while (iter < itermax) {
+
+        solution = bestSolution;
+        // Large destruction step
+        if ((iter + 1) % n == 0) {
+            this->doDestroyLarge(solution);
+        }
+            // Small destruction step
+        else {
+            this->doRandomRemoval(solution, Config::p1 * beta);
+            this->doWorstRemoval(solution, Config::p2 * beta);
+            this->doRelatedRemoval(solution, Config::p3 * beta);
+            this->doRouteRemoval(solution, Config::p4 * beta);
+        }
+
+        // Perturbation de la solution
+        this->apply2OptOnEachTour(solution);
+
+        // Réparation de la solution
+        this->doRepair(solution);
+
+        // Recherche locale
+        this->doLocalSearch(solution);
+
+        if (solution.getTotalCost() - bestSolution.getTotalCost() < -0.01) {
+            bestSolution = solution;
+            beta = 0.1;
+            iter = 0;
+        } else {
+            iter++;
+            if (beta < 1) beta += beta+0.05;
+        }
+    }
+
+}*/
+
 
 void IDCH::heuristicFastIDCH(Solution &bestSolution) {
     int n = this->problem->getClients().size(),
@@ -524,8 +645,8 @@ void IDCH::doDestroyLarge(Solution &solution) {
     this->doRandomRemoval(solution, Config::p1);
     this->doWorstRemoval(solution, Config::p2);
     this->doRelatedRemoval(solution, Config::p3);
-    this->doRemoveSingleNodeRoutes(solution);
     this->doRouteRemoval(solution, Config::p4);
+    this->doRemoveSingleNodeRoutes(solution);
 
     //this->doSatelliteRemoval(solution, 0);
     //this->doSatelliteOpening(solution, 0.1);
@@ -649,9 +770,9 @@ bool IDCH::doLocalSearch(Solution &solution) {
     bool improvement = false;
 
     int i, selected,
-            nneighbor = 5,
-            nusage[] = {0, 0, 0, 0, 0},
-            nusagemax[] = {1, 1, 1, 1, 1};
+            nneighbor = 4,
+            nusage[] = {0, 0, 0, 0},
+            nusagemax[] = {1, 1, 1, 1};
     bool stop = false;
 
     while (!stop) {
@@ -684,6 +805,7 @@ bool IDCH::doLocalSearch(Solution &solution) {
                     nusage[selected]++;
                 }
                 break;
+
             case 3:
                 if (lsSolver.applySwap(solution)) {
                     for (i = 0; i < nneighbor; i++) nusage[i] = 0;
@@ -692,14 +814,7 @@ bool IDCH::doLocalSearch(Solution &solution) {
                     nusage[selected]++;
                 }
                 break;
-            case 4:
-                if (lsSolver.doChangeSatellite(solution)) {
-                    for (i = 0; i < nneighbor; i++) nusage[i] = 0;
-                    improvement = true;
-                } else {
-                    nusage[selected]++;
-                }
-                break;
+
             default:
                 break;
         }

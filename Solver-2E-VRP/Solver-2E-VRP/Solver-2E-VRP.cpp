@@ -30,8 +30,29 @@ void testFastIDCH(const int &exec);
 
 void testGreedyInsertion(const int &exec);
 
-int main()
+int main(int argc, const char *argv[])
 {
+    if (argc < 3) {
+        cout << "Messing arguments !!" << endl;
+        cout << "Command form :  " << argv[0] << " CONFIG_FILE -f INSTANCES_FILE" << endl;
+        cout << "             or " << argv[0] << " CONFIG_FILE -i INSTANCE_FILE" << endl;
+    }
+    else {
+        Config::read(string(argv[1]));// Parameters
+        string option(argv[2]);
+        if (option == "-f") {
+            Config::readInstances(string(argv[3])); // instance set to read
+        }
+        else if (option == "-i") {
+            Config::readSingleInstance(argv[3]);
+        }
+        else {
+            cout << "Wrong argument" << endl;
+            return 1;
+        }
+
+        testIDCH(5);
+    }
     /*********
      *  Fonctions de Test
      * Config::read("config.txt");// Parameters
@@ -41,79 +62,10 @@ int main()
      */
     //Config::test();
 
-    Config::read("config.txt");// Parameters
-    Config::readInstances("./Input/instances.txt"); // instance set to read
-    testIDCH(5);
-    //testGreedyInsertion(3);
+    //Config::read("config.txt");// Parameters
+    //Config::readInstances("./Input/instances.txt"); // instance set to read
+    //testIDCH(5);
 
-    //Utility::initializeRandomGenerators();
-    //Problem p;
-    //p.readBreunigFile("./Input/Data/Set2b_E-n51-k5-s32-37.dat");
-    //p.readBreunigFile("../Input/Data/Test2.dat");
-    //p.readBreunigFile("./Input/Data/Set4a_Instance50-20.dat");
-    //p.readBreunigFile("../Input/Data/Set5_100-5-1.dat");
-    //p.readBreunigFile("../Input/Data/Set5_200-10-1.dat");
-    //p.readBreunigFile("./Input/Data/Set5_200-10-3.dat");
-
-    //Solution s(&p);
-    //cout << "s = " << s.getProblem()->getClients().size() << endl;
-    //buildTestSolution(s, &p);
-    //s.saveHumanReadable("Test.sol", "Solution Test2.dat", false);
-    //Heuristic::simpleHeuristic(p, s);
-    //Insertion insert(&p);
-    //insert.GreedyInsertionHeuristic(s);
-    //insert.GreedyInsertionNoiseHeuristic(s);
-    //MoleJamesonHeuristic solver(&p, 1, 1);
-    //solver.solve(s);
-
-    //IDCH idchSolver(&p);
-    //idchSolver.heuristicIDCH(s);
-    //idchSolver.heuristicFastIDCH(s);
-    //s.print();
-    /*Sequence seq(s);
-    //while(Sequence::applySingleShiftMove(seq));
-    Sequence::apply2Opt(seq);
-    seq.extractSolution(s);
-    s.print();
-    for (int i = 0; i < s.getE2Routes().size() ; ++i) {
-        E2Route e2route = s.getE2Routes()[i];
-        e2route.cost =p.getDistance(p.getSatellite(e2route.departureSatellite),
-                                                 p.getClient(e2route.tour[0]))
-                       +p.getDistance(p.getSatellite(e2route.departureSatellite),
-                                                   p.getClient(
-                                                            e2route.tour[e2route.tour.size() - 1]));
-        for (int k = 0; k < e2route.tour.size() - 1; ++k) {
-            e2route.cost += p.getDistance(p.getClient(e2route.tour[k]),
-                                                       p.getClient(e2route.tour[k + 1]));
-        }
-        cout << "Route " << i << " cost : " << e2route.cost <<endl;
-    }*/
-    //cout << "Validity : " << p.isValidSolution(s) << endl;
-    //s.saveHumanReadable("Test.sol","Solution Set5_100-5_1 avec 2opt",false);
-    //char x ;
-    //cin >> x;
-    /*vector<int> u{1,2,3,4,5,6,7,8,9,10,11,12};
-    vector<int> v{7,8,9,10,11,12};
-    int p = 2;
-    int q = 3;
-    vector<int> u1(u.begin(),u.begin()+p+1);
-    u1.insert(u1.end(),v.begin()+q+1,v.end());
-
-     vector<int> v1(v.begin(),v.begin() + q + 1);
-     v1.insert(v1.end(),u.begin()+p+1,u.end());
-
-    std::rotate(u.begin(),u.begin()+1,u.begin()+5);
-
-     cout << "v1 : ";
-     for(int i = 0; i< v1.size() ; i++) cout << v1[i] << " ";
-     cout << endl;
-     cout << "u1 : ";
-     for(int i = 0; i< u1.size() ; i++) cout << u1[i] << " ";
-     cout << endl;
-     v1.insert(v1.begin()+3, u1.begin(),u1.end());
-     cout << "insertion v1 : ";
-     for(int i = 0; i< v1.size() ; i++) cout << v1[i] << " ";
-     cout << endl;*/
 
     return 0;
 }
@@ -153,13 +105,6 @@ void testIDCH(const int &exec) {
         vector<double> cpu;
         Statistic::reset();
 
-        /*if (Config::_usingBound) {
-            if(iteri->_exist_UB) problem.setUB(iteri->_UB);
-            if(iteri->_exist_SOL) problem.setSOL(iteri->_SOL);
-        }*/
-
-        /*vector<unsigned int> rseed;
-        generateRandomSeed(rseed, Config::_numExec);*/
         for (unsigned int i = 0; i < Config::_numExec; i++) {
             cout << "execution = " << i << endl;
             //srand(rseed[i]);
@@ -170,8 +115,7 @@ void testIDCH(const int &exec) {
             solver.heuristicIDCH(sol);
             pclock.end();
 
-            cout << "tmp cost = " << sol.getTotalCost() << endl;
-            sol.recomputeCost();
+            //sol.recomputeCost();
             cout << "\tscore = " << sol.getTotalCost() << endl;
             cout << "\tresolution time = " << pclock.getCpuTime() << endl;
             score.push_back(sol.getTotalCost());

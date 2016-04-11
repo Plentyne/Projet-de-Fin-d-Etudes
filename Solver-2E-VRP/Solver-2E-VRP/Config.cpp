@@ -144,6 +144,16 @@ void Config::readInstances(const string &fn) {
 
 }
 
+void Config::readSingleInstance(const string &s) {
+    if (s.compare("") != 0) {
+        Instance tmp;
+
+        tmp._fileName = s;
+
+        Config::_fileList.push_back(tmp);
+    }
+}
+
 void Config::read(const string &fn) {
     ifstream fh;
     string line, value;

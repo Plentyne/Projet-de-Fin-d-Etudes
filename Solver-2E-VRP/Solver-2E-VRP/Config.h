@@ -119,6 +119,8 @@ public:
 
     static void readInstances(const string &fn);
 
+    static void readSingleInstance(const string &s);
+
     static void read(const string &fn);
 
     // TEST & DEBUG

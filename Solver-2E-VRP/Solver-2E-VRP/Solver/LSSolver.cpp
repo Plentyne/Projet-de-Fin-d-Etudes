@@ -190,6 +190,7 @@ bool LSSolver::doChangeSatellite(Solution &solution) {
         int position = -1;
         int satellite = -1;
         for (int i = 0; i < this->problem->getSatellites().size(); ++i) {
+            if (solution.satelliteState[i] == Solution::CLOSED) continue;
             // Si le satellite ne peux plus avoir de tournées
             if (solution.satelliteAssignedRoutes[i] >= problem->getMaxCf()) continue;
             bool stop = false;
@@ -234,25 +235,28 @@ bool LSSolver::doChangeSatellite(Solution &solution) {
                 }
             }
         }
-        e2Route.cost += minCost;
-        solution.getSatelliteDemands()[e2Route.departureSatellite] -= e2Route.load;
-        solution.getSatelliteDemands()[satellite] += e2Route.load;
-        solution.satelliteAssignedRoutes[e2Route.departureSatellite]--;
-        solution.satelliteAssignedRoutes[satellite]++;
-        e2Route.departureSatellite = satellite;
-        std::rotate(e2Route.tour.begin(), e2Route.tour.begin() + position, e2Route.tour.end());
-        // Insérer la tournée actuelle dans la solution
-        // Calculer le nouveau côut de la route
-        e2Route.cost = this->problem->getDistance(this->problem->getSatellite(e2Route.departureSatellite),
-                                                  this->problem->getClient(e2Route.tour[0]))
-                       + this->problem->getDistance(this->problem->getSatellite(e2Route.departureSatellite),
-                                                    this->problem->getClient(
-                                                            e2Route.tour[e2Route.tour.size() - 1]));;
-        for (int k = 0; k < e2Route.tour.size() - 1; ++k) {
-            e2Route.cost += this->problem->getDistance(this->problem->getClient(e2Route.tour[k]),
-                                                       this->problem->getClient(e2Route.tour[k + 1]));
+        if (satellite >= 0) {
+            e2Route.cost += minCost;
+            solution.getSatelliteDemands()[e2Route.departureSatellite] -= e2Route.load;
+            solution.getSatelliteDemands()[satellite] += e2Route.load;
+            solution.satelliteAssignedRoutes[e2Route.departureSatellite]--;
+            solution.satelliteAssignedRoutes[satellite]++;
+            e2Route.departureSatellite = satellite;
+            std::rotate(e2Route.tour.begin(), e2Route.tour.begin() + position, e2Route.tour.end());
+            // Insérer la tournée actuelle dans la solution
+            // Calculer le nouveau côut de la route
+            e2Route.cost = this->problem->getDistance(this->problem->getSatellite(e2Route.departureSatellite),
+                                                      this->problem->getClient(e2Route.tour[0]))
+                           + this->problem->getDistance(this->problem->getSatellite(e2Route.departureSatellite),
+                                                        this->problem->getClient(
+                                                                e2Route.tour[e2Route.tour.size() - 1]));;
+            for (int k = 0; k < e2Route.tour.size() - 1; ++k) {
+                e2Route.cost += this->problem->getDistance(this->problem->getClient(e2Route.tour[k]),
+                                                           this->problem->getClient(e2Route.tour[k + 1]));
+            }
+            solution.setTotalCost(solution.getTotalCost() + e2Route.cost);
         }
-        solution.setTotalCost(solution.getTotalCost() + e2Route.cost);
+
     }
     return solution.getTotalCost() - oldCost < -0.01;
 }

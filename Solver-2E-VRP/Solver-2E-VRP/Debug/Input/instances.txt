@@ -1,9 +1,1 @@
-Set6_B-n76-4.dat;null
-Set6_B-n76-5.dat;null
-Set6_B-n76-6.dat;null
-Set6_A-n76-4.dat;null
-Set6_A-n76-5.dat;null
-Set6_A-n76-6.dat;null
-Set6_C-n76-4.dat;null
-Set6_C-n76-5.dat;null
-Set6_C-n76-6.dat;null
+Set2a_E-n33-k4-s4-5.dat;null

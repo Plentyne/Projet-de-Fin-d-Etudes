@@ -25,12 +25,19 @@ bool sortingCriterion(L_Entry i, L_Entry j) {
  * Constructive Heuristic
  ******************************/
 void SDVRPSolver::constructiveHeuristic(Solution &solution) {
+
+    std::fill(solution.getSatelliteDemands().begin(), solution.getSatelliteDemands().end(), 0);
+    for (int i = 0; i < solution.getE2Routes().size(); ++i) {
+        solution.getSatelliteDemands()[solution.getE2Routes()[i].departureSatellite] += solution.getE2Routes()[i].load;
+    }
+
     // List containig the clients
     vector<L_Entry> L; //= vector<L_Entry>(solution.getProblem()->getSatellites().size());
     // List containing the demands of the customers
-    const vector<int> Q = solution.getSatelliteDemands();
+    const vector<int> Q(solution.getSatelliteDemands().begin(), solution.getSatelliteDemands().end());
     // List containing the unserved demand of each customer
-    vector<int> U = solution.getSatelliteDemands();
+    vector<int> U(solution.getSatelliteDemands().begin(), solution.getSatelliteDemands().end());
+    vector<int> tmpU(solution.getSatelliteDemands().begin(), solution.getSatelliteDemands().end());
     // List containing customer angles (used for The Route Angle Mechanism)
     vector<double> angles = vector<double>(solution.getProblem()->getSatellites().size());
 
@@ -48,10 +55,9 @@ void SDVRPSolver::constructiveHeuristic(Solution &solution) {
     double cost, minCost;
     int insertRoute, insertPos;
     Node p, q;
-    Satellite i;
     while (c < L.size()) {
         // Take the first customer i in L
-        i = problem->getSatellite(L[c].id);
+        Satellite i = problem->getSatellite(L[c].id);
         minCost = Config::DOUBLE_INFINITY;
         // Compute the cheapest insertion cost for i. Cost is obtained by adding distance cost and route angle mechanism
         for (int r = 0; r < solution.getE1Routes().size(); ++r) {
@@ -78,7 +84,10 @@ void SDVRPSolver::constructiveHeuristic(Solution &solution) {
         if (minCost < 2 * problem->getDistance(problem->getDepot(), i)) {
             E1Route &route = solution.getE1Routes()[insertRoute];
             route.cost += minCost;
-            route.tour.insert(route.tour.begin() + insertPos, i.getSatelliteId());
+            if (insertPos == route.tour.size()) {
+                route.tour.push_back(i.getSatelliteId());
+            }
+            else route.tour.insert(route.tour.begin() + insertPos, i.getSatelliteId());
             // Compute the quantity supplied to i by route r : if Sr > U[i] then Sr = Sr-U[i] and U[i]=0, else Sr = 0 and U[i]=U[i]-Sr (split occurs)
             if (U[i.getSatelliteId()] < problem->getE1Capacity() - route.load) {
                 route.load += U[i.getSatelliteId()];
@@ -92,9 +101,11 @@ void SDVRPSolver::constructiveHeuristic(Solution &solution) {
                 route.load = problem->getE1Capacity();
             }
             // Optimize route using 2-opt move
-            double dCost = apply2Opt(route);
+            // double dCost = apply2Opt(route);
+            double dCost = 0;
             // Update solution cost
             solution.setTotalCost(solution.getTotalCost() + minCost + dCost);
+
         }
             // Else, initiate a new route
         else {
@@ -117,18 +128,21 @@ void SDVRPSolver::constructiveHeuristic(Solution &solution) {
             // Update solution cost
             solution.setTotalCost(solution.getTotalCost() + route.cost);
         }
+
         // Todo enlever après
         this->applyRelocate(solution);
+
         // If U[i] is fully supplied, go to the next customer in L
         if (U[i.getSatelliteId()] == 0) c++;
     }
     // End While
     // Improve solution with local search Todo
     this->applySwap(solution);
+
     // this->applyRelocate(solution);
     // Update satellite demands
     for (int m = 0; m < solution.getSatelliteDemands().size(); ++m) {
-        solution.getDeliveredQ()[m] = Q[m] - U[m];
+        solution.getDeliveredQ()[m] = Q[m];
     }
 
 }
@@ -300,6 +314,7 @@ double SDVRPSolver::applyOrOpt(E1Route &route, int seqLength) {
 double SDVRPSolver::applyRelocate(Solution &solution) {
     vector<E1Route> &routes = solution.getE1Routes();
 
+
     bool improvement;
     int position;
     int insertRoute;
@@ -308,11 +323,11 @@ double SDVRPSolver::applyRelocate(Solution &solution) {
     double oldCost = solution.getTotalCost();
     do {
         improvement = false;
-        bestInsertion = 0;
-        bestRemoval = 0;
 
-        for (int i = 0; i < routes.size() && !improvement; ++i) {
-            for (int j = 0; j < routes[i].tour.size() && !improvement; ++j) {
+        for (int i = 0; i < routes.size() && !improvement; i++) {
+            for (int j = 0; j < routes[i].tour.size() && !improvement; j++) {
+                bestInsertion = 0;
+                bestRemoval = 0;
 
                 Satellite s = problem->getSatellite(routes[i].tour[j]);
 
@@ -341,9 +356,11 @@ double SDVRPSolver::applyRelocate(Solution &solution) {
                     else {
                         // if there's not enough free space, then ignore the route
                         if (routes[u].load + routes[i].satelliteGoods[j] > problem->getE1Capacity()) continue;
+
                         for (int v = 0; v <= routes[u].tour.size(); ++v) {
                             // If it's the same satellite
-                            if (routes[u].tour[v] == routes[i].tour[j]) {
+                            if (v < routes[u].tour.size() && routes[u].tour[v] == routes[i].tour[j]) {
+
                                 bestInsertion = 0;
                                 bestRemoval = dRemoval;
                                 position = v;
@@ -385,6 +402,7 @@ double SDVRPSolver::applyRelocate(Solution &solution) {
 
                 // Update the route
                 if (bestRemoval + bestInsertion < -0.01) {
+
                     improvement = true;
                     // If customer exists in the route, only move its goods
                     if (routes[i].tour[j] == routes[insertRoute].tour[position]) {
@@ -403,7 +421,7 @@ double SDVRPSolver::applyRelocate(Solution &solution) {
                         routes[insertRoute].satelliteGoods.insert(routes[insertRoute].satelliteGoods.begin() + position,
                                                                   routes[i].satelliteGoods[j]);
                     }
-                    // Remove customer from irs original route
+                    // Remove customer from its original route
                     if (routes[i].tour.size() == 1) {
                         solution.getE1Routes().erase(solution.getE1Routes().begin() + i);
                     }

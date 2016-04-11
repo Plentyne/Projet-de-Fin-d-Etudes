@@ -15,7 +15,6 @@ set(SOURCE_FILES
     Solver-2E-VRP/Solver-2E-VRP/Model/Satellite.cpp
     Solver-2E-VRP/Solver-2E-VRP/Model/Satellite.h
     Solver-2E-VRP/Solver-2E-VRP/Solver-2E-VRP.cpp
-        Solver-2E-VRP/Solver-2E-VRP/targetver.h
         Solver-2E-VRP/Solver-2E-VRP/Model/Solution.cpp
         Solver-2E-VRP/Solver-2E-VRP/Model/Solution.h
         Solver-2E-VRP/Solver-2E-VRP/Config.cpp

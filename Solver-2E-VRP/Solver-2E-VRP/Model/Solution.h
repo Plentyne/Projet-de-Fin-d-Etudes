@@ -46,8 +46,15 @@ private:
 
 public:
 
+    /* Satellite States*/
     static const bool OPEN;
     static const bool CLOSED;
+
+    /* Arc states*/
+    static const short PROHIBITED;
+    static const short PERMITED;
+
+    vector<vector<short>> mask;
 
     deque<int> unroutedCustomers;
     vector<bool> satelliteState; // satelliteState[i]== true means that satellite i is available, else it's closed
@@ -65,12 +72,19 @@ public:
         }
         this->satelliteState = vector<bool>(static_cast<int>(problem->getSatellites().size()), OPEN);
         openSatellites = this->satelliteState.size();
+        this->mask = vector<vector<short>>(problem->getDimension(),
+                                           vector<short>(problem->getDimension(), Solution::PERMITED));
     }
 
     void doQuickEvaluation();
 
     void recomputeCost();
 
+    void setUpMask(double granularityThreshold);
+
+    short Mask(Node c1, Node c2) {
+        return mask[c1.getNodeId()][c2.getNodeId()];
+    }
     // Operators
     Solution &operator=(const Solution &solution);
 
