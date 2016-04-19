@@ -24,6 +24,8 @@ private:
     LSSolver lsSolver;
     deque<insertEntry> insertStack{};
 
+    int maxRestart = 10;
+
     int lastCanceled;
     int cancelations;
 
@@ -45,9 +47,13 @@ public:
         lsSolver = LSSolver(this->problem);
     }
 
-    void GreedyInsertionHeuristic(Solution &solution);
+    bool GreedyInsertionHeuristic(Solution &solution);
 
     void GreedyInsertionNoiseHeuristic(Solution &solution);
+
+    bool BestInsertionHeuristic(Solution &solution);
+
+    bool solveBestInsertion(Solution &solution);
 };
 
 

@@ -82,7 +82,7 @@ public:
      * The customers of these routes are then inserted into the customers' pool. In case the closed satellite
      * was the last one open, another one is randomly chosen to be opened. This operator is to be used with
      * probability p6 every w iterations, because it hugely destroys the solution.
-     * */ void doSatelliteRemoval(Solution &solution, double p6);
+     * */ void doSatelliteRemoval(Solution &solution);
 
     /* Satellite Opening : Opens a randomly chosen satellite. The p7 closest customers to the satellite
      * are then removed from their current routes and reinserted into the customers' pool.

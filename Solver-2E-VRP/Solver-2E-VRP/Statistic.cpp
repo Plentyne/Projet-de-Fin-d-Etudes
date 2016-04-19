@@ -6,6 +6,7 @@ unsigned int Statistic::_nswap = 0;
 unsigned int Statistic::_nsswap = 0;
 unsigned int Statistic::_nldr = 0;
 unsigned int Statistic::_nsdr = 0;
+vector<double> Statistic::dmaxs;
 
 void Statistic::reset() {
     Statistic::_nshift = 0;
@@ -14,6 +15,7 @@ void Statistic::reset() {
     Statistic::_nsswap = 0;
     Statistic::_nldr = 0;
     Statistic::_nsdr = 0;
+    Statistic::dmaxs.clear();
 }
 
 void Statistic::calMaxMinAvg(const vector<unsigned int> &tab,

@@ -82,6 +82,7 @@ double Insertion::biasedDistanceCost(Solution &solution, int client, int route, 
 void Insertion::insertIntoRoute(Solution &solution, int client, int route, int position) {
     double cost = distanceCost(solution, client, route, position);
     solution.getE2Routes()[route].cost += cost;
+    //cout << "Insert Route " << endl;
     solution.getE2Routes()[route].load += problem->getClient(client).getDemand();
     solution.getE2Routes()[route].tour.insert(
             solution.getE2Routes()[route].tour.begin() + position, client);
@@ -103,6 +104,7 @@ void Insertion::insertIntoNewRoute(Solution &solution, int client, int satellite
     E2Route newRoute;
     double cost = 2 * problem->getDistance(problem->getSatellite(satellite), problem->getClient(client));
     newRoute.cost = cost;
+    //cout << "Insert New Route " << endl;
     newRoute.load = problem->getClient(client).getDemand();
     newRoute.departureSatellite = satellite;
     newRoute.tour.push_back(client);
@@ -189,7 +191,7 @@ void Insertion::cancelInsertions(Solution &solution, int client) {
     e1Solver.constructiveHeuristic(solution);*/
 }
 
-void Insertion::GreedyInsertionHeuristic(Solution &solution) {
+bool Insertion::GreedyInsertionHeuristic(Solution &solution) {
     // Si solution vide, créer nouvelle solution
     if (solution.getProblem() == nullptr) {
         solution = Solution(problem);
@@ -205,6 +207,7 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
     int insertPosition;
     int insertSatellite;
     bool feasible;
+    int restart = 0;
 
     // Sauvegarder la solution en entrée
     Solution save(solution);
@@ -284,11 +287,15 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
         else { //Si aucune insertion feasable, alors retirer des clients de la solution et rajouter c à la liste des clients non routés TODO
                 // Annuler des insertions et recommencer
             solution = save;
+            restart ++;
+            if(restart>this->maxRestart) {
+                solution.setTotalCost(Config::DOUBLE_INFINITY);
+                return false;
+            }
             //cancelInsertions(solution, tmpClient.getClientId());
         }
     }
     // FTQ
-
     // Construction des tournées du 1er échelon
     solution.getE1Routes().clear();
 
@@ -297,8 +304,7 @@ void Insertion::GreedyInsertionHeuristic(Solution &solution) {
     // Compute solution cost
     solution.doQuickEvaluation();
     //----------------------------------------
-
-
+    return true;
 }
 
 void Insertion::GreedyInsertionNoiseHeuristic(Solution &solution) {
@@ -418,4 +424,177 @@ void Insertion::GreedyInsertionNoiseHeuristic(Solution &solution) {
     }
     solution.setTotalCost(totalCost);
     //----------------------------------------
+}
+
+bool Insertion::BestInsertionHeuristic(Solution &solution) {
+    // Si solution vide, créer nouvelle solution
+    if (solution.getProblem() == nullptr) {
+        solution = Solution(problem);
+    }
+
+    // Clear insertion stack
+    this->insertStack.clear();
+
+    // Déclaration des variables de la boucle
+    double cost;
+    double minCost;
+    int insertRoute;
+    int insertPosition;
+    int insertSatellite;
+    int insertClient;
+    int idx;
+    bool feasible;
+    int restart = 0;
+
+    // Sauvegarder la solution en entrée
+    Solution save(solution);
+
+    std::random_shuffle(solution.unroutedCustomers.begin(), solution.unroutedCustomers.end());
+    // Tant qu'il y a des clients non routés Faire
+    while (solution.unroutedCustomers.size() > 0) {
+        // Initialisation des variables de boucle
+        minCost = Config::DOUBLE_INFINITY;
+        insertRoute = -1;
+        insertPosition = -1;
+        insertSatellite = -1;
+        feasible = false;
+        insertClient = -1;
+        idx = 0;
+        // Retirer un client de la file
+        /*tmpClient = problem->getClient(solution.unroutedCustomers.front());
+        solution.unroutedCustomers.pop_front();*/
+        Client tmpClient;
+
+
+        E2Route e2Route;
+        // Calculer le coût d'insertion dans une nouvelle tournée si c'est possible
+        if (solution.getE2Routes().size() < problem->getK2()) {
+            for (int i = 0; i < problem->getSatellites().size(); i++) {
+                // Si satellite fermé alors l'ignorer
+                if (solution.satelliteState[i] == Solution::CLOSED) continue;
+                // Si le satellite ne peux plus avoir de tournées
+                if (solution.satelliteAssignedRoutes[i] >= problem->getMaxCf()) continue;
+                for ( idx = 0; idx < solution.unroutedCustomers.size(); ++idx) {
+                    tmpClient = problem->getClient(solution.unroutedCustomers[idx]);
+                    // Estimer le coût d'insertion de c
+                    cost = 2 * problem->getDistance(solution.getProblem()->getSatellite(i), tmpClient);
+                    // Si il est meilleure que celui de la meilleure insertion actuelle alors le garder
+                    if (cost < minCost) {
+                        feasible = true;
+                        minCost = cost;
+                        insertSatellite = i;
+                        insertClient = idx;
+                    }
+                    // FSI
+                }
+
+            }
+        }
+
+        // Calculer le coût d'insertion dans une tournée existante
+        for (int i = 0; i < solution.getE2Routes().size(); i++) {
+                // Estimer le coût d'insertion à la position j
+                for (int j = 0; j <= solution.getE2Routes()[i].tour.size(); j++) {
+                    // Récupérer les noeuds adjacents à la position d'insertion
+                    Node p, q;
+                    if (j == 0) {
+                        p = problem->getSatellite(solution.getE2Routes()[i].departureSatellite);
+                        q = problem->getClient(solution.getE2Routes()[i].tour[0]);
+                    }
+                    else if (j == solution.getE2Routes()[i].tour.size()) {
+                        p = problem->getClient(solution.getE2Routes()[i].tour[j - 1]);
+                        q = problem->getSatellite(solution.getE2Routes()[i].departureSatellite);
+                    }
+                    else {
+                        p = problem->getClient(solution.getE2Routes()[i].tour[j - 1]);
+                        q = problem->getClient(solution.getE2Routes()[i].tour[j]);
+                    }
+                    // Pour chaque client c non routé
+                    for (idx = 0; idx < solution.unroutedCustomers.size(); ++idx) {
+                        //cout << "Tournee existante, client : " << c << endl;
+                        tmpClient = problem->getClient(solution.unroutedCustomers[idx]);
+                        // S'il n'y a pas assez d'espace pour l'insertion
+                        if (tmpClient.getDemand() <= (problem->getE2Capacity() - solution.getE2Routes()[i].load)) {
+                            e2Route = solution.getE2Routes()[i];
+                            // Calculer le coût d'insertion
+                            // If arcs were removed because of the granularity threshold
+                            if (solution.Mask(p, tmpClient) == Solution::PROHIBITED
+                                || solution.Mask(tmpClient, q) == Solution::PROHIBITED)
+                                cost = Config::DOUBLE_INFINITY;
+                                // If one arc at least doesn't exist
+                            else if (problem->getDistance(p, tmpClient) == Config::DOUBLE_INFINITY ||
+                                     problem->getDistance(tmpClient, q) == Config::DOUBLE_INFINITY)
+                                cost = Config::DOUBLE_INFINITY;
+                                // Else
+                            else cost = problem->getDistance(p, tmpClient) + problem->getDistance(tmpClient, q) - problem->getDistance(p, q);
+                            // Si il est meilleure que celui de la meilleure insertion actuelle alors le garder
+                            if (cost < minCost) {
+                                minCost = cost;
+                                insertRoute = i;
+                                insertPosition = j;
+                                feasible = true;
+                                insertClient = idx;
+                            }// FSI
+                    }
+
+                }
+            }
+
+        }// FPour
+        // Calculer le coût d'insertion dans une nouvelle tournée
+
+
+        // Si insertion faisable
+        if (feasible) {
+            // Insertion dans une tournée existante
+            if (insertSatellite == -1) {
+                insertIntoRoute(solution, solution.unroutedCustomers[insertClient], insertRoute, insertPosition);
+                solution.unroutedCustomers.erase(solution.unroutedCustomers.begin() + insertClient);
+                // Insérer la demande dans le satellite Todo
+                //e1Solver.insert(solution,solution.getE2Routes()[insertRoute].departureSatellite,tmpClient.getDemand());
+            }
+                // Insertion dans une nouvelle tournée
+            else {
+                insertIntoNewRoute(solution, solution.unroutedCustomers[insertClient], insertSatellite);
+                solution.unroutedCustomers.erase(solution.unroutedCustomers.begin() + insertClient);
+                // Insérer la demande dans le satellite Todo
+                //e1Solver.insert(solution,insertSatellite,tmpClient.getDemand());
+            }
+        }
+        else { //Si aucune insertion feasable, alors retirer des clients de la solution et rajouter c à la liste des clients non routés TODO
+            // Annuler des insertions et recommencer
+            solution = save;
+            restart++;
+            if(restart>this->maxRestart) {
+                solution.setTotalCost(Config::DOUBLE_INFINITY);
+                return false;
+            }
+            //cancelInsertions(solution, tmpClient.getClientId());
+        }
+    }
+    // FTQ
+    // Construction des tournées du 1er échelon
+    solution.getE1Routes().clear();
+
+    e1Solver.constructiveHeuristic(solution);
+
+    // Compute solution cost
+    solution.doQuickEvaluation();
+    //----------------------------------------
+    return true;
+}
+
+bool Insertion::solveBestInsertion(Solution &solution) {
+
+    Solution save = solution;
+    if(this->BestInsertionHeuristic(solution)){
+        return true;
+    }
+    else{
+        solution = save;
+        if (this->GreedyInsertionHeuristic(solution)){
+            return true;
+        }
+    }
+    return false;
 }

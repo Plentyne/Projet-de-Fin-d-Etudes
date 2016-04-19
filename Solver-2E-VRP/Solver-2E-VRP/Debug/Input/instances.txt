@@ -1,1 +1,15 @@
-Set2a_E-n33-k4-s4-5.dat;null
+Set2b_E-n51-k5-s2-4-17-46.dat;null
+Set2b_E-n51-k5-s6-12-32-37.dat;null
+Set3_E-n22-k4-s13-14.dat;null
+Set3_E-n22-k4-s13-16.dat;null
+Set3_E-n22-k4-s17-19.dat;null
+Set3_E-n51-k5-s39-41.dat;null
+Set3_E-n51-k5-s40-41.dat;null
+Set3_E-n51-k5-s40-42.dat;null
+Set3_E-n51-k5-s40-43.dat;null
+Set3_E-n51-k5-s41-42.dat;null
+Set3_E-n51-k5-s41-44.dat;null
+Set4a_Instance50-14.dat;null
+Set4a_Instance50-26.dat;null
+Set4b_Instance50-14.dat;null
+Set4b_Instance50-54.dat;null

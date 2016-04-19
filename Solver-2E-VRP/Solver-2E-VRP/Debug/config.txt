@@ -3,7 +3,7 @@ outputdir;./Output
 resumefile;resume.csv
 idchsize;5
 stopcondition;40
-numberexec;10
+numberexec;4
 evalmethod;interval
 idchprofitweight;1
 maxshift;0
@@ -14,5 +14,9 @@ maxshuffledswap;1
 maxsmalldr;0
 maxshuffledshiftOptEval;0
 maxshuffledswapOptEval;0
+p1;0.03
+p2;0.06
+p3;0.01
+p4;2
 EOF
 

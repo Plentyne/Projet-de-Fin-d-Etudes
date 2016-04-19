@@ -17,6 +17,8 @@ public:
     static unsigned int _nldr;
     static unsigned int _nsdr;
 
+    static vector<double> dmaxs;
+
     static void reset();
 
     // other functions

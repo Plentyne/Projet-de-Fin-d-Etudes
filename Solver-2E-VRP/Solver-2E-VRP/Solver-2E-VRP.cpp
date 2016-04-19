@@ -27,7 +27,7 @@ void buildTestSolution(Solution &s, Problem *p);
 
 void testIDCH(const int &exec);
 void testFastIDCH(const int &exec);
-
+void testBestInsertion(const int &exec);
 void testGreedyInsertion(const int &exec);
 
 int main(int argc, const char *argv[])
@@ -51,7 +51,9 @@ int main(int argc, const char *argv[])
             return 1;
         }
 
+        //testBestInsertion(5);
         testIDCH(5);
+        //testFastIDCH(5);
     }
     /*********
      *  Fonctions de Test
@@ -82,11 +84,14 @@ void testIDCH(const int &exec) {
     fh << endl;
 
 
-    Utility::initializeRandomGenerators();
-
     for (list<Instance>::iterator iteri = Config::_fileList.begin();
          iteri != Config::_fileList.end();
          iteri++) {
+        //-----------------
+        ofstream fd;
+        fd.open((Config::_outputDir + "/" + iteri->_fileName + "_dmax_exec.csv" ).c_str());
+        fd << "instance;" + iteri->_fileName << endl;
+        //----------
         ProcessClock pclock;
 
         fh << iteri->_fileName << ";";
@@ -108,6 +113,11 @@ void testIDCH(const int &exec) {
         for (unsigned int i = 0; i < Config::_numExec; i++) {
             cout << "execution = " << i << endl;
             //srand(rseed[i]);
+            Utility::initializeRandomGenerators();
+
+            //----------------
+            Statistic::dmaxs.clear();
+            //----------------
 
             pclock.start();
             IDCH solver(&problem);
@@ -133,7 +143,18 @@ void testIDCH(const int &exec) {
             //header<<"cpu = "<<pclock.getCpuTime()<<endl;
             sol.saveHumanReadable(Config::_outputDir + "/" + iteri->_fileName + ".sol", header.str(), false);
             cout << "Ok" << endl;
+
+            // Todo enlever
+            fd << "execution " << i << ";" ;
+            for (int j = 0; j < Statistic::dmaxs.size(); ++j) {
+                fd << Statistic::dmaxs[j] << ";";
+            }
+            fd << endl;
+
+
         }
+
+        fd.close();
 
         fh << ";";
         double maxscore, minscore;
@@ -227,6 +248,7 @@ void testFastIDCH(const int &exec) {
             //header<<"cpu = "<<pclock.getCpuTime()<<endl;
             sol.saveHumanReadable(Config::_outputDir + "/" + iteri->_fileName + ".sol", header.str(), false);
             cout << "Ok" << endl;
+
         }
 
         fh << ";";
@@ -246,11 +268,11 @@ void testFastIDCH(const int &exec) {
         fh << Statistic::_nsdr;
 
         fh << endl;
+
     }
 
     fh.close();
 }
-
 
 void testGreedyInsertion(const int &exec) {
     ofstream fh;
@@ -345,6 +367,102 @@ void testGreedyInsertion(const int &exec) {
 
     fh.close();
 }
+
+
+void testBestInsertion(const int &exec) {
+    ofstream fh;
+
+    fh.open((Config::_outputDir + "/" + Config::_resumeFile).c_str());
+
+    fh << "instance;ltime;";
+    fh << ";maxscore;minscore;avgscore;";
+    fh << ";maxcpu;mincpu;avgcpu;";
+    fh << ";nshift;nswap;nldr;nsdr";
+    fh << endl;
+
+
+    Utility::initializeRandomGenerators();
+
+    for (list<Instance>::iterator iteri = Config::_fileList.begin();
+         iteri != Config::_fileList.end();
+         iteri++) {
+        ProcessClock pclock;
+
+        fh << iteri->_fileName << ";";
+        cout << "Loading file : " << iteri->_fileName << " .. " << endl;
+        Problem problem;
+
+        pclock.start();
+        problem.readBreunigFile(Config::_inputDir + "/" + iteri->_fileName);
+        pclock.end();
+
+        cout << "Ok" << endl;
+        cout << "loading time = " << pclock.getCpuTime() << endl;
+        fh << pclock.getCpuTime() << ";";
+
+        vector<double> score;
+        vector<double> cpu;
+        Statistic::reset();
+
+        /*if (Config::_usingBound) {
+            if(iteri->_exist_UB) problem.setUB(iteri->_UB);
+            if(iteri->_exist_SOL) problem.setSOL(iteri->_SOL);
+        }*/
+
+        /*vector<unsigned int> rseed;
+        generateRandomSeed(rseed, Config::_numExec);*/
+        for (unsigned int i = 0; i < Config::_numExec; i++) {
+            cout << "execution = " << i << endl;
+            //srand(rseed[i]);
+
+            pclock.start();
+            Insertion insert(&problem);
+            Solution sol(&problem);
+            insert.solveBestInsertion(sol);
+            sol.recomputeCost();
+            pclock.end();
+
+            cout << "\tscore = " << sol.getTotalCost() << endl;
+            cout << "\tresolution time = " << pclock.getCpuTime() << endl;
+            score.push_back(sol.getTotalCost());
+            cpu.push_back(pclock.getCpuTime());
+
+            cout << "\tchecking solution .. ";
+            if (problem.isValidSolution(sol)) cout << "Ok";
+            else cout << "failed";
+            cout << endl;
+
+            cout << "\tSaving solution to " << Config::_outputDir + "/" + iteri->_fileName + ".sol" << " .. ";
+            stringstream header;
+            header << "execution = " << i << endl;
+            //header<<"seed = "<<rseed[i]<<endl;
+            //header<<"cpu = "<<pclock.getCpuTime()<<endl;
+            sol.saveHumanReadable(Config::_outputDir + "/" + iteri->_fileName + ".sol", header.str(), false);
+            cout << "Ok" << endl;
+        }
+
+        fh << ";";
+        double maxscore, minscore;
+        double avgscore,
+                maxcpu, mincpu, avgcpu;
+
+        Statistic::calMaxMinAvg(score, maxscore, minscore, avgscore);
+        Statistic::calMaxMinAvg(cpu, maxcpu, mincpu, avgcpu);
+
+        fh<<maxscore<<";"<<minscore<<";"<<avgscore<<";;";
+        fh<<maxcpu<<";"<<mincpu<<";"<<avgcpu<<";;";
+
+        fh<<Statistic::_nshift<<";";
+        fh<<Statistic::_nswap<<";";
+        fh<<Statistic::_nldr<<";";
+        fh<<Statistic::_nsdr;
+
+        fh << endl;
+    }
+
+    fh.close();
+}
+
 
 /*
 void buildTestSolution(Solution &s, Problem *p) {

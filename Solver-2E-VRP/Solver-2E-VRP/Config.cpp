@@ -32,10 +32,10 @@ unsigned int Config::_idchDestructionStep = 3; // small destruction step for IDC
 double Config::_alpha = 1;;// profit idch weight
 
 // Destroy operators parametres
-double Config::p1 = 0.15; // Proportion of customers to be removed by RandomRemoval
-double Config::p2 = 0.25; // Proportion of customers to be removed by WorstRemoval
-double Config::p3 = 0.12; // Proportion of customers to be removed by RelatedRemoval
-int    Config::p4 = 5; // Maximum number of routes to be removed by RouteRemoval
+double Config::p1 = 0.05; // Proportion of customers to be removed by RandomRemoval
+double Config::p2 = 0.1; // Proportion of customers to be removed by WorstRemoval
+double Config::p3 = 0.05; // Proportion of customers to be removed by RelatedRemoval
+int    Config::p4 = 3; // Maximum number of routes to be removed by RouteRemoval
 double Config::p5 = 0.2; // Probability for using SingleNodeRouteRemoval
 double Config::p6 = 0.15; // Probability for using Satellite Removal
 double Config::p7 = 0.1; // Probability for using Open Satellite

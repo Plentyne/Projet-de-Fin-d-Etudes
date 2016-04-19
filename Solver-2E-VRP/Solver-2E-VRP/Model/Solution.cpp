@@ -3,6 +3,7 @@
 //
 
 #include "Solution.h"
+#include "../Config.h"
 #include <fstream>
 
 const bool Solution::OPEN = true;
@@ -47,7 +48,7 @@ void Solution::print() {
     cout << "Total Cost : " << this->getTotalCost() << endl;
     cout << "1st Level vehicles used : " << this->e1Routes.size() << endl;
     cout << "2nd Level vehicles used : " << this->e2Routes.size() << endl;
-    cout << endl << "First level routes" << endl;
+    /*cout << endl << "First level routes" << endl;
     // 1st Level Routes
     for (int i = 0; i < this->e1Routes.size(); ++i) {
         cout << "    Route " << i << " : 0";
@@ -69,7 +70,7 @@ void Solution::print() {
         cout << " S" << this->e2Routes[i].departureSatellite + 1 << endl;
         cout << "        Cost : " << this->e2Routes[i].cost << endl;
         cout << "        Load : " << this->e2Routes[i].load << endl;
-    }
+    }*/
 }
 
 void Solution::saveHumanReadable(const string &fn, const string &header, const bool clrFile) {
@@ -112,6 +113,10 @@ void Solution::saveHumanReadable(const string &fn, const string &header, const b
 }
 
 void Solution::doQuickEvaluation() {
+    if (this->unroutedCustomers.size()>0) {
+        this->totalCost = Config::DOUBLE_INFINITY;
+        return;
+    }
     this->totalCost = 0;
     for (E2Route &e2route : this->e2Routes) {
         this->totalCost += e2route.cost;
@@ -122,6 +127,10 @@ void Solution::doQuickEvaluation() {
 }
 
 void Solution::recomputeCost() {
+    if (this->unroutedCustomers.size()>0) {
+        this->totalCost = Config::DOUBLE_INFINITY;
+        return;
+    }
     for (E2Route e2route : this->e2Routes) {
         e2route.cost = this->problem->getDistance(this->problem->getSatellite(e2route.departureSatellite),
                                                   this->problem->getClient(e2route.tour[0]))

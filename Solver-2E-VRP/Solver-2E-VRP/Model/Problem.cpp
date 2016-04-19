@@ -93,7 +93,11 @@ void Problem::setClient(const int &i, const Client &c) {
 }
 
 const Client Problem::getClient(const int i) const {
-    assert(i >= 0 && i < this->clients.size());
+    if (!(i >= 0 && i < this->clients.size())){
+        cout << "client demande : " << i << endl;
+        exit(2);
+    }
+    //assert(i >= 0 && i < this->clients.size());
     return this->clients[i];
 }
 
