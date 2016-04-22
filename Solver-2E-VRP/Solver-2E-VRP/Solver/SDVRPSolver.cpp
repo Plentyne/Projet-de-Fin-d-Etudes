@@ -25,7 +25,7 @@ bool sortingCriterion(L_Entry i, L_Entry j) {
  * Constructive Heuristic
  ******************************/
 void SDVRPSolver::constructiveHeuristic(Solution &solution) {
-
+    Solution save;
     std::fill(solution.getSatelliteDemands().begin(), solution.getSatelliteDemands().end(), 0);
     for (int i = 0; i < solution.getE2Routes().size(); ++i) {
         solution.getSatelliteDemands()[solution.getE2Routes()[i].departureSatellite] += solution.getE2Routes()[i].load;
@@ -50,6 +50,7 @@ void SDVRPSolver::constructiveHeuristic(Solution &solution) {
         L.push_back(l);
     }
     std::sort(L.begin(), L.end(), sortingCriterion);
+
     // While there are customers that haven't been served
     int c = 0;
     double cost, minCost;
@@ -81,7 +82,8 @@ void SDVRPSolver::constructiveHeuristic(Solution &solution) {
             }
         }
         // If the cheapest cost is lower than the cost of a returnig route, insert i int route r yielding the lowest cost.
-        if (minCost < 2 * problem->getDistance(problem->getDepot(), i)) {
+        if (minCost - 2 * problem->getDistance(problem->getDepot(), i) < -0.01) {
+
             E1Route &route = solution.getE1Routes()[insertRoute];
             route.cost += minCost;
             if (insertPos == route.tour.size()) {
@@ -128,16 +130,52 @@ void SDVRPSolver::constructiveHeuristic(Solution &solution) {
             // Update solution cost
             solution.setTotalCost(solution.getTotalCost() + route.cost);
         }
-
         // Todo enlever après
+        save = solution;
         this->applyRelocate(solution);
 
         // If U[i] is fully supplied, go to the next customer in L
         if (U[i.getSatelliteId()] == 0) c++;
     }
     // End While
+
+    //-----------------------------------
+    solution.recomputeCost();
+    /*if(solution.getTotalCost()<652) {
+        // Todo enlever après
+        cout << "Avant relocalte : " << endl;
+        for (int j = 0; j < save.getE1Routes().size(); ++j) {
+            cout << "Route " << j << " : ";
+            E1Route &route = save.getE1Routes()[j];
+            for (int k = 0; k < route.tour.size(); ++k) {
+                cout << " S" << route.tour[k] + 1;
+            }
+            cout << "\t Cost = " << route.cost<< endl;
+        }
+
+        // Todo enlever après
+        cout << "Apres relocalte : " << endl;
+        for (int j = 0; j < solution.getE1Routes().size(); ++j) {
+            cout << "Route " << j << " : ";
+            E1Route &route = solution.getE1Routes()[j];
+            for (int k = 0; k < route.tour.size(); ++k) {
+                cout << " S" << route.tour[k] + 1;
+            }
+            cout << "\t Cost = " << route.cost << endl;
+        }
+
+    }*/
     // Improve solution with local search Todo
-    this->applySwap(solution);
+
+    //--------------------------------
+    solution.recomputeCost();
+    if(solution.getTotalCost()<652) {
+        int x;
+        cout << endl;
+        solution.print();
+        cin >> x;
+    }
+    //this->applySwap(solution);
 
     // this->applyRelocate(solution);
     // Update satellite demands
@@ -314,6 +352,15 @@ double SDVRPSolver::applyOrOpt(E1Route &route, int seqLength) {
 double SDVRPSolver::applyRelocate(Solution &solution) {
     vector<E1Route> &routes = solution.getE1Routes();
 
+    /*cout << "Avant relocalte : " << endl;
+    for (int j = 0; j < solution.getE1Routes().size(); ++j) {
+        cout << "Route " << j << " : ";
+        E1Route &route = solution.getE1Routes()[j];
+        for (int k = 0; k < route.tour.size(); ++k) {
+            cout << " S" << route.tour[k] + 1;
+        }
+        cout << "\t Cost = " << route.cost << endl;
+    }*/
 
     bool improvement;
     int position;
@@ -359,8 +406,7 @@ double SDVRPSolver::applyRelocate(Solution &solution) {
 
                         for (int v = 0; v <= routes[u].tour.size(); ++v) {
                             // If it's the same satellite
-                            if (v < routes[u].tour.size() && routes[u].tour[v] == routes[i].tour[j]) {
-
+                            if ( (v < routes[u].tour.size()) && routes[u].tour[v] == routes[i].tour[j]) {
                                 bestInsertion = 0;
                                 bestRemoval = dRemoval;
                                 position = v;
@@ -402,10 +448,9 @@ double SDVRPSolver::applyRelocate(Solution &solution) {
 
                 // Update the route
                 if (bestRemoval + bestInsertion < -0.01) {
-
                     improvement = true;
                     // If customer exists in the route, only move its goods
-                    if (routes[i].tour[j] == routes[insertRoute].tour[position]) {
+                    if ( (position < routes[insertRoute].tour.size()) && routes[i].tour[j] == routes[insertRoute].tour[position]) {
                         routes[insertRoute].load += routes[i].satelliteGoods[j];
                         routes[insertRoute].satelliteGoods[position] += routes[i].satelliteGoods[j];
                     }
@@ -439,6 +484,16 @@ double SDVRPSolver::applyRelocate(Solution &solution) {
         }
     }
     while (improvement);
+
+    /*cout << "Apres relocalte : " << endl;
+    for (int j = 0; j < solution.getE1Routes().size(); ++j) {
+        cout << "Route " << j << " : ";
+        E1Route &route = solution.getE1Routes()[j];
+        for (int k = 0; k < route.tour.size(); ++k) {
+            cout << " S" << route.tour[k] + 1;
+        }
+        cout << "\t Cost = " << route.cost << endl;
+    }*/
 
     return oldCost - solution.getTotalCost();
 }
@@ -618,7 +673,7 @@ double SDVRPSolver::applySwap(Solution &solution) {
                                     // Update routes
                                     // Insert x into route Y
                                     // If customer exists in the route, only move its goods
-                                    if (routes[i].tour[j] == routeY.tour[xPosition]) {
+                                    if (xPosition < routeY.tour.size() && routes[i].tour[j] == routeY.tour[xPosition]) {
                                         routeY.load += routes[i].satelliteGoods[j];
                                         routeY.satelliteGoods[xPosition] += routes[i].satelliteGoods[j];
                                     }
@@ -637,7 +692,7 @@ double SDVRPSolver::applySwap(Solution &solution) {
                                     }
                                     // Insert y into route X
                                     // If customer exists in the route, only move its goods
-                                    if (routes[u].tour[v] == routeX.tour[yPosition]) {
+                                    if (yPosition < routeX.tour.size() && routes[u].tour[v] == routeX.tour[yPosition]) {
                                         routeX.load += routes[u].satelliteGoods[v];
                                         routeX.satelliteGoods[yPosition] += routes[u].satelliteGoods[v];
                                     }

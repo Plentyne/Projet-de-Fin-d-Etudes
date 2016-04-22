@@ -18,9 +18,9 @@ public:
 
     // Mouvements intra-route
     /* Applique 2-opt sur la tournée jusqu'à atteindre un optimum local (Strategie : Best Improvement)*/
-    bool apply2OptOnTour(E2Route &e2Route);
+    bool apply2OptOnTour(Solution &e2Route, int &routeIdx);
     /* Applique Or-opt à la tournée*/
-    bool applyOrOpt(E2Route &e2Route, int seqLength);
+    bool applyOrOpt(Solution &e2Route, int routeIdx, int seqLength);
     /* 3-opt */
     /* GENI Insertion */
     /* Satellite Change : changes the satellite of a route with a better one*/

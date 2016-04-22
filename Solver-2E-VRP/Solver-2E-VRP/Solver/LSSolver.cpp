@@ -9,7 +9,8 @@
 
 // Todo make first improvement
 // For now : does best improvement
-bool LSSolver::apply2OptOnTour(E2Route &e2Route) {
+bool LSSolver::apply2OptOnTour(Solution &solution, int &routeIdx) {
+    E2Route &e2Route = solution.getE2Routes()[routeIdx];
     if (e2Route.tour.size() <= 2) return false;
 
     double improved, minImproved;
@@ -20,44 +21,67 @@ bool LSSolver::apply2OptOnTour(E2Route &e2Route) {
     do {
         minImproved = 0;
         i = j = 0;
-
+        Node x,y,un,vn;
         // We try removing arcs (x,u) and (v,y) and replace them by (x,v) and (u,y)
         for (u = 0; u < e2Route.tour.size(); u++) { // inner loop
             if (u == 0)
-                dxu = this->problem->getDistance(this->problem->getSatellite(e2Route.departureSatellite),
-                                                 this->problem->getClient(e2Route.tour[u]));
+            {
+                x = this->problem->getSatellite(e2Route.departureSatellite);
+                un = this->problem->getClient(e2Route.tour[u]);
+                //dxu = this->problem->getDistance(this->problem->getSatellite(e2Route.departureSatellite),
+                                                 //this->problem->getClient(e2Route.tour[u]));
+            }
             else
-                dxu = this->problem->getDistance(this->problem->getClient(e2Route.tour[u - 1]),
-                                                 this->problem->getClient(e2Route.tour[u]));
+            {
+                x = this->problem->getClient(e2Route.tour[u - 1]);
+                un = this->problem->getClient(e2Route.tour[u]);
+                //dxu = this->problem->getDistance(this->problem->getClient(e2Route.tour[u - 1]),
+                                                 //this->problem->getClient(e2Route.tour[u]));
+            }
+
+            dxu = this->problem->getDistance(x,un);
 
             for (v = u + 1; v < e2Route.tour.size(); v++) {
                 if (v == e2Route.tour.size() - 1)
-                    dvy = this->problem->getDistance(this->problem->getClient(e2Route.tour[v]),
-                                                     this->problem->getSatellite(e2Route.departureSatellite));
+                {
+                    vn = this->problem->getClient(e2Route.tour[v]);
+                    y = this->problem->getSatellite(e2Route.departureSatellite);
+                    //dvy = this->problem->getDistance(this->problem->getClient(e2Route.tour[v]),
+                                                     //this->problem->getSatellite(e2Route.departureSatellite));
+                }
                 else
-                    dvy = this->problem->getDistance(this->problem->getClient(e2Route.tour[v]),
-                                                     this->problem->getClient(e2Route.tour[v + 1]));
+                {
+                    vn = this->problem->getClient(e2Route.tour[v]);
+                    y = this->problem->getClient(e2Route.tour[v + 1]);
+                    //dvy = this->problem->getDistance(this->problem->getClient(e2Route.tour[v]),
+                                                     //this->problem->getClient(e2Route.tour[v + 1]));
+                }
 
-                if (u == 0)
+                dvy = this->problem->getDistance(vn,y);
+
+                /*if (u == 0)
                     dxv = this->problem->getDistance(this->problem->getSatellite(e2Route.departureSatellite),
                                                      this->problem->getClient(e2Route.tour[v]));
                 else
                     dxv = this->problem->getDistance(this->problem->getClient(e2Route.tour[u - 1]),
                                                      this->problem->getClient(e2Route.tour[v]));
+                */
 
+                dxv = this->problem->getDistance(x,vn);
                 // If customers x and v can't be connected // Todo
                 if (dxv == Config::DOUBLE_INFINITY) continue;
-
-                if (v == e2Route.tour.size() - 1)
+                if (solution.Mask(x,vn)== Solution::PROHIBITED) continue;
+                /*if (v == e2Route.tour.size() - 1)
                     duy = this->problem->getDistance(this->problem->getClient(e2Route.tour[u]),
                                                      this->problem->getSatellite(e2Route.departureSatellite));
                 else
                     duy = this->problem->getDistance(this->problem->getClient(e2Route.tour[u]),
                                                      this->problem->getClient(e2Route.tour[v + 1]));
-
+                */
+                duy =  this->problem->getDistance(un,y);
                 // If customers u and y can't be connected / Todo
                 if (duy == Config::DOUBLE_INFINITY) continue;
-
+                if (solution.Mask(un,y)== Solution::PROHIBITED) continue;
                 improved = dxv + duy - (dxu + dvy);
 
                 if (improved - minImproved < -0.01) {
@@ -78,8 +102,8 @@ bool LSSolver::apply2OptOnTour(E2Route &e2Route) {
 
 // Todo make first improvement
 // For now : does best improvement
-bool LSSolver::applyOrOpt(E2Route &e2Route, int seqLength) {
-
+bool LSSolver::applyOrOpt(Solution &solution, int routeIdx, int seqLength) {
+    E2Route &e2Route = solution.getE2Routes()[routeIdx];
     if (seqLength < 1) return false;
     if (e2Route.tour.size() <= 2) return false;
     if (e2Route.tour.size() <= seqLength) return false;
@@ -122,6 +146,7 @@ bool LSSolver::applyOrOpt(E2Route &e2Route, int seqLength) {
 
             // If removing the sequence creates a prohibited arc Todo
             if (this->problem->getDistance(p, q) == Config::DOUBLE_INFINITY) continue;
+            if (solution.Mask(p,q)== Solution::PROHIBITED) continue;
             // else
             dRemoval = this->problem->getDistance(p, q) -
                        (this->problem->getDistance(p, i) + this->problem->getDistance(j, q));
@@ -150,6 +175,7 @@ bool LSSolver::applyOrOpt(E2Route &e2Route, int seqLength) {
                 if (this->problem->getDistance(k_1, i) == Config::DOUBLE_INFINITY
                     || this->problem->getDistance(j, k) == Config::DOUBLE_INFINITY)
                     continue;
+                if(solution.Mask(k_1,i)==Solution::PROHIBITED || solution.Mask(j,k)==Solution::PROHIBITED) continue;
                 // else
                 dInsertion = this->problem->getDistance(k_1, i) + this->problem->getDistance(j, k) -
                              this->problem->getDistance(k_1, k);
@@ -299,6 +325,7 @@ bool LSSolver::applyRelocate(Solution &solution) {
 
                 // If the nodes p and q can not be connected Todo
                 if (this->problem->getDistance(p, q) == Config::DOUBLE_INFINITY) continue;
+                if (solution.Mask(p,q)==Solution::PROHIBITED) continue; // Granularity principle
                 // Else
                 dRemoval = this->problem->getDistance(p, q) -
                            (this->problem->getDistance(p, client) + this->problem->getDistance(client, q));
@@ -306,6 +333,7 @@ bool LSSolver::applyRelocate(Solution &solution) {
                 // For each route t in solution.getE2Routes() do
                 for (int t = 0; t < solution.getE2Routes().size(); ++t) {
                     // If same route then ignore it
+                    // Todo : change so it doesn't ignore the same route anymore
                     if (t == r) continue;
                     // If not enough space, then ignore the route
                     if (client.getDemand() > this->problem->getE2Capacity() - solution.getE2Routes()[t].load) continue;
@@ -330,6 +358,9 @@ bool LSSolver::applyRelocate(Solution &solution) {
                         if (this->problem->getDistance(u, client) == Config::DOUBLE_INFINITY
                             || this->problem->getDistance(client, v) == Config::DOUBLE_INFINITY)
                             continue;
+                        if (solution.Mask(u,client)==Solution::PROHIBITED
+                            || solution.Mask(client,v)==Solution::PROHIBITED ) continue; // Granularity principle
+                        // Else : if possible
                         dInsertion = (this->problem->getDistance(u, client) + this->problem->getDistance(client, v)) -
                                      this->problem->getDistance(u, v);
 
@@ -429,7 +460,7 @@ bool LSSolver::applySwap(Solution &solution) {
                         // Get client Y
                         Client yClient = this->problem->getClient(solution.getE2Routes()[t].tour[y]);
                         // if the client had already been swapped, then ignore it
-                        //if(swaped[solution.getE2Routes()[r].tour[x]]) continue;
+                        // if(swaped[solution.getE2Routes()[r].tour[x]]) continue;
                         // If there isn't enough space in vehicles for swapping
                         if ((solution.getE2Routes()[r].load - xClient.getDemand() + yClient.getDemand() >
                              this->problem->getE2Capacity())
@@ -438,6 +469,9 @@ bool LSSolver::applySwap(Solution &solution) {
                             continue;
                         }
 
+                        // If the insertion of y doesn't respect the granularity principle
+                        if (solution.Mask(p,yClient)==Solution::PROHIBITED ||
+                            solution.Mask(yClient,q)==Solution::PROHIBITED) continue; // Granularity principle
                         // Compute the cost for inserting y in x's location  : yInsertion
                         yInsertion = this->problem->getDistance(p, yClient) + this->problem->getDistance(yClient, q);
                         // if the insertion is impossible Todo
@@ -455,6 +489,10 @@ bool LSSolver::applySwap(Solution &solution) {
                         else
                             v = this->problem->getClient(solution.getE2Routes()[t].tour[y + 1]);
 
+                        // If the insertion of x doesn't respect the granularity principle
+                        if (solution.Mask(u,xClient)==Solution::PROHIBITED ||
+                                solution.Mask(xClient,v)==Solution::PROHIBITED) continue; // Granularity principle
+                        // Else
                         xInsertion = (this->problem->getDistance(u, xClient) + this->problem->getDistance(xClient, v));
                         // If the insertion is impossible
                         if (xInsertion >= Config::DOUBLE_INFINITY) continue;
@@ -559,25 +597,44 @@ bool LSSolver::apply2optStar(Solution &solution) {
                         // try the first change : (p,q) , (p+1,q+1)
                         if ((load1 + load2 <= problem->getE2Capacity()) &&
                             (r1.load - load1 + r2.load - load2 <= problem->getE2Capacity())) {
-                            // Todo vérifier la granularité
-                            delta1 = problem->getDistance(p, q) + problem->getDistance(p_1, q_1) -
-                                     (problem->getDistance(p, p_1) + problem->getDistance(q, q_1));
-                            if (delta1 < -0.01) {
-                                improvement = true;
-                                choice = 1;
+                            // If the nodes can not be connected this way Todo
+                            if ( !(this->problem->getDistance(p, q) == Config::DOUBLE_INFINITY
+                                || solution.Mask(p,q)==Solution::PROHIBITED
+                                ||this->problem->getDistance(p_1, q_1) == Config::DOUBLE_INFINITY
+                                || solution.Mask(p_1,q_1)==Solution::PROHIBITED) ){
+
+                                delta1 = problem->getDistance(p, q) + problem->getDistance(p_1, q_1) -
+                                         (problem->getDistance(p, p_1) + problem->getDistance(q, q_1));
+                                if (delta1 < -0.01) {
+                                    improvement = true;
+                                    choice = 1;
+                                }
+
                             }
+
+
                         }
 
                         // try the first change : (p,q+1) , (p+1,q)
                         if ((load1 + r2.load - load2 <= problem->getE2Capacity()) &&
                             (load2 + r1.load - load1 <= problem->getE2Capacity())) {
-                            // Todo vérifier la granularité
-                            delta2 = problem->getDistance(p, q_1) + problem->getDistance(p_1, q) -
-                                     (problem->getDistance(p, p_1) + problem->getDistance(q, q_1));
-                            if (delta2 < -0.01 && delta2 < delta1) {
-                                improvement = true;
-                                choice = 2;
+
+                            // If the nodes can not be connected this way Todo
+                            if ( ! (this->problem->getDistance(p, q_1) == Config::DOUBLE_INFINITY
+                                || solution.Mask(p,q_1)==Solution::PROHIBITED
+                                ||this->problem->getDistance(p_1, q) == Config::DOUBLE_INFINITY
+                                || solution.Mask(p_1,q)==Solution::PROHIBITED)) {
+
+                                delta2 = problem->getDistance(p, q_1) + problem->getDistance(p_1, q) -
+                                         (problem->getDistance(p, p_1) + problem->getDistance(q, q_1));
+                                if (delta2 < -0.01 && delta2 < delta1) {
+                                    improvement = true;
+                                    choice = 2;
+                                }
+
                             }
+
+
                         }
                         //update routes if there is improvement
                         position1 = i + 1;

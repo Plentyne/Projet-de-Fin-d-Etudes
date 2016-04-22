@@ -39,6 +39,6 @@ set(SOURCE_FILES
         Solver-2E-VRP/Solver-2E-VRP/Solver/IDCH.h
         Solver-2E-VRP/Solver-2E-VRP/Solver/Sequence.cpp
         Solver-2E-VRP/Solver-2E-VRP/Solver/Sequence.h
-        )
+        Solver-2E-VRP/Solver-2E-VRP/Model/Mask.cpp Solver-2E-VRP/Solver-2E-VRP/Model/Mask.h)
 
 add_executable(Projet_de_Fin_d_Etudes ${SOURCE_FILES})

@@ -24,7 +24,7 @@ Solution &Solution::operator=(const Solution &solution) {
     this->openSatellites = solution.openSatellites;
     this->satelliteAssignedRoutes.assign(solution.satelliteAssignedRoutes.begin(),
                                          solution.satelliteAssignedRoutes.end());
-    this->mask.assign(solution.mask.begin(), solution.mask.end());
+    this->mask = vector<vector<short>>(solution.mask.begin(), solution.mask.end());
     return *this;
 }
 
@@ -40,7 +40,8 @@ Solution::Solution(const Solution &solution) {
     this->satelliteAssignedRoutes = vector<int>(solution.satelliteAssignedRoutes.begin(),
                                                 solution.satelliteAssignedRoutes.end());
     this->openSatellites = solution.openSatellites;
-    this->mask.assign(solution.mask.begin(), solution.mask.end());
+
+    this->mask = vector<vector<short>>(solution.mask.begin(), solution.mask.end());
 }
 
 void Solution::print() {
@@ -48,7 +49,7 @@ void Solution::print() {
     cout << "Total Cost : " << this->getTotalCost() << endl;
     cout << "1st Level vehicles used : " << this->e1Routes.size() << endl;
     cout << "2nd Level vehicles used : " << this->e2Routes.size() << endl;
-    /*cout << endl << "First level routes" << endl;
+    cout << endl << "First level routes" << endl;
     // 1st Level Routes
     for (int i = 0; i < this->e1Routes.size(); ++i) {
         cout << "    Route " << i << " : 0";
@@ -70,7 +71,7 @@ void Solution::print() {
         cout << " S" << this->e2Routes[i].departureSatellite + 1 << endl;
         cout << "        Cost : " << this->e2Routes[i].cost << endl;
         cout << "        Load : " << this->e2Routes[i].load << endl;
-    }*/
+    }
 }
 
 void Solution::saveHumanReadable(const string &fn, const string &header, const bool clrFile) {
@@ -158,6 +159,10 @@ void Solution::setUpMask(double granularityThreshold) {
      * For each arc a in solution do
      *      mask(a) = Permited
      * End for
+     *
+     * For each arc a in the Best Solution do
+     *      mask(a) = Permitted
+     * End For
      * */
 
     for (int i = 0; i < problem->getClients().size(); ++i) {
@@ -184,4 +189,23 @@ void Solution::setUpMask(double granularityThreshold) {
                     route.tour[j]).getNodeId()] = Solution::PERMITED;
         }
     }
+}
+
+void Solution::setUpMask(Solution &solution) {
+    for (int i = 0; i < solution.getE2Routes().size(); ++i) {
+        E2Route &route = solution.getE2Routes()[i];
+        for (int j = 0; j < route.tour.size() - 1; ++j) {
+            mask[problem->getClient(route.tour[j]).getNodeId()][problem->getClient(
+                    route.tour[j + 1]).getNodeId()] = Solution::PERMITED;
+            mask[problem->getClient(route.tour[j + 1]).getNodeId()][problem->getClient(
+                    route.tour[j]).getNodeId()] = Solution::PERMITED;
+        }
+    }
+}
+
+double Solution::computeGranularityThreshold() {
+    double thresh = 0;
+    for(E2Route &route : this->e2Routes) thresh += route.cost;
+    thresh = thresh / (problem->getClients().size()+this->e2Routes.size());
+    return thresh * 2.5;
 }

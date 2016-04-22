@@ -9,6 +9,9 @@
 #include <algorithm>
 #include "../Config.h"
 #include "../Statistic.h"
+
+// TODO Granularity Principle
+
 /****************************************************
  *  
  *                IDCH HEURISTICS
@@ -133,6 +136,10 @@ void IDCH::heuristicIDCH(Solution &bestSolution) {
     double dmax = 3;
     double beta;
 
+    double thresh = bestSolution.computeGranularityThreshold();
+    solution.setUpMask(thresh);
+    solution.setUpMask(bestSolution);
+
     while (iter < itermax) {
 
         //cout << "debut boucle" << endl;
@@ -155,6 +162,9 @@ void IDCH::heuristicIDCH(Solution &bestSolution) {
         // Réparation de la solution
         //cout << "avant repair" << endl;
         this->doRepair(solution);
+
+        solution.setUpMask(thresh);
+        solution.setUpMask(bestSolution);
 
         if(solution.getTotalCost() == Config::DOUBLE_INFINITY) {
             solution = bestSolution;
@@ -197,23 +207,42 @@ void IDCH::heuristicFastIDCH(Solution &bestSolution) {
 
     Solution solution = bestSolution;
 
+    double thresh = bestSolution.computeGranularityThreshold();
+    solution.setUpMask(thresh);
+    solution.setUpMask(bestSolution);
+
     while (iter < itermax) {
+        //cout << "thresh = " << thresh << endl;
+        //cout << "Before Destroy !!" << endl;
         // Destruction de la solution
-        //this->doDestroySmall(solution);
-        this->doDestroyLarge(solution);
+        this->doDestroySmall(solution);
+        //cout << "After Destroy !!" << endl;
+        //this->doDestroyLarge(solution);
         // Perturbation de la solution
         this->apply2OptOnEachTour(solution);
 
         // Réparation de la solution
+        //cout << "Before Repair !!" << endl;
         this->doRepair(solution);
+        //cout << "After Repair !!" << endl;
+        solution.setUpMask(thresh);
+        solution.setUpMask(bestSolution);
 
-        // local search
-        this->doLocalSearch(solution);
+        if(solution.getTotalCost()==Config::DOUBLE_INFINITY) {
+            solution = bestSolution;
+            iter++;
+        }
+        else {
+            // local search
+            this->doLocalSearch(solution);
 
-        if (solution.getTotalCost() < bestSolution.getTotalCost()) {
-            bestSolution = solution;
-            iter = 0;
-        } else iter++;
+            if (solution.getTotalCost() - bestSolution.getTotalCost() < -0.01) {
+                bestSolution = solution;
+                thresh = bestSolution.computeGranularityThreshold();
+                iter = 0;
+            } else iter++;
+        }
+
     }
 }
 
@@ -657,8 +686,8 @@ void IDCH::doOpenAllSatellites(Solution &solution) {
 bool IDCH::apply2OptOnEachTour(Solution &solution) {
     bool improvement = false;
     double imp = 0;
-    for (E2Route &route : solution.getE2Routes()) {
-        improvement = improvement || lsSolver.apply2OptOnTour(route);
+    for (int i = 0; i<solution.getE2Routes().size();i++) {
+        improvement = improvement || lsSolver.apply2OptOnTour(solution,i);
     }
     return improvement;
 }
@@ -691,10 +720,10 @@ void IDCH::doDestroySmall(Solution &solution) {
 /* Todo 1 changer les paramètres
      * Todo 2 implémenter un schéma pour l'utilisation des opérateurs
     */
-    this->doRandomRemoval(solution, Config::p1);
-    this->doWorstRemoval(solution, Config::p2);
-    this->doRelatedRemoval(solution, Config::p3);
-    this->doRouteRemoval(solution, Config::p4);
+    this->doRandomRemoval(solution, Config::p1*2);
+    this->doWorstRemoval(solution, Config::p2*2);
+    this->doRelatedRemoval(solution, Config::p3*2);
+    this->doRouteRemoval(solution, Config::p4*2);
     /*double p = Utility::randomDouble(0,1);
     if(p<0.2) this->doRemoveSingleNodeRoutes(solution);
     p = Utility::randomDouble(0,1);
@@ -761,7 +790,6 @@ double IDCH::removalCost(Solution &solution, int customer, int route) {
     else return problem->getDistance(p, q) - (problem->getDistance(p, c) + problem->getDistance(c, q));
 }
 
-// Todo Implement Local Search Step for IDCH
 bool IDCH::doLocalSearch(Solution &solution) {
 
     /*double imp;
@@ -790,6 +818,8 @@ bool IDCH::doLocalSearch(Solution &solution) {
             nusage[] = {0, 0, 0, 0},
             nusagemax[] = {1, 1, 1, 1};
     bool stop = false;
+
+    //cout << "Before LS" << endl;
 
     while (!stop) {
         do { selected = rand() % nneighbor; } while (nusage[selected] >= nusagemax[selected]);
@@ -847,13 +877,12 @@ bool IDCH::doLocalSearch(Solution &solution) {
             if (nusage[i] < nusagemax[i]) break;
         }
 
-        solution.doQuickEvaluation();
-
         if (i >= nneighbor) stop = true;
     }
-
+    //cout << "In LS before Repair" << endl;
     if (improvement) this->doRepair(solution);
-
+    //cout << "In LS after Repair" << endl;
+    //cout << "After LS" << endl;
     return improvement;
 }
 

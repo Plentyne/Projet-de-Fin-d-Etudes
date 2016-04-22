@@ -7,15 +7,6 @@
 #include "../Config.h"
 #include "../Utility.h"
 
-bool Insertion::apply2OptOnEachTour(Solution &solution) {
-    bool improvement = false;
-    double imp = 0;
-    for (E2Route &route : solution.getE2Routes()) {
-        improvement = improvement || lsSolver.apply2OptOnTour(route);
-    }
-    return improvement;
-}
-
 struct reinsertEntry {
     int clientId;
     int demand;
@@ -24,6 +15,7 @@ struct reinsertEntry {
 bool mySortFunction(reinsertEntry i, reinsertEntry j) { return (i.demand < j.demand); }
 
 double Insertion::distanceCost(Solution &solution, int client, int route, int position) {
+    //cout << "In distance Cost " << endl;
     Node p, q, c;
     c = problem->getClient(client);
     if (position == 0) {
@@ -39,15 +31,24 @@ double Insertion::distanceCost(Solution &solution, int client, int route, int po
         q = problem->getClient(solution.getE2Routes()[route].tour[position]);
     }
     // If arcs were removed because of the granularity threshold
-    if (solution.Mask(p, c) == Solution::PROHIBITED
-        || solution.Mask(c, q) == Solution::PROHIBITED)
+    if (mask && (solution.Mask(p, c) == Solution::PROHIBITED
+                 || solution.Mask(c, q) == Solution::PROHIBITED))
+    {
+        //cout << "Out distance Cost mask" << endl;
         return Config::DOUBLE_INFINITY;
+    }
         // If one arc at least doesn't exist
     else if (problem->getDistance(p, c) == Config::DOUBLE_INFINITY ||
              problem->getDistance(c, q) == Config::DOUBLE_INFINITY)
+    {
+        //cout << "Out distance Cost inf " << endl;
         return Config::DOUBLE_INFINITY;
+    }
         // Else
-    else return problem->getDistance(p, c) + problem->getDistance(c, q) - problem->getDistance(p, q);
+    else {
+        //cout << "Out distance Cost normal" << endl;
+        return problem->getDistance(p, c) + problem->getDistance(c, q) - problem->getDistance(p, q);
+    }
 }
 
 double Insertion::biasedDistanceCost(Solution &solution, int client, int route, int position) {
@@ -68,8 +69,8 @@ double Insertion::biasedDistanceCost(Solution &solution, int client, int route, 
     }
 
     // If arcs were removed because of the granularity threshold
-    if (solution.Mask(p, c) == Solution::PROHIBITED
-        || solution.Mask(c, q) == Solution::PROHIBITED)
+    if (mask && (solution.Mask(p, c) == Solution::PROHIBITED
+        || solution.Mask(c, q) == Solution::PROHIBITED))
         return Config::DOUBLE_INFINITY;
         // If one arc at least doesn't exist
     else if (problem->getDistance(p, c) == Config::DOUBLE_INFINITY ||
@@ -208,7 +209,7 @@ bool Insertion::GreedyInsertionHeuristic(Solution &solution) {
     int insertSatellite;
     bool feasible;
     int restart = 0;
-
+    mask = true;
     // Sauvegarder la solution en entrée
     Solution save(solution);
 
@@ -259,11 +260,11 @@ bool Insertion::GreedyInsertionHeuristic(Solution &solution) {
                 if (solution.satelliteAssignedRoutes[i] >= problem->getMaxCf()) continue;
                 // Estimer le coût d'insertion de c
                 cost = 2 * problem->getDistance(solution.getProblem()->getSatellite(i), tmpClient);
-                double e1cost = e1Solver.insertionCost(solution, i, tmpClient.getDemand());
+                //double e1cost = e1Solver.insertionCost(solution, i, tmpClient.getDemand());
                 // Si il est meilleure que celui de la meilleure insertion actuelle alors le garder
-                if (cost + e1cost < minCost) {
+                if (cost  < minCost) {
                     feasible = true;
-                    minCost = cost+e1cost ;
+                    minCost = cost ;
                     insertSatellite = i;
                 }
                 // FSI
@@ -286,12 +287,19 @@ bool Insertion::GreedyInsertionHeuristic(Solution &solution) {
         }
         else { //Si aucune insertion feasable, alors retirer des clients de la solution et rajouter c à la liste des clients non routés TODO
                 // Annuler des insertions et recommencer
-            solution = save;
             restart ++;
+            if (restart == maxRestart-1) {
+                mask = false;
+                solution.unroutedCustomers.push_back(tmpClient.getClientId());
+                continue;
+            }
+
+            solution = save;
             if(restart>this->maxRestart) {
                 solution.setTotalCost(Config::DOUBLE_INFINITY);
                 return false;
             }
+
             //cancelInsertions(solution, tmpClient.getClientId());
         }
     }
@@ -563,12 +571,12 @@ bool Insertion::BestInsertionHeuristic(Solution &solution) {
         }
         else { //Si aucune insertion feasable, alors retirer des clients de la solution et rajouter c à la liste des clients non routés TODO
             // Annuler des insertions et recommencer
-            solution = save;
             restart++;
             if(restart>this->maxRestart) {
                 solution.setTotalCost(Config::DOUBLE_INFINITY);
                 return false;
             }
+            solution = save;
             //cancelInsertions(solution, tmpClient.getClientId());
         }
     }

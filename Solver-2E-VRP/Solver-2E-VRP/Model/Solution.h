@@ -82,6 +82,10 @@ public:
 
     void setUpMask(double granularityThreshold);
 
+    void setUpMask(Solution &solution);
+
+    double computeGranularityThreshold();
+
     short Mask(Node c1, Node c2) {
         return mask[c1.getNodeId()][c2.getNodeId()];
     }

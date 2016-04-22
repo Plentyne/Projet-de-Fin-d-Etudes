@@ -366,26 +366,6 @@ void MoleJamesonHeuristic::solve(Solution &solution) {
     // Réparer si le nombre de tournées du 2nd echelon est trop grand
     // TODO Feasability Search
 
-    // Amélioration de la tournée Todo Enlever après
-    LSSolver ls(this->problem);
-    int imp;
-    do {
-        imp = solution.getTotalCost();
-
-        ls.applySwap(solution);
-        ls.applyRelocate(solution);
-        for (E2Route &e2route : solution.getE2Routes()) {
-            solution.setTotalCost(solution.getTotalCost() - e2route.cost);
-
-            ls.applyOrOpt(e2route, 1);
-            ls.applyOrOpt(e2route, 2);
-            ls.applyOrOpt(e2route, 3);
-            ls.apply2OptOnTour(e2route);
-            solution.setTotalCost(solution.getTotalCost() + e2route.cost);
-        }
-        imp = solution.getTotalCost() - imp;
-    } while (imp < -0.01);
-
     //--------------------------------------------
 
     // Construire les tournées du premier échelon

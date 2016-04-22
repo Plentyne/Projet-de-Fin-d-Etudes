@@ -28,6 +28,7 @@ private:
 
     int lastCanceled;
     int cancelations;
+    bool mask = false;
 
     double distanceCost(Solution &solution, int client, int route, int position);
 
